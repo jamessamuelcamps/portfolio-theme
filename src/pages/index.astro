@@ -5,9 +5,7 @@ import WritingCard from '../components/WritingCard.astro';
 import { getCollection } from 'astro:content';
 
 const allProjects = await getCollection('projects');
-const featuredProjects = allProjects
-  .sort((a, b) => a.data.order - b.data.order)
-  .slice(0, 4);
+const sortedProjects = allProjects.sort((a, b) => a.data.order - b.data.order);
 
 const allWriting = await getCollection('writing');
 const recentWriting = allWriting
@@ -19,16 +17,40 @@ const recentWriting = allWriting
   <div class="container">
     <!-- Hero Section -->
     <section class="hero-section">
-      <div class="hero-badge">Product Designer</div>
+      <div class="hero-role-badge">Lead Product Designer</div>
       <h1 class="hero-headline">
-        Designing clear, human-centered digital products & design systems.
+        I specialise in complex B2B/B2C fintech infrastructure, design systems, and product velocity.
       </h1>
       <p class="hero-subtext">
-        I am James Samuel Camps, a product designer based in the UK. I specialize in untangling complex systems, building robust multi-platform component libraries, and designing intuitive interfaces for fintech, enterprise, and mobile apps.
+        Over 15 years in design, I build scalable frameworks and UI architecture that help product teams ship better software, faster. I’m also building <a href="https://github.com/jamessamuelcamps/tilia" target="_blank" rel="noopener noreferrer" class="highlight-link">Tilia</a>, a free UX research platform for solo practitioners, small product teams, and founders.
       </p>
+
+      <div class="status-pill">
+        <span class="status-dot"></span>
+        <span>Currently open to new opportunities</span>
+      </div>
+
       <div class="hero-actions">
-        <a href="/work" class="btn btn-primary">View Case Studies</a>
-        <a href="#about" class="btn btn-outline">About Me</a>
+        <a href="#work" class="btn btn-primary">Selected Work</a>
+        <a href="/about" class="btn btn-outline">About & Mindset</a>
+        <a href="mailto:hello@james-sc.co.uk" class="btn btn-outline">Get in Touch</a>
+      </div>
+
+      <div class="quote-card">
+        <p class="quote-text">“I’d rather he didn’t come back at all. His trainers are shit and he’s too tall. No-one even likes him.”</p>
+        <span class="quote-cite">— Design Director, VML</span>
+      </div>
+    </section>
+
+    <!-- Client Logos Banner -->
+    <section class="clients-banner">
+      <p class="clients-label">Previously worked with</p>
+      <div class="clients-track">
+        <img 
+          src="/images/about/logos-2-1024x63.png" 
+          alt="Tide, Moneybox, YouLend, and other client logos" 
+          class="clients-img"
+        />
       </div>
     </section>
 
@@ -36,46 +58,48 @@ const recentWriting = allWriting
     <section class="section" id="work">
       <div class="section-header">
         <div>
-          <h2 class="section-title">Selected Work</h2>
-          <p class="section-description">Deep dives into recent product design challenges, processes, and business outcomes.</p>
+          <h2 class="section-title">Case Studies</h2>
+          <p class="section-description">Detailed breakdowns of fintech infrastructure, onboarding journeys, and design systems.</p>
         </div>
         <a href="/work" class="section-link">View All Work →</a>
       </div>
 
       <div class="projects-grid">
-        {featuredProjects.map((project) => (
+        {sortedProjects.map((project) => (
           <ProjectCard project={project} />
         ))}
       </div>
     </section>
 
-    <!-- Recent Writing Section -->
-    <section class="section" id="writing">
-      <div class="section-header">
-        <div>
-          <h2 class="section-title">Writing & Thoughts</h2>
-          <p class="section-description">Observations on design tokens, systems thinking, and product craft.</p>
+    <!-- Writing Section -->
+    {recentWriting.length > 0 && (
+      <section class="section" id="writing">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Writing & Insights</h2>
+            <p class="section-description">Thoughts on design engineering, system architecture, and UX methodologies.</p>
+          </div>
+          <a href="/writing" class="section-link">View All Writing →</a>
         </div>
-        <a href="/writing" class="section-link">View All Writing →</a>
-      </div>
 
-      <div class="writing-list">
-        {recentWriting.map((post) => (
-          <WritingCard post={post} />
-        ))}
-      </div>
-    </section>
+        <div class="writing-list">
+          {recentWriting.map((post) => (
+            <WritingCard post={post} />
+          ))}
+        </div>
+      </section>
+    )}
 
-    <!-- About / Contact Section -->
-    <section class="section" id="about">
-      <div class="about-card">
-        <h2 class="about-title">Let’s build something thoughtful together</h2>
-        <p class="about-text">
-          Whether you’re establishing a zero-to-one design system, evolving a complex enterprise workflow, or looking for product design leadership, I’d love to chat.
+    <!-- Contact CTA Section -->
+    <section class="section" id="contact">
+      <div class="contact-cta">
+        <h2 class="contact-headline">Let's talk about your next product challenge</h2>
+        <p class="contact-subtext">
+          Whether you need leadership across complex fintech workflows, a zero-to-one design system, or a pragmatic maker to accelerate roadmap execution.
         </p>
-        <div class="about-actions">
-          <a href="mailto:james@example.com" class="btn btn-primary">Say Hello</a>
-          <a href="https://github.com/jamessamuelcamps" target="_blank" rel="noopener noreferrer" class="btn btn-outline">GitHub Profile</a>
+        <div class="contact-btn-group">
+          <a href="mailto:hello@james-sc.co.uk" class="btn btn-primary">hello@james-sc.co.uk</a>
+          <a href="https://www.linkedin.com/in/jamessc/" target="_blank" rel="noopener noreferrer" class="btn btn-outline">Connect on LinkedIn</a>
         </div>
       </div>
     </section>
@@ -84,11 +108,11 @@ const recentWriting = allWriting
 
 <style>
   .hero-section {
-    padding: var(--space-12) 0 var(--space-16);
-    max-width: 780px;
+    padding: var(--space-8) 0 var(--space-12);
+    max-width: 820px;
   }
 
-  .hero-badge {
+  .hero-role-badge {
     display: inline-block;
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
@@ -99,8 +123,8 @@ const recentWriting = allWriting
   }
 
   .hero-headline {
-    font-size: var(--font-size-4xl);
-    line-height: var(--line-height-tight);
+    font-size: var(--font-size-3xl);
+    line-height: 1.25;
     color: var(--color-text);
     margin-bottom: var(--space-6);
   }
@@ -115,13 +139,97 @@ const recentWriting = allWriting
     font-size: var(--font-size-lg);
     line-height: var(--line-height-relaxed);
     color: var(--color-text-secondary);
+    margin-bottom: var(--space-6);
+  }
+
+  .highlight-link {
+    color: var(--color-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: var(--font-weight-medium);
+  }
+
+  .highlight-link:hover {
+    color: var(--color-accent);
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 0.35rem 0.85rem;
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
     margin-bottom: var(--space-8);
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #10b981;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
   }
 
   .hero-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-4);
+    gap: var(--space-3);
+    margin-bottom: var(--space-10);
+  }
+
+  .quote-card {
+    background-color: var(--color-surface);
+    border-left: 3px solid var(--color-border-strong);
+    padding: var(--space-4) var(--space-5);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    max-width: 600px;
+  }
+
+  .quote-text {
+    font-size: var(--font-size-sm);
+    font-style: italic;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-1);
+    line-height: var(--line-height-normal);
+  }
+
+  .quote-cite {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .clients-banner {
+    padding: var(--space-8) 0;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .clients-label {
+    font-size: var(--font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-4);
+  }
+
+  .clients-track {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-5) var(--space-6);
+    display: flex;
+    justify-content: center;
+  }
+
+  .clients-img {
+    max-width: 100%;
+    height: auto;
+    filter: grayscale(100%);
+    opacity: 0.8;
   }
 
   .section {
@@ -179,26 +287,26 @@ const recentWriting = allWriting
     gap: var(--space-6);
   }
 
-  .about-card {
+  .contact-cta {
     background-color: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    padding: var(--space-8);
+    padding: var(--space-10);
     max-width: 720px;
   }
 
-  .about-title {
+  .contact-headline {
     font-size: var(--font-size-2xl);
     margin-bottom: var(--space-3);
   }
 
-  .about-text {
+  .contact-subtext {
     font-size: var(--font-size-base);
     color: var(--color-text-secondary);
     margin-bottom: var(--space-6);
   }
 
-  .about-actions {
+  .contact-btn-group {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-3);

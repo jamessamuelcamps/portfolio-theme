@@ -39,3 +39,4 @@ export const collections = {
   projects,
   writing,
 };
+

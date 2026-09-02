@@ -5,13 +5,15 @@ const currentYear = new Date().getFullYear();
 <footer class="site-footer">
   <div class="container footer-inner">
     <div class="footer-meta">
-      <p class="copyright">© {currentYear} James Samuel Camps. All rights reserved.</p>
-      <p class="hosting-note">Built with Astro & Vanilla CSS · Hosted on Dreamhost</p>
+      <p class="copyright">© {currentYear} James Samuel-Camps. All rights reserved.</p>
+      <p class="hosting-note">Lead Product Designer · Built with Astro & Vanilla CSS</p>
     </div>
 
     <div class="footer-links">
+      <a href="mailto:hello@james-sc.co.uk">hello@james-sc.co.uk</a>
+      <a href="https://www.linkedin.com/in/jamessc/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a href="https://www.instagram.com/james_sc/" target="_blank" rel="noopener noreferrer">Instagram</a>
       <a href="https://github.com/jamessamuelcamps" target="_blank" rel="noopener noreferrer">GitHub</a>
-      <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">LinkedIn</a>
     </div>
   </div>
 </footer>
@@ -57,6 +59,7 @@ const currentYear = new Date().getFullYear();
 
   .footer-links {
     display: flex;
+    flex-wrap: wrap;
     gap: var(--space-4);
     font-size: var(--font-size-sm);
   }
@@ -71,4 +74,3 @@ const currentYear = new Date().getFullYear();
     text-decoration: underline;
   }
 </style>
-
