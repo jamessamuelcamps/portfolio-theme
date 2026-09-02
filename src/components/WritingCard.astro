@@ -1,0 +1,78 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  post: CollectionEntry<'writing'>;
+}
+
+const { post } = Astro.props;
+const { title, description, publishDate, tags } = post.data;
+
+const formattedDate = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+}).format(publishDate);
+---
+
+<article class="writing-card">
+  <a href={`/writing/${post.id}`} class="writing-link">
+    <div class="writing-meta">
+      <time datetime={publishDate.toISOString()}>{formattedDate}</time>
+    </div>
+    <h3 class="writing-title">{title}</h3>
+    <p class="writing-description">{description}</p>
+    {tags && tags.length > 0 && (
+      <div class="badges-group writing-tags">
+        {tags.map((tag) => (
+          <span class="badge">{tag}</span>
+        ))}
+      </div>
+    )}
+  </a>
+</article>
+
+<style>
+  .writing-card {
+    padding-bottom: var(--space-6);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .writing-card:last-child {
+    border-bottom: none;
+  }
+
+  .writing-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .writing-meta {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-2);
+  }
+
+  .writing-title {
+    font-size: var(--font-size-lg);
+    color: var(--color-text);
+    margin-bottom: var(--space-2);
+    transition: color var(--transition-fast);
+  }
+
+  .writing-link:hover .writing-title {
+    color: var(--color-accent);
+  }
+
+  .writing-description {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-3);
+  }
+
+  .writing-tags {
+    margin-top: var(--space-2);
+  }
+</style>
+

@@ -1,0 +1,52 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import WritingCard from '../../components/WritingCard.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('writing')).sort(
+  (a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime()
+);
+---
+
+<BaseLayout 
+  title="Writing · James Samuel Camps" 
+  description="Thoughts on product design, design tokens, systems, and design engineering."
+>
+  <div class="container-prose">
+    <header class="page-header">
+      <h1 class="page-title">Writing</h1>
+      <p class="page-subtitle">
+        Articles, essays, and notes on digital product design, design tokens, and user experience.
+      </p>
+    </header>
+
+    <div class="writing-stack">
+      {posts.map((post) => (
+        <WritingCard post={post} />
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-header {
+    margin-bottom: var(--space-12);
+  }
+
+  .page-title {
+    font-size: var(--font-size-4xl);
+    margin-bottom: var(--space-3);
+  }
+
+  .page-subtitle {
+    font-size: var(--font-size-lg);
+    color: var(--color-text-secondary);
+  }
+
+  .writing-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+</style>
+

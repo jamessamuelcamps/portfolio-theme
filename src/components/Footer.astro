@@ -1,0 +1,74 @@
+---
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-meta">
+      <p class="copyright">© {currentYear} James Samuel Camps. All rights reserved.</p>
+      <p class="hosting-note">Built with Astro & Vanilla CSS · Hosted on Dreamhost</p>
+    </div>
+
+    <div class="footer-links">
+      <a href="https://github.com/jamessamuelcamps" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--color-border);
+    margin-top: auto;
+    padding: var(--space-8) 0;
+    background-color: var(--color-surface);
+  }
+
+  .footer-inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  @media (min-width: 640px) {
+    .footer-inner {
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+
+  .footer-meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .copyright {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+  }
+
+  .hosting-note {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+  }
+
+  .footer-links {
+    display: flex;
+    gap: var(--space-4);
+    font-size: var(--font-size-sm);
+  }
+
+  .footer-links a {
+    color: var(--color-text-secondary);
+    text-decoration: none;
+  }
+
+  .footer-links a:hover {
+    color: var(--color-text);
+    text-decoration: underline;
+  }
+</style>
+
