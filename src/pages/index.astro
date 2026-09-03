@@ -1,72 +1,45 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import ProjectCard from '../components/ProjectCard.astro';
 import WritingCard from '../components/WritingCard.astro';
 import { getCollection } from 'astro:content';
-import { Image } from 'astro:assets';
-import clientLogos from '../assets/about/logos.png';
-
-const allProjects = await getCollection('projects');
-const sortedProjects = allProjects.sort((a, b) => a.data.order - b.data.order);
 
 const allWriting = await getCollection('writing');
 const recentWriting = allWriting
   .sort((a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime())
   .slice(0, 3);
+
+const fullBleed = recentWriting.length === 0;
 ---
 
-<BaseLayout>
+<BaseLayout fullBleed={fullBleed}>
   <div class="container">
     <!-- Hero Section -->
     <section class="hero-section">
-      <div class="hero-role-badge">Lead Product Designer</div>
-      <h1 class="hero-quote">
-        “I’d rather he didn’t come back at all. His trainers are shit and he’s too tall. No-one even likes him.”
-      </h1>
-      <p class="hero-cite">— Design Director, VML</p>
-      <p class="hero-lead">
-        I specialise in complex B2B/B2C fintech infrastructure, design systems, and product velocity.
-      </p>
-      <p class="hero-subtext">
-        Over 15 years in design, I build scalable frameworks and UI architecture that help product teams ship better software, faster. I’m also building <a href="https://github.com/jamessamuelcamps/tilia" target="_blank" rel="noopener noreferrer" class="highlight-link">Tilia</a>, a free UX research platform for solo practitioners, small product teams, and founders.
-      </p>
-
-      <p class="status-line">Currently open to new opportunities</p>
-
-      <div class="hero-actions">
-        <a href="#work" class="btn btn-primary">Selected Work</a>
-        <a href="/about" class="btn btn-outline">About & Mindset</a>
-        <a href="mailto:hello@james-sc.co.uk" class="btn btn-outline">Get in Touch</a>
+      <div class="hero-main">
+        <p class="availability-pill">Available for new opportunities. Let’s talk →</p>
+        <h1 class="hero-quote">
+          “I’d rather he didn’t come back at all. His trainers are shit and he’s too tall. No-one even likes him.”
+        </h1>
+        <p class="hero-cite">— Design Director, VML</p>
       </div>
-    </section>
 
-    <!-- Client Logos Banner -->
-    <section class="clients-banner">
-      <p class="clients-label">Previously worked with</p>
-      <div class="clients-track">
-        <Image
-          src={clientLogos}
-          alt="Tide, Moneybox, YouLend, and other client logos"
-          class="clients-img"
-        />
-      </div>
-    </section>
-
-    <!-- Featured Case Studies Section -->
-    <section class="section" id="work">
-      <div class="section-header">
-        <div>
-          <h2 class="section-title">Case Studies</h2>
-          <p class="section-description">Detailed breakdowns of fintech infrastructure, onboarding journeys, and design systems.</p>
+      <div class="hero-bottom">
+        <div class="hero-bio">
+          <p>
+            I specialise in complex B2B/B2C fintech infrastructure, design systems, and product velocity. I build scalable frameworks and UI architecture that help product teams ship better software, faster.
+          </p>
+          <p>
+            I’m also building <a href="https://github.com/jamessamuelcamps/tilia" target="_blank" rel="noopener noreferrer" class="highlight-link">Tilia</a>, a free UX research platform for solo practitioners, small product teams, and founders.
+          </p>
         </div>
-        <a href="/work" class="section-link">View All Work →</a>
+
+        <div class="hero-social">
+          <a href="https://www.linkedin.com/in/jamessc/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href="https://www.instagram.com/james_sc/" target="_blank" rel="noopener noreferrer">Instagram</a>
+        </div>
       </div>
 
-      <div class="projects-grid">
-        {sortedProjects.map((project) => (
-          <ProjectCard project={project} />
-        ))}
-      </div>
+      <div class="hero-mark" aria-hidden="true"><span>1987—Present</span></div>
     </section>
 
     <!-- Writing Section -->
@@ -87,45 +60,48 @@ const recentWriting = allWriting
         </div>
       </section>
     )}
-
-    <!-- Contact CTA Section -->
-    <section class="section" id="contact">
-      <div class="contact-cta">
-        <h2 class="contact-headline">Let's talk about your next product challenge</h2>
-        <p class="contact-subtext">
-          Whether you need leadership across complex fintech workflows, a zero-to-one design system, or a pragmatic maker to accelerate roadmap execution.
-        </p>
-        <div class="contact-btn-group">
-          <a href="mailto:hello@james-sc.co.uk" class="btn btn-primary">hello@james-sc.co.uk</a>
-          <a href="https://www.linkedin.com/in/jamessc/" target="_blank" rel="noopener noreferrer" class="btn btn-outline">Connect on LinkedIn</a>
-        </div>
-      </div>
-    </section>
   </div>
 </BaseLayout>
 
 <style>
   .hero-section {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
     padding: var(--space-8) 0 var(--space-12);
-    max-width: 820px;
   }
 
-  .hero-role-badge {
-    display: inline-block;
+  .availability-pill {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-full);
+    background-color: var(--color-surface);
     font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-semibold);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-wide);
     color: var(--color-text);
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-8);
+  }
+
+  .hero-main {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 1144px;
   }
 
   .hero-quote {
     font-size: var(--font-size-4xl);
     line-height: var(--line-height-tight);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.05em;
     color: var(--color-text);
-    margin-bottom: var(--space-3);
+    margin-bottom: var(--space-8);
   }
 
   @media (min-width: 768px) {
@@ -135,31 +111,32 @@ const recentWriting = allWriting
   }
 
   .hero-cite {
-    font-size: var(--font-size-xs);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-wide);
-    color: var(--color-text-muted);
-    margin-bottom: var(--space-8);
+    font-size: var(--font-size-xl);
+    color: var(--color-text);
   }
 
-  .hero-lead {
-    font-size: var(--font-size-xl);
-    line-height: var(--line-height-snug);
-    color: var(--color-text);
-    margin-bottom: var(--space-4);
+  .hero-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
   }
 
   @media (min-width: 768px) {
-    .hero-lead {
-      font-size: var(--font-size-2xl);
+    .hero-bottom {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-end;
     }
   }
 
-  .hero-subtext {
-    font-size: var(--font-size-lg);
-    line-height: var(--line-height-relaxed);
-    color: var(--color-text-secondary);
-    margin-bottom: var(--space-6);
+  .hero-bio {
+    max-width: 560px;
+    font-size: var(--font-size-base);
+    color: var(--color-text);
+  }
+
+  .hero-bio p + p {
+    margin-top: var(--space-4);
   }
 
   .highlight-link {
@@ -173,46 +150,42 @@ const recentWriting = allWriting
     color: var(--color-text-secondary);
   }
 
-  .status-line {
-    font-size: var(--font-size-xs);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-wide);
-    color: var(--color-text-secondary);
-    margin-bottom: var(--space-8);
-  }
-
-  .hero-actions {
+  .hero-social {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3);
-    margin-bottom: var(--space-10);
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    text-align: right;
   }
 
-  .clients-banner {
-    padding: var(--space-8) 0;
-    border-top: 1px solid var(--color-border);
-    border-bottom: 1px solid var(--color-border);
+  .hero-social a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
-  .clients-label {
-    font-size: var(--font-size-xs);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-wide);
-    color: var(--color-text-muted);
-    margin-bottom: var(--space-4);
+  .hero-mark {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    display: none;
   }
 
-  .clients-track {
-    padding: var(--space-5) 0;
-    display: flex;
-    justify-content: center;
+  .hero-mark span {
+    display: inline-block;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    white-space: nowrap;
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
   }
 
-  .clients-img {
-    max-width: 100%;
-    height: auto;
-    filter: grayscale(100%);
-    opacity: 0.8;
+  @media (min-width: 1024px) {
+    .hero-mark {
+      display: block;
+    }
   }
 
   .section {
@@ -257,44 +230,9 @@ const recentWriting = allWriting
     text-underline-offset: 3px;
   }
 
-  .projects-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-6);
-  }
-
-  @media (min-width: 768px) {
-    .projects-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
   .writing-list {
     display: flex;
     flex-direction: column;
     gap: var(--space-6);
-  }
-
-  .contact-cta {
-    border: 1px solid var(--color-border-strong);
-    padding: var(--space-10);
-    max-width: 720px;
-  }
-
-  .contact-headline {
-    font-size: var(--font-size-2xl);
-    margin-bottom: var(--space-3);
-  }
-
-  .contact-subtext {
-    font-size: var(--font-size-base);
-    color: var(--color-text-secondary);
-    margin-bottom: var(--space-6);
-  }
-
-  .contact-btn-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3);
   }
 </style>
