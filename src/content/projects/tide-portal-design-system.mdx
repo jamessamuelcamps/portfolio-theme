@@ -5,23 +5,25 @@ publishDate: 2024-10-18
 client: "Tide"
 role: "Lead Product Designer"
 timeline: "Ongoing"
-heroImage: "/images/projects/tide-portal-design-system/Portal-Thumbnail.png"
+heroImage: "./tide-portal-design-system/Portal-Thumbnail.png"
+heroImageAlt: "Thumbnail showing Tide's Portal design system component library"
 tags: ["Design Systems","UI Architecture","Figma to Code","Design Tokens"]
-featured: true
 order: 3
 ---
+import StatTile from '../../components/StatTile.astro';
+import StatGrid from '../../components/StatGrid.astro';
 
 ## Context
 
-**The Brief**
+### The Brief
 
 Systematise and scale Tide’s UI patterns to unify the product experience across web and mobile while accelerating feature delivery.
 
-**The Architectural Challenge**
+### The Architectural Challenge
 
 Consolidating disjointed platform libraries, legacy design debt, and multi-region guidelines into a single-source-of-truth system backed by clear, accessible documentation.
 
-**The Operational Win**
+### The Operational Win
 
 Elevated the profile of the design system business-wide, establishing self-service processes and component frameworks that saved extensive engineering time and increased overall shipping velocity.
 
@@ -29,87 +31,72 @@ Elevated the profile of the design system business-wide, establishing self-servi
 
 ## Research & Discovery
 
-Survey
+### Survey
 
 To better understand how the wider business works with the DS day-to-day, I sent a survey to all design, product and engineering teams. There were some clearly positive signs coming back, but then some not-so-positive ones too:
 
-### 94%
+<StatGrid>
+  <StatTile value="94%">interacted with the design system often (44% interacted with it every day)</StatTile>
+  <StatTile value="49%">knew what the process was for creating or updating a component</StatTile>
+  <StatTile value="88%">felt the reason we have a design system was clear</StatTile>
+  <StatTile value="43%">felt there was a clear connection between the design components and codebase</StatTile>
+  <StatTile value="81%">strongly agreed that we should adhere to the DS where possible</StatTile>
+  <StatTile value="44%">knew which components should be used for a particular task</StatTile>
+</StatGrid>
 
-interacted with the design system often (44% interacted with it every day)
-
-### 49%
-
-knew what the process was for creating or updating a component
-
-### 88%
-
-felt the reason we have a design system was clear
-
-### 43%
-
-felt there was a clear connection between the design components and codebase
-
-### 81%
-
-strongly agreed that we should adhere to the DS where possible
-
-### 44%
-
-knew which components should be used for a particular task
-
-Proposal for further exploration
+### Proposal for further exploration
 
 I set up a meeting with heads-of from engineering, product and design to present our findings and plan of action. I put forward proposals for:
 
-![](/images/projects/tide-portal-design-system/time-estimates.png)
+![Icon representing time estimates](./tide-portal-design-system/time-estimates.png)
 
-Time estimates
+#### Time estimates
 
 4 weeks of discovery, 8 weeks of design, split into 4x 2-week blocks
 
-![](/images/projects/tide-portal-design-system/plan.png)
+![Icon representing a plan of action](./tide-portal-design-system/plan.png)
 
-Plan of action
+#### Plan of action
 
 Catalogued, categorised by function, then prioritised into the 2-week blocks
 
-![](/images/projects/tide-portal-design-system/governance.png)
+![Icon representing governance](./tide-portal-design-system/governance.png)
 
-Governance
+#### Governance
 
 Specific objectives for project success and a RACI for all involved stakeholders
 
-![](/images/projects/tide-portal-design-system/roadmap.png)
+![Icon representing a roadmap](./tide-portal-design-system/roadmap.png)
 
-Roadmap
+#### Roadmap
 
 Higher-level plan for incorporating some of the new UI into our existing apps, ahead of migration
 
 This was received enthusiastically, so we started right away with our discovery phase: auditing the existing DS and researching best-in-class DS examples.
 
-Objectives
+### Objectives
 
 I felt it was important to align the project to more vision-based objectives, rather than simply focus on deliverables.
 
-![](/images/projects/tide-portal-design-system/portal-objectives-2.png)
+![Design system project objectives](./tide-portal-design-system/portal-objectives-2.png)
 
-Audit
+### Audit
 
 Oscar and I completed an audit of our existing system, looking at 10 main factors.
 
-![](/images/projects/tide-portal-design-system/audit-1.png)
+![Design system audit summary, part 1](./tide-portal-design-system/audit-1.png)
 
-![](/images/projects/tide-portal-design-system/audit-2.png)
+![Design system audit summary, part 2](./tide-portal-design-system/audit-2.png)
 
-![](/images/projects/tide-portal-design-system/audit-3.png)
+![Design system audit summary, part 3](./tide-portal-design-system/audit-3.png)
 
-![](/images/projects/tide-portal-design-system/audit-4.png)
+![Design system audit summary, part 4](./tide-portal-design-system/audit-4.png)
 
 * * *
 
 ## Design
 
-Cross-platform approach
+### Cross-platform approach
 
 Initially we had planned to keep the two platforms (web and native app) separate.
 
@@ -117,15 +104,15 @@ As our discovery progressed this made less sense, especially as the web platform
 
 Why have two components in a library when one can work across both?
 
-> This cross-platform foundation allowed us to create a single component library that supported both platforms, with 60% fewer components than before.
+> This cross-platform foundation allowed us to create a single component library that supported both platforms, with 60% fewer components than before.
 
-Creating components
+### Creating components
 
 Liam and I started working on the components I had outlined for each sprint. We had a visual direction to work with and I delegated most of the component construction to Liam, so that they would have a sole ‘owner’ and be more consistent. I provided creative direction, and defined the logic of how each new component would be used in future design work.
 
-![](/images/projects/tide-portal-design-system/DS-elements.png)
+![New design system component elements](./tide-portal-design-system/DS-elements.png)
 
-![](/images/projects/tide-portal-design-system/web-app-responsive.png)
+![Web and app components shown responsively side by side](./tide-portal-design-system/web-app-responsive.png)
 
 * * *
 
@@ -135,23 +122,23 @@ Both apps suffered from poor IA that had built up over time. When the web app wa
 
 Meanwhile, lots of features had been added to the mobile app over the years, with little high-level product direction. Most new features had to live in ‘More’, which research had shown to have a very high failure rate for discoverability – as high as 80-90% in some cases.
 
-![](/images/projects/tide-portal-design-system/charts1-1024x666.png)
+![Chart showing feature discoverability issues, part 1](./tide-portal-design-system/charts1-1024x666.png)
 
-![](/images/projects/tide-portal-design-system/charts2-1024x667.png)
+![Chart showing feature discoverability issues, part 2](./tide-portal-design-system/charts2-1024x667.png)
 
 As part of this project, we aligned the web app primary navigation to the mobile app, provided a scalable secondary nav component for both platforms, and separated options related to user details and preferences into a dedicated ‘user’ area.
 
-![](/images/projects/tide-portal-design-system/int-model-web.png)
+![Structural model diagram for the web app](./tide-portal-design-system/int-model-web.png)
 
-Structural model for web
+#### Structural model for web
 
 Large view with sidesheet for displaying items and small tasks; medium view with visible primary nav; small view with expanded user menu.
 
 All breakpoints feature a persistent secondary navigation where required
 
-![](/images/projects/tide-portal-design-system/int-model-mobile.png)
+![Structural model diagram for the mobile app](./tide-portal-design-system/int-model-mobile.png)
 
-Structural model for mobile app
+#### Structural model for mobile app
 
 Same primary navigation as web. Bottom sheets used to display overflow menus. Modal views for same purpose as sidesheets.
 
@@ -163,29 +150,29 @@ Tab controls and search incorporated into app header
 
 To aid the designers in the team, and answer a pain point from my survey, I personally wrote over 100 pages of documentation for the components. I used Zeroheight, covering everything from correct component usage to writing consistent UX copy.
 
-![](/images/projects/tide-portal-design-system/zeroheight-example-1-1024x640.png)
+![Zeroheight documentation example, page 1](./tide-portal-design-system/zeroheight-example-1-1024x640.png)
 
-![](/images/projects/tide-portal-design-system/zeroheight-example-4-1024x640.png)
+![Zeroheight documentation example, page 2](./tide-portal-design-system/zeroheight-example-4-1024x640.png)
 
-![](/images/projects/tide-portal-design-system/zeroheight-example-2-1-1024x640.png)
+![Zeroheight documentation example, page 3](./tide-portal-design-system/zeroheight-example-2-1-1024x640.png)
 
-![](/images/projects/tide-portal-design-system/zeroheight-example-5-1024x640.png)
+![Zeroheight documentation example, page 4](./tide-portal-design-system/zeroheight-example-5-1024x640.png)
 
-![](/images/projects/tide-portal-design-system/zeroheight-example-3-1024x640.png)
+![Zeroheight documentation example, page 5](./tide-portal-design-system/zeroheight-example-3-1024x640.png)
 
-![](/images/projects/tide-portal-design-system/zeroheight-example-6-1024x640.png)
+![Zeroheight documentation example, page 6](./tide-portal-design-system/zeroheight-example-6-1024x640.png)
 
 * * *
 
 ## Maintenance, ownership & advocacy
 
-Contribution model
+### Contribution model
 
 One key takeaway from my survey was that just over half of respondents didn’t know how to make updates to the DS. Engagement and participation are crucial to adoption; designers will feel much more invested and willing to use the DS if they feel they have a hand in its future.
 
 Once the bulk of the design work with Liam was done, I began to work on the governance aspect. I conducted some research, consulted with our designers and engineers, and outlined a full end-to-end contribution model from initial idea to shipping finished code.
 
-Enabling conversation
+### Enabling conversation
 
 Once the DS was active, I started gathering feedback from the design team. The sentiment was positive, although many felt that the comms could be improved.
 
@@ -195,13 +182,13 @@ In response, I created a dedicated Slack channel where we would post all signifi
 
 > After two months, around half of the design team had attended at least one session, and we had logged nearly ten significant updates to be carried out.
 
-Delegating
+### Delegating
 
 Alex & I set up a steering committee to establish cross-department ownership. I reached out to seven senior engineers and PMs, and set up a monthly meeting, led by design, to discuss strategic concerns.
 
 I also formalised a working group of two designers and two engineers, who would completely own the contribution process. They would be responsible for managing all component updates and comms to the wider business.
 
-File structure
+### File structure
 
 Finally, in order to ensure a seamless transition from one DS and product file set to another, the team needed a new set of files for the new design work to be completed in.
 
@@ -215,7 +202,7 @@ The Portal design system is one of my favourite projects that I’ve worked on. 
 
 Tide now has a dedicated design system team with several designers working on it – I am incredibly pleased that my efforts to kick this project off have really taken root and picked up by others.
 
-Personal learnings
+### Personal learnings
 
 The main thing I learned from this project is that for all the talk of design systems, particularly within the Figma community, most of it relates to creating UI. There is very little information around the planning, execution and ongoing maintenance – the latter of which I believe is the most important aspect of design system management by far.
 

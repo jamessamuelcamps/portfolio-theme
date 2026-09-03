@@ -5,23 +5,25 @@ publishDate: 2024-10-18
 client: "Tide"
 role: "Lead Product Designer"
 timeline: "4 Months"
-heroImage: "/images/projects/tide-payments/Payments-Thumbnail.png"
+heroImage: "./tide-payments/Payments-Thumbnail.png"
+heroImageAlt: "Thumbnail showing the redesigned Tide payments flow on mobile"
 tags: ["FinTech","Business Banking","Payments","Workflow Simplification"]
-featured: true
 order: 5
 ---
+import StatTile from '../../components/StatTile.astro';
+import StatGrid from '../../components/StatGrid.astro';
 
 ## Context
 
-**The Brief**
+### The Brief
 
 Redesign Tide’s core domestic payment experience, delivering a seamless payment flow for UK SMEs.
 
-**The Architectural Challenge**
+### The Architectural Challenge
 
 Consolidating several fragmented, legacy payment journeys into a single, dynamic flow that handles complex payment rules, validation, and edge cases. All while building UI architecture flexible enough to support future FX and international capabilities.
 
-**The Operational Win**
+### The Operational Win
 
 Streamlined the core payment UX to reduce cognitive friction and error rates, while establishing modular, reusable payment components that expanded Tide’s overall design system.
 
@@ -29,7 +31,7 @@ Streamlined the core payment UX to reduce cognitive friction and error rates, wh
 
 ## Research & Discovery
 
-Vision workshop
+### Vision workshop
 
 Over two days, the team ran workshops to define the vision for the new payments proposition.  
   
@@ -53,41 +55,41 @@ We were happy with this statement overall — the word ‘stream’ felt a littl
 
 So no matter your starting point, you always join a flow that is pre-existing, familiar and wholly governed by our team.
 
-![](/images/projects/tide-payments/Payments-Image-1.png)
+![Team whiteboard from the vision workshop, mapping the target audience, problems, and product category](./tide-payments/Payments-Image-1.png)
 
-Setting objectives
+### Setting objectives
 
 We defined some key objectives for the new payments area:
 
-![](/images/projects/tide-payments/okrs.png)
+![Icon representing alignment with business OKRs](./tide-payments/okrs.png)
 
 We would align with business OKRs on member satisfaction and revenue
 
-![](/images/projects/tide-payments/gold-standard.png)
+![Icon representing a gold-standard benchmark](./tide-payments/gold-standard.png)
 
 Given its popularity, payments should become our company gold standard for UX
 
-![](/images/projects/tide-payments/experience.png)
+![Icon representing customer-led experience](./tide-payments/experience.png)
 
 Experience should be led by what our customers need, not our technical limitations
 
-![](/images/projects/tide-payments/features.png)
+![Icon representing combined features](./tide-payments/features.png)
 
 We should combine disparate payment management features into a single payments ‘hub’
 
-Heuristic review
+### Heuristic review
 
 In my review I identified a number of points within the existing payments flows. 37 overall – 13 severe issues, 11 intermediate issues and 13 that were performing well.
 
 I prioritised these according to our objectives and impact vs effort, and addressed them in our design phase.
 
-Competitor analysis
+### Competitor analysis
 
 We looked at payments products from challenger banks, High Street banks and investment apps.
 
 It felt like almost all were converging on a similar interaction pattern – a single screen for amount and reference, with a toggle to display scheduling options.
 
-![](/images/projects/tide-payments/Payments-Image-3.png)
+![Comparison of payment screens from Starling, Dave, Marcus and Betterment](./tide-payments/Payments-Image-3.png)
 
 *Payment screens on Starling, Dave, Marcus and Betterment*
 
@@ -101,49 +103,49 @@ In other words, rather than trying to reinvent the wheel, we should focus on ext
 
 As we weren’t looking to explore new, exotic ways to present this product, I jumped almost straight into high-fidelity UI. We revisited our data from the discovery work and found some interesting ways that we could refine and streamline the design:
 
-![](/images/projects/tide-payments/user-multiple.png)
+![Icon representing multiple users/recipients](./tide-payments/user-multiple.png)
 
-Recipients
+### Recipients
 
 46% of payments made by active customers had been to one of their three last-paid recipients
 
 _Idea: We could provide a ‘Recent’ section in the recipients list to optimise the flow for paying these recipients_
 
-![](/images/projects/tide-payments/repeat.png)
+![Icon representing a repeated action](./tide-payments/repeat.png)
 
-Making multiple payments
+### Making multiple payments
 
 19% of payments made by active customers were done less than 3 minutes after the previous one
 
 _Idea: We could provide the ability to immediately make another payment upon submitting a payment_
 
-![](/images/projects/tide-payments/wallet.png)
+![Icon representing a shared wallet](./tide-payments/wallet.png)
 
-Multiple account holders
+### Multiple account holders
 
 80% of payments made by multiple account holders came from the primary account
 
 _Idea: We could pre-select the primary account rather than making the customer select the ‘From’ account each time_
 
-![](/images/projects/tide-payments/wrench.png)
+![Icon representing payment management tools](./tide-payments/wrench.png)
 
-Payment management
+### Payment management
 
 The location of payment management features, such as managing Direct Debits and scheduled payments, was unintuitive
 
 _Idea: We could bring these features into the main Pay tab under a secondary navigation_
 
-![](/images/projects/tide-payments/maps.png)
+![Icon representing navigation](./tide-payments/maps.png)
 
-Navigation
+### Navigation
 
 In a usability test, all users expected to be brought back to the main Account tab once a payment had been made
 
-_Idea: We could take customers back to the main Accounts tab once done, alongside the ‘make another payment’ option_
+_Idea: We could take customers back to the main Accounts tab once done, alongside the ‘make another payment’ option_
 
-![](/images/projects/tide-payments/repeat-1.png)
+![Icon representing a repeated payment schedule](./tide-payments/repeat-1.png)
 
-Repeated payments
+### Repeated payments
 
 When scheduling a payment to repeat/defer, over 65% of payments were ‘send once’ (don’t repeat) and send ‘tomorrow’
 
@@ -157,25 +159,25 @@ Also, the way I designed payment cards, recipient selectors, and status states t
 
 ## Final UI
 
-Domestic payment
+### Domestic payment
 
-![](/images/projects/tide-payments/2.png)
+![Pay tab showing the recipients list](./tide-payments/recipients-list.png)
 
-![](/images/projects/tide-payments/pay-main.png)
+![Domestic payment main entry screen](./tide-payments/pay-main.png)
 
-![](/images/projects/tide-payments/review-1.png)
+![Domestic payment review screen](./tide-payments/review-1.png)
 
-![](/images/projects/tide-payments/8.png)
+![Payment successful confirmation screen](./tide-payments/payment-success.png)
 
-Scheduled payment
+### Scheduled payment
 
-![](/images/projects/tide-payments/review-scheduled.png)
+![Scheduled payment review screen](./tide-payments/review-scheduled.png)
 
-![](/images/projects/tide-payments/pick-a-date.png)
+![Scheduled payment date picker](./tide-payments/pick-a-date.png)
 
-![](/images/projects/tide-payments/select-frequency.png)
+![Scheduled payment frequency selector](./tide-payments/select-frequency.png)
 
-![](/images/projects/tide-payments/8-1.png)
+![Confirm scheduled payment screen](./tide-payments/scheduled-payment-confirm.png)
 
 * * *
 
@@ -185,21 +187,12 @@ The new area’s modular structure allowed new services like sending and receivi
 
 In terms of metrics, we were quite modest as this was such a crucial function within the app:
 
-### 7
-
-point increase in our NPS (68 to 75)
-
-### 9%
-
-reduction in time-on-task
-
-### 0
-
-change to payment completion %
-
-### 40%
-
-reduction in flow churn (8.41% to 5%)
+<StatGrid>
+  <StatTile value="7">point increase in our NPS (68 to 75)</StatTile>
+  <StatTile value="9%">reduction in time-on-task</StatTile>
+  <StatTile value="0">change to payment completion %</StatTile>
+  <StatTile value="40%">reduction in flow churn (8.41% to 5%)</StatTile>
+</StatGrid>
 
 This project was a great exercise in collaboration and design thinking. Arnoud, Katie and I worked closely together over the course of several months, and our decisions were well thought out and backed by good research and data.
 

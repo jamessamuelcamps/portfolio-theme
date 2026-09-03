@@ -7,16 +7,16 @@ import { glob } from 'astro/loaders';
  */
 const projects = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/projects' }),
-  schema: z.object({
+  schema: ({ image }) => z.object({
     title: z.string(),
     description: z.string(),
     publishDate: z.coerce.date(),
     client: z.string().optional(),
     role: z.string().optional(),
     timeline: z.string().optional(),
-    heroImage: z.string().optional(),
+    heroImage: image().optional(),
+    heroImageAlt: z.string().optional(),
     tags: z.array(z.string()).default([]),
-    featured: z.boolean().default(false),
     order: z.number().default(999),
   }),
 });

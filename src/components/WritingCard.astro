@@ -58,11 +58,11 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
     font-size: var(--font-size-lg);
     color: var(--color-text);
     margin-bottom: var(--space-2);
-    transition: color var(--transition-fast);
   }
 
   .writing-link:hover .writing-title {
-    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 4px;
   }
 
   .writing-description {

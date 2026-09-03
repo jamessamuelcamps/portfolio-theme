@@ -3,6 +3,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import WritingCard from '../components/WritingCard.astro';
 import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import clientLogos from '../assets/about/logos.png';
 
 const allProjects = await getCollection('projects');
 const sortedProjects = allProjects.sort((a, b) => a.data.order - b.data.order);
@@ -18,27 +20,23 @@ const recentWriting = allWriting
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="hero-role-badge">Lead Product Designer</div>
-      <h1 class="hero-headline">
-        I specialise in complex B2B/B2C fintech infrastructure, design systems, and product velocity.
+      <h1 class="hero-quote">
+        “I’d rather he didn’t come back at all. His trainers are shit and he’s too tall. No-one even likes him.”
       </h1>
+      <p class="hero-cite">— Design Director, VML</p>
+      <p class="hero-lead">
+        I specialise in complex B2B/B2C fintech infrastructure, design systems, and product velocity.
+      </p>
       <p class="hero-subtext">
         Over 15 years in design, I build scalable frameworks and UI architecture that help product teams ship better software, faster. I’m also building <a href="https://github.com/jamessamuelcamps/tilia" target="_blank" rel="noopener noreferrer" class="highlight-link">Tilia</a>, a free UX research platform for solo practitioners, small product teams, and founders.
       </p>
 
-      <div class="status-pill">
-        <span class="status-dot"></span>
-        <span>Currently open to new opportunities</span>
-      </div>
+      <p class="status-line">Currently open to new opportunities</p>
 
       <div class="hero-actions">
         <a href="#work" class="btn btn-primary">Selected Work</a>
         <a href="/about" class="btn btn-outline">About & Mindset</a>
         <a href="mailto:hello@james-sc.co.uk" class="btn btn-outline">Get in Touch</a>
-      </div>
-
-      <div class="quote-card">
-        <p class="quote-text">“I’d rather he didn’t come back at all. His trainers are shit and he’s too tall. No-one even likes him.”</p>
-        <span class="quote-cite">— Design Director, VML</span>
       </div>
     </section>
 
@@ -46,9 +44,9 @@ const recentWriting = allWriting
     <section class="clients-banner">
       <p class="clients-label">Previously worked with</p>
       <div class="clients-track">
-        <img 
-          src="/images/about/logos-2-1024x63.png" 
-          alt="Tide, Moneybox, YouLend, and other client logos" 
+        <Image
+          src={clientLogos}
+          alt="Tide, Moneybox, YouLend, and other client logos"
           class="clients-img"
         />
       </div>
@@ -117,21 +115,43 @@ const recentWriting = allWriting
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--color-accent);
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-text);
     margin-bottom: var(--space-4);
   }
 
-  .hero-headline {
-    font-size: var(--font-size-3xl);
-    line-height: 1.25;
+  .hero-quote {
+    font-size: var(--font-size-4xl);
+    line-height: var(--line-height-tight);
+    letter-spacing: -0.02em;
     color: var(--color-text);
-    margin-bottom: var(--space-6);
+    margin-bottom: var(--space-3);
   }
 
   @media (min-width: 768px) {
-    .hero-headline {
-      font-size: var(--font-size-5xl);
+    .hero-quote {
+      font-size: var(--font-size-7xl);
+    }
+  }
+
+  .hero-cite {
+    font-size: var(--font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-8);
+  }
+
+  .hero-lead {
+    font-size: var(--font-size-xl);
+    line-height: var(--line-height-snug);
+    color: var(--color-text);
+    margin-bottom: var(--space-4);
+  }
+
+  @media (min-width: 768px) {
+    .hero-lead {
+      font-size: var(--font-size-2xl);
     }
   }
 
@@ -150,28 +170,15 @@ const recentWriting = allWriting
   }
 
   .highlight-link:hover {
-    color: var(--color-accent);
+    color: var(--color-text-secondary);
   }
 
-  .status-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    padding: 0.35rem 0.85rem;
-    border-radius: var(--radius-full);
+  .status-line {
     font-size: var(--font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
     color: var(--color-text-secondary);
     margin-bottom: var(--space-8);
-  }
-
-  .status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: #10b981;
-    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
   }
 
   .hero-actions {
@@ -181,46 +188,22 @@ const recentWriting = allWriting
     margin-bottom: var(--space-10);
   }
 
-  .quote-card {
-    background-color: var(--color-surface);
-    border-left: 3px solid var(--color-border-strong);
-    padding: var(--space-4) var(--space-5);
-    border-radius: 0 var(--radius-md) var(--radius-md) 0;
-    max-width: 600px;
-  }
-
-  .quote-text {
-    font-size: var(--font-size-sm);
-    font-style: italic;
-    color: var(--color-text-muted);
-    margin-bottom: var(--space-1);
-    line-height: var(--line-height-normal);
-  }
-
-  .quote-cite {
-    font-size: var(--font-size-xs);
-    color: var(--color-text-secondary);
-    font-weight: var(--font-weight-medium);
-  }
-
   .clients-banner {
     padding: var(--space-8) 0;
     border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
   }
 
   .clients-label {
     font-size: var(--font-size-xs);
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: var(--tracking-wide);
     color: var(--color-text-muted);
     margin-bottom: var(--space-4);
   }
 
   .clients-track {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: var(--space-5) var(--space-6);
+    padding: var(--space-5) 0;
     display: flex;
     justify-content: center;
   }
@@ -265,8 +248,13 @@ const recentWriting = allWriting
   .section-link {
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
-    color: var(--color-accent);
+    color: var(--color-text);
     white-space: nowrap;
+  }
+
+  .section-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   .projects-grid {
@@ -288,9 +276,7 @@ const recentWriting = allWriting
   }
 
   .contact-cta {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border-strong);
     padding: var(--space-10);
     max-width: 720px;
   }

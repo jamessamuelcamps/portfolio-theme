@@ -39,17 +39,26 @@ const { title, description, role, client, timeline, tags } = project.data;
 
 <style>
   .project-card {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    transition: transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
-    overflow: hidden;
+    border: 1px solid var(--color-border-strong);
+    transition: background-color var(--transition-base), color var(--transition-base);
   }
 
   .project-card:hover {
-    transform: translateY(-2px);
-    border-color: var(--color-border-strong);
-    box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.08);
+    background-color: var(--color-text);
+    color: var(--color-bg);
+  }
+
+  .project-card:hover .badge,
+  .project-card:hover .project-meta-top,
+  .project-card:hover .project-client,
+  .project-card:hover .project-title,
+  .project-card:hover .project-description,
+  .project-card:hover .project-cta {
+    color: inherit;
+  }
+
+  .project-card:hover .badge {
+    border-color: var(--color-bg);
   }
 
   .project-card-link {
@@ -108,16 +117,12 @@ const { title, description, role, client, timeline, tags } = project.data;
     gap: var(--space-2);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
-    color: var(--color-accent);
+    color: var(--color-text-secondary);
     margin-top: auto;
   }
 
   .arrow {
-    transition: transform var(--transition-fast);
-  }
-
-  .project-card:hover .arrow {
-    transform: translateX(4px);
+    color: inherit;
   }
 </style>
 

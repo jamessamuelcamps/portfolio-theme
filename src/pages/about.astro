@@ -1,5 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { Image } from 'astro:assets';
+import clientLogos from '../assets/about/logos.png';
 ---
 
 <BaseLayout 
@@ -10,10 +12,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <header class="about-header">
       <span class="badge-role">Lead Product Designer</span>
       <h1 class="page-title">About James Samuel-Camps</h1>
-      <p class="lead-quote">
-        “I’d rather he didn’t come back at all. His trainers are shit and he’s too tall. No-one even likes him.”
-        <span class="quote-author">— Design Director, VML</span>
-      </p>
     </header>
 
     <div class="prose about-content">
@@ -60,9 +58,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div class="clients-section">
         <p class="clients-title">I’ve previously worked with</p>
         <figure class="clients-logos">
-          <img 
-            src="/images/about/logos-2-1024x63.png" 
-            alt="Clients including Tide, Moneybox, YouLend, and more" 
+          <Image
+            src={clientLogos}
+            alt="Clients including Tide, Moneybox, YouLend, and more"
             class="logos-img"
           />
         </figure>
@@ -93,34 +91,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--color-accent);
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-text);
     margin-bottom: var(--space-3);
   }
 
   .page-title {
     font-size: var(--font-size-4xl);
     margin-bottom: var(--space-4);
-  }
-
-  .lead-quote {
-    font-size: var(--font-size-base);
-    font-style: italic;
-    color: var(--color-text-muted);
-    background-color: var(--color-surface);
-    border-left: 3px solid var(--color-border-strong);
-    padding: var(--space-4);
-    border-radius: var(--radius-sm);
-    margin: var(--space-4) 0 var(--space-8);
-  }
-
-  .quote-author {
-    display: block;
-    font-style: normal;
-    font-weight: var(--font-weight-medium);
-    font-size: var(--font-size-xs);
-    margin-top: var(--space-2);
-    color: var(--color-text-secondary);
   }
 
   .clients-section {
@@ -136,10 +114,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
 
   .clients-logos {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: var(--space-6);
+    padding: var(--space-6) 0;
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
     display: flex;
     justify-content: center;
   }
@@ -149,18 +126,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     height: auto;
     filter: grayscale(100%);
     opacity: 0.85;
-    transition: filter var(--transition-base), opacity var(--transition-base);
-  }
-
-  .logos-img:hover {
-    filter: none;
-    opacity: 1;
   }
 
   .contact-box {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border-strong);
     padding: var(--space-8);
     margin-top: var(--space-10);
   }
@@ -172,3 +141,4 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     margin-top: var(--space-4);
   }
 </style>
+

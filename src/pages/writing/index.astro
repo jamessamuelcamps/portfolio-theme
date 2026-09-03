@@ -21,9 +21,11 @@ const posts = (await getCollection('writing')).sort(
     </header>
 
     <div class="writing-stack">
-      {posts.map((post) => (
-        <WritingCard post={post} />
-      ))}
+      {posts.length > 0 ? (
+        posts.map((post) => <WritingCard post={post} />)
+      ) : (
+        <p class="empty-state">Nothing published yet — check back soon.</p>
+      )}
     </div>
   </div>
 </BaseLayout>
@@ -47,6 +49,10 @@ const posts = (await getCollection('writing')).sort(
     display: flex;
     flex-direction: column;
     gap: var(--space-8);
+  }
+
+  .empty-state {
+    color: var(--color-text-muted);
   }
 </style>
 
