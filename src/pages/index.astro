@@ -39,7 +39,12 @@ const fullBleed = recentWriting.length === 0;
         </div>
       </div>
 
-      <div class="hero-mark" aria-hidden="true"><span>1987—Present</span></div>
+      <a
+        class="hero-mark"
+        href="https://github.com/jamessamuelcamps/portfolio-theme"
+        target="_blank"
+        rel="noopener noreferrer"
+      ><span>Steal this theme →</span></a>
     </section>
 
     <!-- Writing Section -->
@@ -180,6 +185,11 @@ const fullBleed = recentWriting.length === 0;
     white-space: nowrap;
     font-size: var(--font-size-sm);
     color: var(--color-text);
+  }
+
+  .hero-mark:hover span {
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   @media (min-width: 1024px) {
