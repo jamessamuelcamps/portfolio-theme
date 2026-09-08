@@ -1,0 +1,15 @@
+---
+interface Props {
+  /** Bold kicker label, e.g. "The Brief" */
+  label: string;
+}
+
+const { label } = Astro.props;
+---
+
+<div class="cs-labelled">
+  <span class="cs-labelled-label">{label}</span>
+  <div class="cs-labelled-body">
+    <slot />
+  </div>
+</div>

@@ -1,0 +1,22 @@
+---
+interface Props {
+  beforeLabel?: string;
+  afterLabel?: string;
+  /** Width tier — see docs/case-study-components.md */
+  width?: 'prose' | 'wide';
+}
+
+const { beforeLabel = 'Before', afterLabel = 'After', width = 'wide' } = Astro.props;
+const widthClass = width === 'wide' ? 'bleed-wide' : null;
+---
+
+<div class:list={['cs-compare', widthClass]}>
+  <figure class="cs-compare-item">
+    <figcaption class="cs-compare-label">{beforeLabel}</figcaption>
+    <slot name="before" />
+  </figure>
+  <figure class="cs-compare-item">
+    <figcaption class="cs-compare-label">{afterLabel}</figcaption>
+    <slot name="after" />
+  </figure>
+</div>

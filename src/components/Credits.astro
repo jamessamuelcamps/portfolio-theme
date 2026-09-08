@@ -1,0 +1,43 @@
+---
+interface Props {
+  role?: string;
+  tools?: string[];
+  date?: string;
+  team?: string[];
+}
+
+const { role, tools = [], date, team = [] } = Astro.props;
+---
+
+<div class="cs-credits">
+  <div class="meta-grid">
+    {role && (
+      <div class="meta-item">
+        <span class="meta-label">Role</span>
+        <span class="meta-value">{role}</span>
+      </div>
+    )}
+    {tools.length > 0 && (
+      <div class="meta-item">
+        <span class="meta-label">Tools used</span>
+        <ul class="cs-credits-list">
+          {tools.map((tool) => <li>{tool}</li>)}
+        </ul>
+      </div>
+    )}
+    {date && (
+      <div class="meta-item">
+        <span class="meta-label">Date</span>
+        <span class="meta-value">{date}</span>
+      </div>
+    )}
+    {team.length > 0 && (
+      <div class="meta-item">
+        <span class="meta-label">Team</span>
+        <ul class="cs-credits-list">
+          {team.map((member) => <li>{member}</li>)}
+        </ul>
+      </div>
+    )}
+  </div>
+</div>

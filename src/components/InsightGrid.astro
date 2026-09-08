@@ -1,0 +1,12 @@
+---
+interface Props {
+  /** Width tier — see docs/case-study-components.md */
+  width?: 'prose' | 'wide';
+}
+
+const { width = 'wide' } = Astro.props;
+---
+
+<div class:list={['cs-insight-grid', width === 'wide' && 'bleed-wide']}>
+  <slot />
+</div>

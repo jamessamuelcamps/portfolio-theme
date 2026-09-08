@@ -1,0 +1,14 @@
+---
+interface Props {
+  heading?: string;
+}
+
+const { heading = 'Previously worked with' } = Astro.props;
+---
+
+<aside class="cs-logo-strip">
+  <span class="cs-logo-strip-heading">{heading}</span>
+  <div class="cs-logo-strip-items">
+    <slot />
+  </div>
+</aside>

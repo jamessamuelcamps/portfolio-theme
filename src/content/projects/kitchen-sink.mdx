@@ -1,0 +1,350 @@
+---
+title: "Kitchen Sink • Components"
+description: "Every case-study component in one place, for styling review. Hidden from the work index and sitemap."
+publishDate: 2026-09-08
+client: "Internal"
+role: "Lead Product Designer"
+timeline: "Reference"
+heroImage: "./moneybox-goals/goals-hero-1.png"
+heroImageAlt: "Placeholder hero image"
+heroLayout: "wide"
+tags: ["Reference", "Components", "Style Guide"]
+order: 999
+draft: true
+---
+import Section from '../../components/Section.astro';
+import Lead from '../../components/Lead.astro';
+import LabelledBlock from '../../components/LabelledBlock.astro';
+import PullQuote from '../../components/PullQuote.astro';
+import QuoteStack from '../../components/QuoteStack.astro';
+import StatGrid from '../../components/StatGrid.astro';
+import StatTile from '../../components/StatTile.astro';
+import Figure from '../../components/Figure.astro';
+import ImageGrid from '../../components/ImageGrid.astro';
+import BeforeAfter from '../../components/BeforeAfter.astro';
+import StageCards from '../../components/StageCards.astro';
+import StageCard from '../../components/StageCard.astro';
+import InsightGrid from '../../components/InsightGrid.astro';
+import InsightCard from '../../components/InsightCard.astro';
+import FeatureList from '../../components/FeatureList.astro';
+import Feature from '../../components/Feature.astro';
+import Credits from '../../components/Credits.astro';
+import LogoStrip from '../../components/LogoStrip.astro';
+
+<Lead>
+
+This page renders every case-study component in its real context — inside
+`ProjectLayout` and a `<Section>` label-column layout — so styling can be checked
+in light and dark before migrating real studies. It has an [inline link](/work).
+
+</Lead>
+
+<Section number="01" title="Context">
+
+<LabelledBlock label="The Brief">
+
+Redesign Tide's **core** domestic payment experience, delivering a seamless flow
+for UK SMEs. Body copy can contain _emphasis_, `code`, and [links](/about).
+
+</LabelledBlock>
+
+<LabelledBlock label="The Architectural Challenge">
+
+Consolidate several fragmented, legacy payment journeys into a single dynamic
+flow that handles complex payment rules, validation, and edge cases.
+
+</LabelledBlock>
+
+<LabelledBlock label="The Operational Win">
+
+Streamlined the core payment UX to reduce cognitive friction and error rates.
+
+</LabelledBlock>
+
+</Section>
+
+<Section eyebrow="Research" title="Discovery">
+
+### A subsection heading (H3)
+
+Ordinary body paragraph for baseline comparison. Sit amet consectetur adipisicing
+elit. Quisquam, voluptatum. A bulleted list follows:
+
+- First point in a normal markdown list
+- Second point, a little longer so it wraps onto a second line at the prose measure
+- Third point
+
+And a numbered list:
+
+1. Step one
+2. Step two
+3. Step three
+
+A `.statement-list` for pulled points:
+
+<ul class="statement-list">
+  <li>Separating long-term behaviour from short-term fads</li>
+  <li>Mastering strict information hierarchy</li>
+</ul>
+
+#### Single stat
+
+<StatGrid columns={1}>
+  <StatTile value="£24m">annual funding potential identified in discovery</StatTile>
+</StatGrid>
+
+#### Two / three / four up
+
+<StatGrid columns={2}>
+  <StatTile value="50%">found reconciliation confusing</StatTile>
+  <StatTile value="27%">wanted clearer payment terms</StatTile>
+</StatGrid>
+
+<StatGrid columns={3}>
+  <StatTile value="94%">interacted with the design system often</StatTile>
+  <StatTile value="49%">knew the component update process</StatTile>
+  <StatTile value="88%">felt its purpose was clear</StatTile>
+</StatGrid>
+
+<StatGrid columns={4}>
+  <StatTile value="83%">initial conversion uplift</StatTile>
+  <StatTile value="7%">more Open Banking connections</StatTile>
+  <StatTile value="55%">fewer support calls</StatTile>
+  <StatTile value="10–20%">uplift by partner</StatTile>
+</StatGrid>
+
+#### Default (unset columns — legacy behaviour)
+
+<StatGrid>
+  <StatTile value="28%">metric one</StatTile>
+  <StatTile value="5.5">metric two</StatTile>
+  <StatTile value="13%">metric three</StatTile>
+</StatGrid>
+
+</Section>
+
+<Section eyebrow="Voice" title="Quotes">
+
+<PullQuote>
+
+For SMEs who need to carry out essential tasks as they grow, our payment flow is
+an experience-led stream that can evolve to tackle any demands.
+
+</PullQuote>
+
+<PullQuote cite="Head of Product (Payments)" role="Dojo">
+
+That page looks really cool. The previous version was factually all there but
+visually it didn't inspire enough excitement.
+
+</PullQuote>
+
+<PullQuote variant="testimonial" cite="Design Director" role="VML">
+
+His trainers are shit and he's too tall. No-one even likes him.
+
+</PullQuote>
+
+<QuoteStack>
+
+> It's very transparent and clear, no difficulty understanding what I need to do.
+
+> 'Type of person' sounds very awkward — could that be 'role' or something else?
+
+> Deciding on the percentage is going to slow me down slightly.
+
+> I would do my research on YouLend first — check Trustpilot and things like that.
+
+> Incredibly clear, everything is laid out in a way that's easy to fill out.
+
+</QuoteStack>
+
+</Section>
+
+<Section eyebrow="Design" title="Imagery">
+
+<Figure caption="A prose-width figure — inline with the text column." width="prose">
+
+![Placeholder screenshot](./dashboard-youlend/Dashboard.png)
+
+</Figure>
+
+<Figure caption="A wide figure — fills the full section width.">
+
+![Placeholder screenshot](./dashboard-youlend/Transaction-overview.png)
+
+</Figure>
+
+<BeforeAfter beforeLabel="Before" afterLabel="After">
+<Fragment slot="before">
+
+![Old financial information screen](./application-youlend/financial-info-before.png)
+
+</Fragment>
+<Fragment slot="after">
+
+![New financial information screen](./application-youlend/financial-info-after.png)
+
+</Fragment>
+</BeforeAfter>
+
+<ImageGrid cols={3}>
+
+![Doc page 1](./tide-portal-design-system/zeroheight-example-1-1024x640.png)
+![Doc page 2](./tide-portal-design-system/zeroheight-example-4-1024x640.png)
+![Doc page 3](./tide-portal-design-system/zeroheight-example-2-1-1024x640.png)
+![Doc page 4](./tide-portal-design-system/zeroheight-example-5-1024x640.png)
+![Doc page 5](./tide-portal-design-system/zeroheight-example-3-1024x640.png)
+![Doc page 6](./tide-portal-design-system/zeroheight-example-6-1024x640.png)
+
+</ImageGrid>
+
+<ImageGrid cols={2} caption="A two-up grid with a caption.">
+
+![Audit summary 1](./tide-portal-design-system/audit-1.png)
+![Audit summary 2](./tide-portal-design-system/audit-2.png)
+
+</ImageGrid>
+
+</Section>
+
+<Section eyebrow="Journey" title="Stage cards">
+
+<StageCards>
+  <StageCard title="Fact-find">Understand the customer's financial situation.</StageCard>
+  <StageCard title="Customise">Add details for accurate savings figures.</StageCard>
+  <StageCard title="Cross-sell">Save for non-deposit items; choose accounts.</StageCard>
+  <StageCard title="Track">Monitor progress and access resources.</StageCard>
+</StageCards>
+
+<StageCards columns={2}>
+  <StageCard title="With media">
+    <Fragment slot="media">
+
+![Stage screenshot](./moneybox-goals/fact-find.png)
+
+    </Fragment>
+    A stage card that includes an image above the title.
+  </StageCard>
+  <StageCard title="Without media">
+    A stage card with no image, for comparison.
+  </StageCard>
+</StageCards>
+
+</Section>
+
+<Section eyebrow="Analysis" title="Insight cards">
+
+<InsightGrid>
+  <InsightCard figure="46%" title="Recipients">
+    <Fragment slot="problem">of payments by active customers went to one of the last three recipients.</Fragment>
+    <Fragment slot="idea">Provide a "Recent" section in the recipients list.</Fragment>
+  </InsightCard>
+  <InsightCard figure="19%" title="Multiple payments">
+    <Fragment slot="problem">of payments happened under 3 minutes after the previous one.</Fragment>
+    <Fragment slot="idea">Offer "make another payment" straight after submitting.</Fragment>
+  </InsightCard>
+  <InsightCard figure="80%" title="Account holders">
+    <Fragment slot="problem">of payments by multiple account holders came from the primary account.</Fragment>
+    <Fragment slot="idea">Pre-select the primary account as the "From" account.</Fragment>
+  </InsightCard>
+  <InsightCard figure="65%" title="Repeated payments">
+    <Fragment slot="problem">of scheduled payments were "send once" and "tomorrow".</Fragment>
+    <Fragment slot="idea">Pre-select those defaults to cover two-thirds with one tap.</Fragment>
+  </InsightCard>
+</InsightGrid>
+
+</Section>
+
+<Section eyebrow="Proposal" title="Feature list">
+
+<FeatureList>
+
+<Feature title="Time estimates">
+<Fragment slot="icon">
+
+![](./tide-portal-design-system/time-estimates.png)
+
+</Fragment>
+
+4 weeks of discovery, 8 weeks of design, split into 4×2-week blocks.
+
+</Feature>
+
+<Feature title="Plan of action">
+<Fragment slot="icon">
+
+![](./tide-portal-design-system/plan.png)
+
+</Fragment>
+
+Catalogued, categorised by function, then prioritised into the blocks.
+
+</Feature>
+
+<Feature title="Governance">
+<Fragment slot="icon">
+
+![](./tide-portal-design-system/governance.png)
+
+</Fragment>
+
+Specific objectives for success and a RACI for all stakeholders.
+
+</Feature>
+
+</FeatureList>
+
+#### Icon-only (no title) — objectives style
+
+<FeatureList>
+
+<Feature>
+<Fragment slot="icon">
+
+![](./tide-payments/okrs.png)
+
+</Fragment>
+
+We would align with business OKRs on member satisfaction and revenue.
+
+</Feature>
+
+<Feature>
+<Fragment slot="icon">
+
+![](./tide-payments/gold-standard.png)
+
+</Fragment>
+
+Payments should become our company gold standard for UX.
+
+</Feature>
+
+</FeatureList>
+
+</Section>
+
+<Section title="Credits">
+
+<LogoStrip>
+
+![Client one](./tide-payments/gold-standard.png)
+![Client two](./tide-payments/experience.png)
+![Client three](./tide-payments/features.png)
+
+</LogoStrip>
+
+</Section>
+
+<Credits
+  role="Design / Strategic Lead"
+  tools={["Figma", "Figjam", "Zeroheight", "Confluence", "Invision"]}
+  date="Summer 2020 – Apr 2022"
+  team={[
+    "Oscar Wong, Lead UI Designer",
+    "Alex Frewin, Head of Product Design",
+    "Liam Thomas, Product Designer",
+    "Katie Hayward, UX Writer",
+  ]}
+/>

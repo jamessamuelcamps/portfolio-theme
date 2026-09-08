@@ -1,0 +1,17 @@
+---
+interface Props {
+  /** Optional bold heading above the body text */
+  title?: string;
+}
+
+const { title } = Astro.props;
+const hasIcon = Astro.slots.has('icon');
+---
+
+<div class="cs-feature">
+  <div class="cs-feature-icon">{hasIcon && <slot name="icon" />}</div>
+  <div class="cs-feature-body">
+    {title && <div class="cs-feature-title">{title}</div>}
+    <slot />
+  </div>
+</div>

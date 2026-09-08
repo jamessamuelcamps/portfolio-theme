@@ -1,0 +1,16 @@
+---
+interface Props {
+  /** Caption shown under the image */
+  caption?: string;
+  /** Width tier — see docs/case-study-components.md */
+  width?: 'prose' | 'wide';
+}
+
+const { caption, width = 'wide' } = Astro.props;
+const widthClass = width === 'wide' ? 'bleed-wide' : null;
+---
+
+<figure class:list={['cs-figure', widthClass]}>
+  <slot />
+  {caption && <figcaption class="cs-figure-caption">{caption}</figcaption>}
+</figure>

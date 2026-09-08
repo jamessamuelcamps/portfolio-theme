@@ -16,8 +16,10 @@ const projects = defineCollection({
     timeline: z.string().optional(),
     heroImage: image().optional(),
     heroImageAlt: z.string().optional(),
+    heroLayout: z.enum(['inset', 'wide']).default('inset'),
     tags: z.array(z.string()).default([]),
     order: z.number().default(999),
+    draft: z.boolean().default(false),
   }),
 });
 

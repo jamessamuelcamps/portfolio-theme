@@ -62,7 +62,11 @@
 
   /* Layout */
   --prose-max: 720px;
+  --wide-max: 1140px;
   --gutter: 1.5rem;
+
+  /* Rhythm between case-study sections (promoted from about.astro) */
+  --section-gap: calc(var(--space-16) + var(--space-8));
 
   /* Transitions — color/border/background only, never transform */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -71,6 +75,10 @@
 
 @media (min-width: 1024px) {
   :root { --gutter: 2rem; }
+}
+
+@media (min-width: 768px) {
+  :root { --section-gap: calc(var(--space-24) + var(--space-6)); }
 }
 
 /* Dark mode — pure inversion, same semantic names, opposite values */
@@ -192,6 +200,139 @@ code, pre {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   gap: var(--gutter);
+}
+
+/* ==========================================================================
+   Case-study layout — About-style label column
+
+   The case study body ( .cs-body ) is a full-width block inside .container.
+   Its direct children are centred: raw markdown (un-migrated studies) at
+   --prose-max, and <Section> blocks at --wide-max. Each <Section> is a
+   two-column grid — a hanging label column ( .cs-section-head ) and a prose
+   column ( .cs-section-body ) — mirroring .about-row on the About page.
+
+   Media inside a section body breaks out of the prose column with negative
+   inline margins, sized off --cs-body-inset (how far the prose column is
+   inset from the section's left edge). .case-study clips 50vw overshoot.
+   ========================================================================== */
+.case-study {
+  overflow-x: clip;
+  --cs-head-width: 15rem;
+}
+
+/* Direct children of the body wrapper are centred to a measure */
+.case-study .cs-body > * {
+  max-width: var(--prose-max);
+  margin-inline: auto;
+}
+
+.case-study .cs-body > .cs-section,
+.case-study .cs-body > .cs-credits,
+.case-study .cs-body > .cs-lead {
+  max-width: var(--wide-max);
+}
+
+/* Section: full-width number band, then label column + prose column */
+.cs-section {
+  --cs-body-inset: 0px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: var(--gutter);
+  align-items: start;
+}
+
+.cs-section + .cs-section {
+  margin-top: var(--section-gap);
+}
+
+/* Number / eyebrow band — its own full-width row above the two columns,
+   so the title top-aligns with the body copy. (Provisional bottom stroke.) */
+.cs-section-band {
+  grid-column: 1 / -1;
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.cs-section-eyebrow {
+  display: block;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-muted);
+}
+
+.cs-section-head {
+  margin-bottom: var(--space-4);
+}
+
+.case-study .cs-section-title {
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-snug);
+  margin: 0;
+}
+
+.case-study .cs-section-body :is(h3, h4) {
+  line-height: var(--line-height-snug);
+}
+
+.case-study .cs-section-body,
+.case-study .cs-section-body > p {
+  color: var(--color-text);
+}
+
+.case-study .cs-section-body {
+  max-width: var(--prose-max);
+}
+
+.case-study .cs-section-body > :first-child { margin-top: 0; }
+.case-study .cs-section-body > :last-child { margin-bottom: 0; }
+
+@media (min-width: 768px) {
+  .cs-section {
+    --cs-body-inset: calc(var(--cs-head-width) + var(--gutter));
+    grid-template-columns: var(--cs-head-width) minmax(0, 1fr);
+  }
+
+  .cs-section-head {
+    margin-bottom: 0;
+  }
+}
+
+/* Width tier inside a section body — media fills the whole section
+   (reclaims the label column via the negative inset margin) */
+.case-study .cs-section-body > .bleed-wide {
+  width: min(var(--wide-max), calc(100vw - 2 * var(--gutter)));
+  max-width: none;
+  margin-inline: calc(-1 * var(--cs-body-inset)) 0;
+}
+
+/* Fallback for a wide element used loose in .cs-body (not in a Section) */
+.case-study .cs-body > .bleed-wide {
+  width: min(var(--wide-max), calc(100vw - 2 * var(--gutter)));
+  max-width: none;
+  margin-inline: calc(50% - min(var(--wide-max) / 2, 50vw - var(--gutter)));
+}
+
+/* Case-study hero — sibling of the body wrapper. Centres itself on the same
+   measure as the header and section content (no inner padding, so a "wide"
+   hero is exactly as wide as the title and body above/below it). */
+.case-study-hero {
+  margin-block: var(--space-8);
+  margin-inline: auto;
+}
+
+.case-study-hero-image {
+  width: 100%;
+}
+
+.case-study-hero--inset {
+  width: min(var(--prose-max), 100% - 2 * var(--gutter));
+}
+
+.case-study-hero--wide {
+  width: min(var(--wide-max), 100% - 2 * var(--gutter));
 }
 
 /* Tag / Badge */
@@ -371,4 +512,489 @@ ul.statement-list {
 
 .statement-list li {
   margin: 0;
+}
+
+/* ==========================================================================
+   Case Study Components
+
+   Styling for the components in src/components/ consumed by case studies
+   (src/content/projects/*.mdx). Everything is rendered inside
+   `.case-study .prose`, so selectors are `.case-study`-scoped to reliably
+   beat the base `.prose` element rules (0,2,x vs 0,1,x).
+
+   Rules:
+   - semantic tokens only — dark mode is automatic
+   - flat: 1px borders, no radius, no shadow, no hover on non-links
+   - no transform anywhere
+   - block-direction spacing uses `margin-block` so the width-tier utilities
+     (.bleed-wide / .bleed-full) keep control of `margin-inline`
+   See docs/case-study-components.md.
+   ========================================================================== */
+
+/* --- Flat pass: no image borders, no quote rules --------------------
+   The case study drops strokes everywhere except SectionDivider and the
+   provisional Section band rule. Card-like blocks switch to a surface fill. */
+.case-study .prose blockquote {
+  border-left: none;
+  padding-left: 0;
+}
+
+/* base `.prose figure img` sets a 1px border — kill it inside case studies */
+.case-study .prose img,
+.case-study .prose figure img {
+  border: none;
+}
+
+/* --- Shared: meta grid (Credits) ------------------------------------- */
+.meta-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.meta-label {
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+.meta-value {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+@media (min-width: 640px) {
+  .meta-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-8);
+  }
+}
+
+/* --- Section (label column) — see "Case-study layout" section above ---- */
+
+/* --- Lead ---------------------------------------------------------------- */
+.case-study .cs-lead {
+  padding-left: 0;
+  margin-block: var(--space-6);
+}
+
+.case-study .cs-lead::before {
+  content: none;
+}
+
+.case-study .cs-lead > p {
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+/* Standalone standfirst (not inside a Section) reads larger, like About */
+@media (min-width: 768px) {
+  .case-study .cs-body > .cs-lead {
+    font-size: var(--font-size-3xl);
+    margin-block: 0 var(--section-gap);
+  }
+}
+
+/* --- LabelledBlock ---------------------------------------------------- */
+.cs-labelled + .cs-labelled {
+  margin-top: var(--space-8);
+}
+
+.cs-labelled-label {
+  display: block;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-3);
+}
+
+.case-study .cs-labelled-body > :first-child { margin-top: 0; }
+.case-study .cs-labelled-body > :last-child { margin-bottom: 0; }
+
+/* --- PullQuote / QuoteStack ----------------------------------------- */
+.case-study .cs-pullquote {
+  margin-block: var(--space-8);
+}
+
+.case-study .cs-pullquote .cs-pullquote-text {
+  margin: 0;
+  padding-left: 0;
+  border-left: none;
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-snug);
+  color: var(--color-text);
+}
+
+.case-study .cs-pullquote-text > p {
+  margin: 0;
+  font: inherit;
+  color: inherit;
+}
+
+.case-study .cs-pullquote-text > * + * {
+  margin-top: var(--space-3);
+}
+
+.case-study .cs-pullquote .cs-pullquote-attribution {
+  display: block;
+  margin-top: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-align: left;
+}
+
+.case-study .cs-pullquote--testimonial .cs-pullquote-text {
+  font-size: var(--font-size-2xl);
+  letter-spacing: -0.03em;
+}
+
+.case-study .cs-quote-stack {
+  margin-block: var(--space-8);
+  display: grid;
+  gap: var(--space-6);
+}
+
+.case-study .cs-quote-stack blockquote {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-snug);
+}
+
+.case-study .cs-quote-stack blockquote p {
+  margin: 0;
+}
+
+/* --- Figure --------------------------------------------------------- */
+.case-study .cs-figure {
+  margin-block: var(--space-10);
+}
+
+.case-study .cs-figure > p {
+  margin: 0;
+  display: contents;
+}
+
+.case-study .cs-figure img {
+  width: 100%;
+}
+
+.case-study .cs-figure-caption {
+  display: block;
+  margin-top: var(--space-3);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* --- ImageGrid ---------------------------------------------------- */
+.case-study .cs-image-grid {
+  margin-block: var(--space-10);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+.case-study .cs-image-grid > p {
+  margin: 0;
+  display: contents;
+}
+
+.case-study .cs-image-grid img {
+  width: 100%;
+}
+
+.case-study .cs-image-grid > .cs-figure-caption {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 640px) {
+  .case-study .cs-image-grid--2,
+  .case-study .cs-image-grid--3,
+  .case-study .cs-image-grid--4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  .case-study .cs-image-grid--3 { grid-template-columns: repeat(3, 1fr); }
+  .case-study .cs-image-grid--4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* --- BeforeAfter ------------------------------------------------ */
+.case-study .cs-compare {
+  margin-block: var(--space-10);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gutter);
+}
+
+@media (min-width: 640px) {
+  .case-study .cs-compare {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.case-study .cs-compare-item {
+  margin: 0;
+}
+
+.case-study .cs-compare-label {
+  display: block;
+  margin-bottom: var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-muted);
+  text-align: left;
+}
+
+.case-study .cs-compare-item > p {
+  margin: 0;
+  display: contents;
+}
+
+.case-study .cs-compare-item img {
+  width: 100%;
+}
+
+/* --- StageCards ----------------------------------------------- */
+.case-study .cs-stage-cards {
+  margin-block: var(--space-10);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gutter);
+}
+
+@media (min-width: 560px) {
+  .case-study .cs-stage-cards { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 900px) {
+  .case-study .cs-stage-cards--3 { grid-template-columns: repeat(3, 1fr); }
+  .case-study .cs-stage-cards--4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+.cs-stage-card {
+  background-color: var(--color-surface);
+  padding: var(--space-5);
+}
+
+.case-study .cs-stage-card-media {
+  margin-bottom: var(--space-4);
+}
+
+.case-study .cs-stage-card-media > p {
+  margin: 0;
+  display: contents;
+}
+
+.case-study .cs-stage-card-media img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.case-study .cs-stage-card-title {
+  font-size: var(--font-size-lg);
+  color: var(--color-text);
+  margin: 0 0 var(--space-2);
+}
+
+.cs-stage-card-body {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.case-study .cs-stage-card-body > :first-child { margin-top: 0; }
+.case-study .cs-stage-card-body > :last-child { margin-bottom: 0; }
+
+/* --- InsightGrid -------------------------------------------- */
+.case-study .cs-insight-grid {
+  margin-block: var(--space-10);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gutter);
+}
+
+@media (min-width: 640px) {
+  .case-study .cs-insight-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 960px) {
+  .case-study .cs-insight-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.cs-insight-card {
+  background-color: var(--color-surface);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.cs-insight-figure {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+.cs-insight-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.cs-insight-problem {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.case-study .cs-insight-problem > p { margin: 0; }
+
+.cs-insight-idea {
+  margin-top: auto;
+  padding-top: var(--space-3);
+  font-size: var(--font-size-sm);
+  font-style: italic;
+  color: var(--color-text);
+}
+
+.case-study .cs-insight-idea > p { margin: 0; }
+
+.cs-insight-idea::before {
+  content: "Idea: ";
+  font-style: normal;
+  font-weight: var(--font-weight-semibold);
+}
+
+/* --- FeatureList ------------------------------------------ */
+.case-study .cs-feature-list {
+  margin-block: var(--space-8);
+  display: grid;
+  gap: var(--space-6);
+}
+
+.cs-feature {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.cs-feature-icon {
+  width: 40px;
+  min-width: 0;
+}
+
+.case-study .cs-feature-icon > p {
+  margin: 0;
+  display: contents;
+}
+
+/* Hard 40px cap — a grid item's min-content would otherwise let the
+   source image (often 128px) blow the icon column out. */
+.case-study .cs-feature-icon img {
+  width: 40px;
+  height: 40px;
+  border: none;
+  object-fit: contain;
+}
+
+.cs-feature-title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  margin-bottom: var(--space-1);
+}
+
+.cs-feature-body {
+  color: var(--color-text-secondary);
+}
+
+.case-study .cs-feature-body > :first-child { margin-top: 0; }
+.case-study .cs-feature-body > :last-child { margin-bottom: 0; }
+
+/* --- Credits --------------------------------------------- */
+.cs-credits {
+  margin-top: var(--section-gap);
+}
+
+.case-study .cs-section-body > .cs-credits {
+  margin-top: 0;
+}
+
+.cs-credits .meta-item {
+  gap: var(--space-2);
+}
+
+.case-study .cs-credits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-secondary);
+}
+
+.case-study .cs-credits-list li {
+  margin: 0;
+}
+
+/* --- SectionDivider ------------------------------------- */
+.case-study .cs-divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin-block: var(--section-gap);
+}
+
+/* --- LogoStrip ---------------------------------------- */
+.cs-logo-strip {
+  margin-block: var(--space-10);
+}
+
+.cs-logo-strip-heading {
+  display: block;
+  margin-bottom: var(--space-4);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-muted);
+}
+
+.cs-logo-strip-items {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.case-study .cs-logo-strip-items > p {
+  margin: 0;
+  display: contents;
+}
+
+.cs-logo-strip-items img {
+  height: 28px;
+  width: auto;
+  opacity: 0.6;
 }

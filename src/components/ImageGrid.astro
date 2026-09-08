@@ -1,0 +1,18 @@
+---
+interface Props {
+  /** Columns at desktop width (2 at ≥640px for 3/4) */
+  cols?: 2 | 3 | 4;
+  /** Width tier — see docs/case-study-components.md */
+  width?: 'prose' | 'wide';
+  /** Caption shown under the grid */
+  caption?: string;
+}
+
+const { cols = 3, width = 'wide', caption } = Astro.props;
+const widthClass = width === 'wide' ? 'bleed-wide' : null;
+---
+
+<figure class:list={['cs-image-grid', `cs-image-grid--${cols}`, widthClass]}>
+  <slot />
+  {caption && <figcaption class="cs-figure-caption">{caption}</figcaption>}
+</figure>

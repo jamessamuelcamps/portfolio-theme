@@ -7,35 +7,51 @@ role: "Lead Product Designer"
 timeline: "Ongoing"
 heroImage: "./tide-portal-design-system/Portal-Thumbnail.png"
 heroImageAlt: "Thumbnail showing Tide's Portal design system component library"
+heroLayout: "wide"
 tags: ["Design Systems","UI Architecture","Figma to Code","Design Tokens"]
 order: 3
 ---
+import Section from '../../components/Section.astro';
+import LabelledBlock from '../../components/LabelledBlock.astro';
+import Lead from '../../components/Lead.astro';
+import PullQuote from '../../components/PullQuote.astro';
 import StatTile from '../../components/StatTile.astro';
 import StatGrid from '../../components/StatGrid.astro';
+import Figure from '../../components/Figure.astro';
+import ImageGrid from '../../components/ImageGrid.astro';
+import FeatureList from '../../components/FeatureList.astro';
+import Feature from '../../components/Feature.astro';
+import Credits from '../../components/Credits.astro';
 
-## Context
+<Section number="01" title="Context">
 
-### The Brief
+<LabelledBlock label="The Brief">
 
 Systematise and scale Tide’s UI patterns to unify the product experience across web and mobile while accelerating feature delivery.
 
-### The Architectural Challenge
+</LabelledBlock>
+
+<LabelledBlock label="The Architectural Challenge">
 
 Consolidating disjointed platform libraries, legacy design debt, and multi-region guidelines into a single-source-of-truth system backed by clear, accessible documentation.
 
-### The Operational Win
+</LabelledBlock>
+
+<LabelledBlock label="The Operational Win">
 
 Elevated the profile of the design system business-wide, establishing self-service processes and component frameworks that saved extensive engineering time and increased overall shipping velocity.
 
-* * *
+</LabelledBlock>
 
-## Research & Discovery
+</Section>
+
+<Section number="02" title="Research & Discovery">
 
 ### Survey
 
 To better understand how the wider business works with the DS day-to-day, I sent a survey to all design, product and engineering teams. There were some clearly positive signs coming back, but then some not-so-positive ones too:
 
-<StatGrid>
+<StatGrid columns={3}>
   <StatTile value="94%">interacted with the design system often (44% interacted with it every day)</StatTile>
   <StatTile value="49%">knew what the process was for creating or updating a component</StatTile>
   <StatTile value="88%">felt the reason we have a design system was clear</StatTile>
@@ -48,53 +64,86 @@ To better understand how the wider business works with the DS day-to-day, I sent
 
 I set up a meeting with heads-of from engineering, product and design to present our findings and plan of action. I put forward proposals for:
 
-![Icon representing time estimates](./tide-portal-design-system/time-estimates.png)
+<FeatureList>
 
-#### Time estimates
+<Feature title="Time estimates">
+<Fragment slot="icon">
+
+![](./tide-portal-design-system/time-estimates.png)
+
+</Fragment>
 
 4 weeks of discovery, 8 weeks of design, split into 4x 2-week blocks
 
-![Icon representing a plan of action](./tide-portal-design-system/plan.png)
+</Feature>
 
-#### Plan of action
+<Feature title="Plan of action">
+<Fragment slot="icon">
+
+![](./tide-portal-design-system/plan.png)
+
+</Fragment>
 
 Catalogued, categorised by function, then prioritised into the 2-week blocks
 
-![Icon representing governance](./tide-portal-design-system/governance.png)
+</Feature>
 
-#### Governance
+<Feature title="Governance">
+<Fragment slot="icon">
+
+![](./tide-portal-design-system/governance.png)
+
+</Fragment>
 
 Specific objectives for project success and a RACI for all involved stakeholders
 
-![Icon representing a roadmap](./tide-portal-design-system/roadmap.png)
+</Feature>
 
-#### Roadmap
+<Feature title="Roadmap">
+<Fragment slot="icon">
+
+![](./tide-portal-design-system/roadmap.png)
+
+</Fragment>
 
 Higher-level plan for incorporating some of the new UI into our existing apps, ahead of migration
+
+</Feature>
+
+</FeatureList>
 
 This was received enthusiastically, so we started right away with our discovery phase: auditing the existing DS and researching best-in-class DS examples.
 
 ### Objectives
 
+<Lead>
+
 I felt it was important to align the project to more vision-based objectives, rather than simply focus on deliverables.
 
+</Lead>
+
+<Figure caption="Design system project objectives">
+
 ![Design system project objectives](./tide-portal-design-system/portal-objectives-2.png)
+
+</Figure>
 
 ### Audit
 
 Oscar and I completed an audit of our existing system, looking at 10 main factors.
 
+<ImageGrid cols={2}>
+
 ![Design system audit summary, part 1](./tide-portal-design-system/audit-1.png)
-
 ![Design system audit summary, part 2](./tide-portal-design-system/audit-2.png)
-
 ![Design system audit summary, part 3](./tide-portal-design-system/audit-3.png)
-
 ![Design system audit summary, part 4](./tide-portal-design-system/audit-4.png)
 
-* * *
+</ImageGrid>
 
-## Design
+</Section>
+
+<Section number="03" title="Design">
 
 ### Cross-platform approach
 
@@ -104,67 +153,80 @@ As our discovery progressed this made less sense, especially as the web platform
 
 Why have two components in a library when one can work across both?
 
-> This cross-platform foundation allowed us to create a single component library that supported both platforms, with 60% fewer components than before.
+<PullQuote>
+
+This cross-platform foundation allowed us to create a single component library that supported both platforms, with 60% fewer components than before.
+
+</PullQuote>
 
 ### Creating components
 
 Liam and I started working on the components I had outlined for each sprint. We had a visual direction to work with and I delegated most of the component construction to Liam, so that they would have a sole ‘owner’ and be more consistent. I provided creative direction, and defined the logic of how each new component would be used in future design work.
 
-![New design system component elements](./tide-portal-design-system/DS-elements.png)
+<ImageGrid cols={2}>
 
+![New design system component elements](./tide-portal-design-system/DS-elements.png)
 ![Web and app components shown responsively side by side](./tide-portal-design-system/web-app-responsive.png)
 
-* * *
+</ImageGrid>
 
-## Information Architecture
+</Section>
+
+<Section number="04" title="Information Architecture">
 
 Both apps suffered from poor IA that had built up over time. When the web app was built it was given a completely different structure to the mobile app for some reason, so the location of features was inconsistent across platforms.
 
 Meanwhile, lots of features had been added to the mobile app over the years, with little high-level product direction. Most new features had to live in ‘More’, which research had shown to have a very high failure rate for discoverability – as high as 80-90% in some cases.
 
-![Chart showing feature discoverability issues, part 1](./tide-portal-design-system/charts1-1024x666.png)
+<ImageGrid cols={2}>
 
+![Chart showing feature discoverability issues, part 1](./tide-portal-design-system/charts1-1024x666.png)
 ![Chart showing feature discoverability issues, part 2](./tide-portal-design-system/charts2-1024x667.png)
+
+</ImageGrid>
 
 As part of this project, we aligned the web app primary navigation to the mobile app, provided a scalable secondary nav component for both platforms, and separated options related to user details and preferences into a dedicated ‘user’ area.
 
-![Structural model diagram for the web app](./tide-portal-design-system/int-model-web.png)
-
 #### Structural model for web
 
-Large view with sidesheet for displaying items and small tasks; medium view with visible primary nav; small view with expanded user menu.
+<Figure caption="Structural model diagram for the web app">
 
-All breakpoints feature a persistent secondary navigation where required
+![Structural model diagram for the web app](./tide-portal-design-system/int-model-web.png)
 
-![Structural model diagram for the mobile app](./tide-portal-design-system/int-model-mobile.png)
+</Figure>
+
+Large view with sidesheet for displaying items and small tasks; medium view with visible primary nav; small view with expanded user menu. All breakpoints feature a persistent secondary navigation where required.
 
 #### Structural model for mobile app
 
-Same primary navigation as web. Bottom sheets used to display overflow menus. Modal views for same purpose as sidesheets.
+<Figure caption="Structural model diagram for the mobile app">
 
-Tab controls and search incorporated into app header
+![Structural model diagram for the mobile app](./tide-portal-design-system/int-model-mobile.png)
 
-* * *
+</Figure>
 
-## Documentation
+Same primary navigation as web. Bottom sheets used to display overflow menus. Modal views for same purpose as sidesheets. Tab controls and search incorporated into app header.
+
+</Section>
+
+<Section number="05" title="Documentation">
 
 To aid the designers in the team, and answer a pain point from my survey, I personally wrote over 100 pages of documentation for the components. I used Zeroheight, covering everything from correct component usage to writing consistent UX copy.
 
+<ImageGrid cols={3}>
+
 ![Zeroheight documentation example, page 1](./tide-portal-design-system/zeroheight-example-1-1024x640.png)
-
 ![Zeroheight documentation example, page 2](./tide-portal-design-system/zeroheight-example-4-1024x640.png)
-
 ![Zeroheight documentation example, page 3](./tide-portal-design-system/zeroheight-example-2-1-1024x640.png)
-
 ![Zeroheight documentation example, page 4](./tide-portal-design-system/zeroheight-example-5-1024x640.png)
-
 ![Zeroheight documentation example, page 5](./tide-portal-design-system/zeroheight-example-3-1024x640.png)
-
 ![Zeroheight documentation example, page 6](./tide-portal-design-system/zeroheight-example-6-1024x640.png)
 
-* * *
+</ImageGrid>
 
-## Maintenance, ownership & advocacy
+</Section>
+
+<Section number="06" title="Maintenance, ownership & advocacy">
 
 ### Contribution model
 
@@ -180,7 +242,11 @@ They wanted to know what updates were being made, how their suggestions were pro
 
 In response, I created a dedicated Slack channel where we would post all significant updates. I also hosted a weekly 30-minute clinic where designers could drop in and ask any questions or share work.
 
-> After two months, around half of the design team had attended at least one session, and we had logged nearly ten significant updates to be carried out.
+<PullQuote>
+
+After two months, around half of the design team had attended at least one session, and we had logged nearly ten significant updates to be carried out.
+
+</PullQuote>
 
 ### Delegating
 
@@ -194,9 +260,9 @@ Finally, in order to ensure a seamless transition from one DS and product file s
 
 I set up an entirely new structure for all business areas — we now had clearer and lighter file structures, dedicated spaces for research/workshop materials, and more spaces for working and iteration.
 
-* * *
+</Section>
 
-## Conclusion
+<Section number="07" title="Conclusion">
 
 The Portal design system is one of my favourite projects that I’ve worked on. It was deeply collaborative, drove incredible efficiencies and communication within the team and beyond, and helped to elevate my personal profile within the business by giving me dedicated face-time with senior stakeholders.
 
@@ -208,26 +274,21 @@ The main thing I learned from this project is that for all the talk of design sy
 
 Beautiful UI is great but if your team don’t know how to use it, or feel that they can engage with it, then the whole thing will wither and die. Design systems need to be treated like products within themselves, with continuous ongoing development and input.
 
-* * *
+</Section>
 
-## Credits
+<Section title="Credits">
 
-**My role**  
-Design/Strategic Lead
+<Credits
+  role="Design / Strategic Lead"
+  tools={["Figma", "Figjam", "Zeroheight", "Confluence", "Invision"]}
+  date="Summer 2020 – Apr 2022"
+  team={[
+    "Oscar Wong, Lead UI Designer",
+    "Alex Frewin, Head of Product Design",
+    "Liam Thomas, Product Designer",
+    "Katie Hayward, UX Writer",
+    "Tarunya Varma, Product Designer",
+  ]}
+/>
 
-**Tools used**  
-Figma  
-Figjam  
-Zeroheight  
-Confluence  
-Invision
-
-**Date**  
-Summer 2020-Apr 2022
-
-**Team**  
-Oscar Wong, Lead UI Designer  
-Alex Frewin, Head of Product Design  
-Liam Thomas, Product Designer  
-Katie Hayward, UX Writer  
-Tarunya Varma, Product Designer
+</Section>

@@ -8,5 +8,11 @@ export default defineConfig({
   // Replace with your actual domain when deploying to Dreamhost
   site: 'https://jamessamuelcamps.com',
   output: 'static',
-  integrations: [mdx(), sitemap()],
+  integrations: [
+    mdx(),
+    sitemap({
+      // Keep the hidden kitchen-sink case study out of the sitemap
+      filter: (page) => !page.includes('/work/kitchen-sink'),
+    }),
+  ],
 });
