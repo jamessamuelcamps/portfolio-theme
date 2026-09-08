@@ -336,3 +336,39 @@ code, pre {
   border-top: 1px solid var(--color-border);
   margin: 2.5rem 0;
 }
+
+/* ==========================================================================
+   Statement — the hero-quote treatment at a smaller, reusable scale, led by
+   an em-dash. Sits between body copy and display headings. Use on a pulled
+   sentence, a lead paragraph, or the items of a .statement-list.
+   ========================================================================== */
+.statement,
+.statement-list li {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-normal);
+  letter-spacing: -0.05em;
+  color: var(--color-text);
+  padding-left: 1.4em;
+}
+
+/* Em-dash sits in the padding; both lines of wrapped text stay aligned */
+.statement::before,
+.statement-list li::before {
+  content: "—";
+  display: inline-block;
+  width: 1.4em;
+  margin-left: -1.4em;
+}
+
+/* A short list of statements */
+ul.statement-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.statement-list li {
+  margin: 0;
+}
