@@ -5,7 +5,7 @@ publishDate: 2024-10-18
 client: "Tide"
 role: "Lead Product Designer"
 timeline: "Ongoing"
-heroImage: "./tide-portal-design-system/Portal-Thumbnail.png"
+heroImage: "./tide-portal-design-system/portal-thumbnail.png"
 heroImageAlt: "Thumbnail showing Tide's Portal design system component library"
 heroLayout: "wide"
 tags: ["Design Systems","UI Architecture","Figma to Code","Design Tokens"]
@@ -19,8 +19,8 @@ import StatTile from '../../components/StatTile.astro';
 import StatGrid from '../../components/StatGrid.astro';
 import Figure from '../../components/Figure.astro';
 import ImageGrid from '../../components/ImageGrid.astro';
-import FeatureList from '../../components/FeatureList.astro';
-import Feature from '../../components/Feature.astro';
+import Journey from '../../components/Journey.astro';
+import Stage from '../../components/Stage.astro';
 import Credits from '../../components/Credits.astro';
 
 <Section number="01" title="Context">
@@ -64,9 +64,9 @@ To better understand how the wider business works with the DS day-to-day, I sent
 
 I set up a meeting with heads-of from engineering, product and design to present our findings and plan of action. I put forward proposals for:
 
-<FeatureList>
+<Journey columns={4}>
 
-<Feature title="Time estimates">
+<Stage title="Time estimates">
 <Fragment slot="icon">
 
 ![](./tide-portal-design-system/time-estimates.png)
@@ -75,9 +75,9 @@ I set up a meeting with heads-of from engineering, product and design to present
 
 4 weeks of discovery, 8 weeks of design, split into 4x 2-week blocks
 
-</Feature>
+</Stage>
 
-<Feature title="Plan of action">
+<Stage title="Plan of action">
 <Fragment slot="icon">
 
 ![](./tide-portal-design-system/plan.png)
@@ -86,9 +86,9 @@ I set up a meeting with heads-of from engineering, product and design to present
 
 Catalogued, categorised by function, then prioritised into the 2-week blocks
 
-</Feature>
+</Stage>
 
-<Feature title="Governance">
+<Stage title="Governance">
 <Fragment slot="icon">
 
 ![](./tide-portal-design-system/governance.png)
@@ -97,9 +97,9 @@ Catalogued, categorised by function, then prioritised into the 2-week blocks
 
 Specific objectives for project success and a RACI for all involved stakeholders
 
-</Feature>
+</Stage>
 
-<Feature title="Roadmap">
+<Stage title="Roadmap">
 <Fragment slot="icon">
 
 ![](./tide-portal-design-system/roadmap.png)
@@ -108,23 +108,19 @@ Specific objectives for project success and a RACI for all involved stakeholders
 
 Higher-level plan for incorporating some of the new UI into our existing apps, ahead of migration
 
-</Feature>
+</Stage>
 
-</FeatureList>
+</Journey>
 
 This was received enthusiastically, so we started right away with our discovery phase: auditing the existing DS and researching best-in-class DS examples.
 
 ### Objectives
 
-<Lead>
+I felt it was important to align the project to more vision-based objectives, rather than simply focus on deliverables:
 
-I felt it was important to align the project to more vision-based objectives, rather than simply focus on deliverables.
+<Figure caption="Design system project objectives" width="prose">
 
-</Lead>
-
-<Figure caption="Design system project objectives">
-
-![Design system project objectives](./tide-portal-design-system/portal-objectives-2.png)
+![Design system project objectives](./tide-portal-design-system/portal-objectives.png)
 
 </Figure>
 
@@ -132,7 +128,7 @@ I felt it was important to align the project to more vision-based objectives, ra
 
 Oscar and I completed an audit of our existing system, looking at 10 main factors.
 
-<ImageGrid cols={2}>
+<ImageGrid cols={2} width="prose">
 
 ![Design system audit summary, part 1](./tide-portal-design-system/audit-1.png)
 ![Design system audit summary, part 2](./tide-portal-design-system/audit-2.png)
@@ -163,7 +159,7 @@ This cross-platform foundation allowed us to create a single component library t
 
 Liam and I started working on the components I had outlined for each sprint. We had a visual direction to work with and I delegated most of the component construction to Liam, so that they would have a sole ‘owner’ and be more consistent. I provided creative direction, and defined the logic of how each new component would be used in future design work.
 
-<ImageGrid cols={2}>
+<ImageGrid cols={1} width="wide">
 
 ![New design system component elements](./tide-portal-design-system/DS-elements.png)
 ![Web and app components shown responsively side by side](./tide-portal-design-system/web-app-responsive.png)
@@ -178,7 +174,7 @@ Both apps suffered from poor IA that had built up over time. When the web app wa
 
 Meanwhile, lots of features had been added to the mobile app over the years, with little high-level product direction. Most new features had to live in ‘More’, which research had shown to have a very high failure rate for discoverability – as high as 80-90% in some cases.
 
-<ImageGrid cols={2}>
+<ImageGrid cols={2} width="prose">
 
 ![Chart showing feature discoverability issues, part 1](./tide-portal-design-system/charts1-1024x666.png)
 ![Chart showing feature discoverability issues, part 2](./tide-portal-design-system/charts2-1024x667.png)
@@ -189,23 +185,25 @@ As part of this project, we aligned the web app primary navigation to the mobile
 
 #### Structural model for web
 
-<Figure caption="Structural model diagram for the web app">
+Large view with sidesheet for displaying items and small tasks; medium view with visible primary nav; small view with expanded user menu. All breakpoints feature a persistent secondary navigation where required.
+
+
+<Figure caption="Structural model diagram for the web app" width="prose">
 
 ![Structural model diagram for the web app](./tide-portal-design-system/int-model-web.png)
 
 </Figure>
 
-Large view with sidesheet for displaying items and small tasks; medium view with visible primary nav; small view with expanded user menu. All breakpoints feature a persistent secondary navigation where required.
-
 #### Structural model for mobile app
 
-<Figure caption="Structural model diagram for the mobile app">
+Same primary navigation as web. Bottom sheets used to display overflow menus. Modal views for same purpose as sidesheets. Tab controls and search incorporated into app header.
+
+<Figure caption="Structural model diagram for the mobile app" width="prose">
 
 ![Structural model diagram for the mobile app](./tide-portal-design-system/int-model-mobile.png)
 
 </Figure>
 
-Same primary navigation as web. Bottom sheets used to display overflow menus. Modal views for same purpose as sidesheets. Tab controls and search incorporated into app header.
 
 </Section>
 
@@ -213,7 +211,7 @@ Same primary navigation as web. Bottom sheets used to display overflow menus. Mo
 
 To aid the designers in the team, and answer a pain point from my survey, I personally wrote over 100 pages of documentation for the components. I used Zeroheight, covering everything from correct component usage to writing consistent UX copy.
 
-<ImageGrid cols={3}>
+<ImageGrid cols={2} width="prose">
 
 ![Zeroheight documentation example, page 1](./tide-portal-design-system/zeroheight-example-1-1024x640.png)
 ![Zeroheight documentation example, page 2](./tide-portal-design-system/zeroheight-example-4-1024x640.png)

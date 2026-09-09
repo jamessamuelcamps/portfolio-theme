@@ -630,18 +630,22 @@ ul.statement-list {
   margin-block: var(--space-8);
 }
 
+/* Type treatment (size / weight / tracking) comes from .statement; the quote
+   sits flush, without the em-dash leader. */
 .case-study .cs-pullquote .cs-pullquote-text {
   margin: 0;
   padding-left: 0;
   border-left: none;
-  font-size: var(--font-size-xl);
-  line-height: var(--line-height-snug);
-  color: var(--color-text);
+}
+
+.case-study .cs-pullquote .cs-pullquote-text::before {
+  content: none;
 }
 
 .case-study .cs-pullquote-text > p {
   margin: 0;
   font: inherit;
+  letter-spacing: inherit;
   color: inherit;
 }
 
@@ -651,15 +655,10 @@ ul.statement-list {
 
 .case-study .cs-pullquote .cs-pullquote-attribution {
   display: block;
-  margin-top: var(--space-3);
+  margin-top: var(--space-4);
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
   text-align: left;
-}
-
-.case-study .cs-pullquote--testimonial .cs-pullquote-text {
-  font-size: var(--font-size-2xl);
-  letter-spacing: -0.03em;
 }
 
 .case-study .cs-quote-stack {
@@ -772,59 +771,11 @@ ul.statement-list {
   width: 100%;
 }
 
-/* --- StageCards ----------------------------------------------- */
-.case-study .cs-stage-cards {
-  margin-block: var(--space-10);
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--gutter);
-}
-
-@media (min-width: 560px) {
-  .case-study .cs-stage-cards { grid-template-columns: repeat(2, 1fr); }
-}
-
-@media (min-width: 900px) {
-  .case-study .cs-stage-cards--3 { grid-template-columns: repeat(3, 1fr); }
-  .case-study .cs-stage-cards--4 { grid-template-columns: repeat(4, 1fr); }
-}
-
-.cs-stage-card {
-  background-color: var(--color-surface);
-  padding: var(--space-5);
-}
-
-.case-study .cs-stage-card-media {
-  margin-bottom: var(--space-4);
-}
-
-.case-study .cs-stage-card-media > p {
-  margin: 0;
-  display: contents;
-}
-
-.case-study .cs-stage-card-media img {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-}
-
-.case-study .cs-stage-card-title {
-  font-size: var(--font-size-lg);
-  color: var(--color-text);
-  margin: 0 0 var(--space-2);
-}
-
-.cs-stage-card-body {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-
-.case-study .cs-stage-card-body > :first-child { margin-top: 0; }
-.case-study .cs-stage-card-body > :last-child { margin-bottom: 0; }
-
-/* --- InsightGrid -------------------------------------------- */
-.case-study .cs-insight-grid {
+/* --- CardGrid / Card — one bordered block for journey stages, analysis
+   insights and icon-led objectives. Each part is optional: icon, title,
+   body, footer. Single column on mobile, 2-up from 640px, 3/4-up from 900px
+   per data-columns (capped at 4). */
+.case-study .cs-card-grid {
   margin-block: var(--space-10);
   display: grid;
   grid-template-columns: 1fr;
@@ -832,104 +783,138 @@ ul.statement-list {
 }
 
 @media (min-width: 640px) {
-  .case-study .cs-insight-grid { grid-template-columns: repeat(2, 1fr); }
+  .case-study .cs-card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-@media (min-width: 960px) {
-  .case-study .cs-insight-grid { grid-template-columns: repeat(3, 1fr); }
+@media (min-width: 900px) {
+  .case-study .cs-card-grid[data-columns="3"] {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .case-study .cs-card-grid[data-columns="4"] {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
-.cs-insight-card {
-  background-color: var(--color-surface);
-  padding: var(--space-5);
+.cs-card {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
 }
 
-.cs-insight-figure {
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-bold);
-  line-height: var(--line-height-tight);
-  letter-spacing: -0.02em;
-  color: var(--color-text);
-}
-
-.cs-insight-title {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text);
-}
-
-.cs-insight-problem {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-
-.case-study .cs-insight-problem > p { margin: 0; }
-
-.cs-insight-idea {
-  margin-top: auto;
-  padding-top: var(--space-3);
-  font-size: var(--font-size-sm);
-  font-style: italic;
-  color: var(--color-text);
-}
-
-.case-study .cs-insight-idea > p { margin: 0; }
-
-.cs-insight-idea::before {
-  content: "Idea: ";
-  font-style: normal;
-  font-weight: var(--font-weight-semibold);
-}
-
-/* --- FeatureList ------------------------------------------ */
-.case-study .cs-feature-list {
-  margin-block: var(--space-8);
-  display: grid;
-  gap: var(--space-6);
-}
-
-.cs-feature {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: var(--space-4);
-  align-items: start;
-}
-
-.cs-feature-icon {
+.cs-card-icon {
   width: 40px;
-  min-width: 0;
 }
 
-.case-study .cs-feature-icon > p {
+.case-study .cs-card-icon > p {
   margin: 0;
   display: contents;
 }
 
-/* Hard 40px cap — a grid item's min-content would otherwise let the
-   source image (often 128px) blow the icon column out. */
-.case-study .cs-feature-icon img {
+.case-study .cs-card-icon img {
   width: 40px;
   height: 40px;
   border: none;
   object-fit: contain;
 }
 
-.cs-feature-title {
+.cs-card-title {
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text);
-  margin-bottom: var(--space-1);
 }
 
-.cs-feature-body {
+.cs-card-body {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
   color: var(--color-text-secondary);
 }
 
-.case-study .cs-feature-body > :first-child { margin-top: 0; }
-.case-study .cs-feature-body > :last-child { margin-bottom: 0; }
+.case-study .cs-card-body > :first-child { margin-top: 0; }
+.case-study .cs-card-body > :last-child { margin-bottom: 0; }
+
+/* Footer pins to the base of an equal-height card (the "Idea" line on an
+   analysis card, say) */
+.cs-card-footer {
+  margin-top: auto;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  color: var(--color-text);
+}
+
+.case-study .cs-card-footer > :first-child { margin-top: 0; }
+.case-study .cs-card-footer > :last-child { margin-bottom: 0; }
+
+/* --- Journey — multi-column, icon → title → subtitle stack per stage,
+   no background. Single column on mobile, 2-up from 640px, 3/4-up from 900px
+   when data-columns asks for it (capped at 4). */
+.case-study .cs-journey {
+  margin-block: var(--space-8);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8) var(--gutter);
+}
+
+@media (min-width: 640px) {
+  .case-study .cs-journey {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  .case-study .cs-journey[data-columns="3"] {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .case-study .cs-journey[data-columns="4"] {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.cs-journey-stage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.cs-journey-stage-icon {
+  width: 40px;
+}
+
+.case-study .cs-journey-stage-icon > p {
+  margin: 0;
+  display: contents;
+}
+
+/* Hard 40px cap — the source image (often 128px) would otherwise set the
+   column's min-content width. */
+.case-study .cs-journey-stage-icon img {
+  width: 40px;
+  height: 40px;
+  border: none;
+  object-fit: contain;
+}
+
+.cs-journey-stage-title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.cs-journey-stage-body {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-secondary);
+}
+
+.case-study .cs-journey-stage-body > :first-child { margin-top: 0; }
+.case-study .cs-journey-stage-body > :last-child { margin-bottom: 0; }
 
 /* --- Credits --------------------------------------------- */
 .cs-credits {
@@ -964,37 +949,4 @@ ul.statement-list {
   border: none;
   border-top: 1px solid var(--color-border);
   margin-block: var(--section-gap);
-}
-
-/* --- LogoStrip ---------------------------------------- */
-.cs-logo-strip {
-  margin-block: var(--space-10);
-}
-
-.cs-logo-strip-heading {
-  display: block;
-  margin-bottom: var(--space-4);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
-  color: var(--color-text-muted);
-}
-
-.cs-logo-strip-items {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-8);
-}
-
-.case-study .cs-logo-strip-items > p {
-  margin: 0;
-  display: contents;
-}
-
-.cs-logo-strip-items img {
-  height: 28px;
-  width: auto;
-  opacity: 0.6;
 }

@@ -22,14 +22,11 @@ import StatTile from '../../components/StatTile.astro';
 import Figure from '../../components/Figure.astro';
 import ImageGrid from '../../components/ImageGrid.astro';
 import BeforeAfter from '../../components/BeforeAfter.astro';
-import StageCards from '../../components/StageCards.astro';
-import StageCard from '../../components/StageCard.astro';
-import InsightGrid from '../../components/InsightGrid.astro';
-import InsightCard from '../../components/InsightCard.astro';
-import FeatureList from '../../components/FeatureList.astro';
-import Feature from '../../components/Feature.astro';
+import Journey from '../../components/Journey.astro';
+import Stage from '../../components/Stage.astro';
+import CardGrid from '../../components/CardGrid.astro';
+import Card from '../../components/Card.astro';
 import Credits from '../../components/Credits.astro';
-import LogoStrip from '../../components/LogoStrip.astro';
 
 <Lead>
 
@@ -87,6 +84,10 @@ A `.statement-list` for pulled points:
   <li>Mastering strict information hierarchy</li>
 </ul>
 
+</Section>
+
+<Section eyebrow="Metrics" title="Stats">
+
 #### Single stat
 
 <StatGrid columns={1}>
@@ -113,14 +114,6 @@ A `.statement-list` for pulled points:
   <StatTile value="10–20%">uplift by partner</StatTile>
 </StatGrid>
 
-#### Default (unset columns — legacy behaviour)
-
-<StatGrid>
-  <StatTile value="28%">metric one</StatTile>
-  <StatTile value="5.5">metric two</StatTile>
-  <StatTile value="13%">metric three</StatTile>
-</StatGrid>
-
 </Section>
 
 <Section eyebrow="Voice" title="Quotes">
@@ -136,12 +129,6 @@ an experience-led stream that can evolve to tackle any demands.
 
 That page looks really cool. The previous version was factually all there but
 visually it didn't inspire enough excitement.
-
-</PullQuote>
-
-<PullQuote variant="testimonial" cite="Design Director" role="VML">
-
-His trainers are shit and he's too tall. No-one even likes him.
 
 </PullQuote>
 
@@ -208,59 +195,13 @@ His trainers are shit and he's too tall. No-one even likes him.
 
 </Section>
 
-<Section eyebrow="Journey" title="Stage cards">
+<Section eyebrow="Process" title="Journey">
 
-<StageCards>
-  <StageCard title="Fact-find">Understand the customer's financial situation.</StageCard>
-  <StageCard title="Customise">Add details for accurate savings figures.</StageCard>
-  <StageCard title="Cross-sell">Save for non-deposit items; choose accounts.</StageCard>
-  <StageCard title="Track">Monitor progress and access resources.</StageCard>
-</StageCards>
+Icon → title → subtitle stages, no background, sitting in the prose column.
 
-<StageCards columns={2}>
-  <StageCard title="With media">
-    <Fragment slot="media">
+<Journey columns={3}>
 
-![Stage screenshot](./moneybox-goals/fact-find.png)
-
-    </Fragment>
-    A stage card that includes an image above the title.
-  </StageCard>
-  <StageCard title="Without media">
-    A stage card with no image, for comparison.
-  </StageCard>
-</StageCards>
-
-</Section>
-
-<Section eyebrow="Analysis" title="Insight cards">
-
-<InsightGrid>
-  <InsightCard figure="46%" title="Recipients">
-    <Fragment slot="problem">of payments by active customers went to one of the last three recipients.</Fragment>
-    <Fragment slot="idea">Provide a "Recent" section in the recipients list.</Fragment>
-  </InsightCard>
-  <InsightCard figure="19%" title="Multiple payments">
-    <Fragment slot="problem">of payments happened under 3 minutes after the previous one.</Fragment>
-    <Fragment slot="idea">Offer "make another payment" straight after submitting.</Fragment>
-  </InsightCard>
-  <InsightCard figure="80%" title="Account holders">
-    <Fragment slot="problem">of payments by multiple account holders came from the primary account.</Fragment>
-    <Fragment slot="idea">Pre-select the primary account as the "From" account.</Fragment>
-  </InsightCard>
-  <InsightCard figure="65%" title="Repeated payments">
-    <Fragment slot="problem">of scheduled payments were "send once" and "tomorrow".</Fragment>
-    <Fragment slot="idea">Pre-select those defaults to cover two-thirds with one tap.</Fragment>
-  </InsightCard>
-</InsightGrid>
-
-</Section>
-
-<Section eyebrow="Proposal" title="Feature list">
-
-<FeatureList>
-
-<Feature title="Time estimates">
+<Stage title="Time estimates">
 <Fragment slot="icon">
 
 ![](./tide-portal-design-system/time-estimates.png)
@@ -269,9 +210,9 @@ His trainers are shit and he's too tall. No-one even likes him.
 
 4 weeks of discovery, 8 weeks of design, split into 4×2-week blocks.
 
-</Feature>
+</Stage>
 
-<Feature title="Plan of action">
+<Stage title="Plan of action">
 <Fragment slot="icon">
 
 ![](./tide-portal-design-system/plan.png)
@@ -280,9 +221,9 @@ His trainers are shit and he's too tall. No-one even likes him.
 
 Catalogued, categorised by function, then prioritised into the blocks.
 
-</Feature>
+</Stage>
 
-<Feature title="Governance">
+<Stage title="Governance">
 <Fragment slot="icon">
 
 ![](./tide-portal-design-system/governance.png)
@@ -291,26 +232,43 @@ Catalogued, categorised by function, then prioritised into the blocks.
 
 Specific objectives for success and a RACI for all stakeholders.
 
-</Feature>
+</Stage>
 
-</FeatureList>
+</Journey>
 
-#### Icon-only (no title) — objectives style
+</Section>
 
-<FeatureList>
+<Section eyebrow="Blocks" title="Cards">
 
-<Feature>
-<Fragment slot="icon">
+A bordered card with every part optional — icon, title, body, footer. Below:
+title + body + footer, icon + title + body, icon + body (no title), title + body.
 
-![](./tide-payments/okrs.png)
+<CardGrid columns={2}>
+
+<Card title="Recipients">
+
+Of payments by active customers, 46% went to one of the last three recipients.
+
+<Fragment slot="footer">
+
+**Idea:** Provide a "Recent" section in the recipients list.
 
 </Fragment>
 
-We would align with business OKRs on member satisfaction and revenue.
+</Card>
 
-</Feature>
+<Card title="Repeated payments">
+<Fragment slot="icon">
 
-<Feature>
+![](./tide-payments/repeat.png)
+
+</Fragment>
+
+65% of scheduled payments were "send once" and "tomorrow".
+
+</Card>
+
+<Card>
 <Fragment slot="icon">
 
 ![](./tide-payments/gold-standard.png)
@@ -319,23 +277,19 @@ We would align with business OKRs on member satisfaction and revenue.
 
 Payments should become our company gold standard for UX.
 
-</Feature>
+</Card>
 
-</FeatureList>
+<Card title="Track">
+
+Monitor progress against the goal and surface the next best action.
+
+</Card>
+
+</CardGrid>
 
 </Section>
 
 <Section title="Credits">
-
-<LogoStrip>
-
-![Client one](./tide-payments/gold-standard.png)
-![Client two](./tide-payments/experience.png)
-![Client three](./tide-payments/features.png)
-
-</LogoStrip>
-
-</Section>
 
 <Credits
   role="Design / Strategic Lead"
@@ -348,3 +302,5 @@ Payments should become our company gold standard for UX.
     "Katie Hayward, UX Writer",
   ]}
 />
+
+</Section>

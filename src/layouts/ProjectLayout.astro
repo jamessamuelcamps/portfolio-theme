@@ -43,22 +43,14 @@ const { title, description, heroImage, heroImageAlt, heroLayout, draft } = proje
       <div class="prose cs-body">
         <slot />
       </div>
-
-      <footer class="case-study-footer">
-        <div class="footer-cta">
-          <p>Interested in collaborating on your next product challenge?</p>
-          <a href="mailto:hello@james-sc.co.uk" class="btn btn-primary">Get in Touch</a>
-        </div>
-      </footer>
     </div>
   </article>
 </BaseLayout>
 
 <style>
-  /* Header, hero, body and footer all align to the same centred measure */
+  /* Header, hero and body all align to the same centred measure */
   .back-nav,
-  .case-study-header,
-  .case-study-footer {
+  .case-study-header {
     max-width: var(--wide-max);
     margin-inline: auto;
   }
@@ -99,18 +91,5 @@ const { title, description, heroImage, heroImageAlt, heroLayout, draft } = proje
   }
 
   /* .meta-grid* now lives in global.css (shared with the Credits component) */
-
-  .case-study-footer {
-    margin-top: var(--section-gap);
-  }
-
-  .footer-cta {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: var(--space-4);
-    padding: var(--space-8) 0;
-  }
 </style>
 

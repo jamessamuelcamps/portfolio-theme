@@ -49,18 +49,19 @@ mobile). The band sitting on its own row lets the title top-align with the body 
 
 Subsection headings (`###`, `####`) flow inside the prose column as normal markdown.
 
-### 3. Width tiers — text stays narrow, media goes wide
+### 3. Width tiers — text stays narrow, only imagery goes wide
 
-Section body copy sits in a `--prose-max` (720px) column. Media breaks out via a `width` prop:
+Everything sits in the `--prose-max` (720px) column by default. Imagery — and only imagery
+(`Figure`, `ImageGrid`) — can break out via a `width` prop:
 
 | `width` | Rendered | Use for |
 |---|---|---|
-| `"prose"` | 720px, inline with text | quotes, labelled blocks, small diagrams |
-| `"wide"` *(default for media)* | fills the whole section (label column + prose), same measure as the header and hero | screenshots, galleries, stat grids |
+| `"prose"` *(default)* | 720px, inline with text | everything — quotes, labelled blocks, journeys, cards, stat grids, small diagrams |
+| `"wide"` *(default for `Figure` / `ImageGrid`)* | fills the whole section (label column + prose), same measure as the header and hero | screenshots, galleries |
 
-There is no full-bleed tier — `heroLayout` is `"inset"` or `"wide"`, and media components take
-`"prose"` or `"wide"`. A `wide` element **must be a direct child of the `<Section>` body** (a
-top-level tag between the `<Section>` tags), not nested inside another component, or the
+There is no full-bleed tier — `heroLayout` is `"inset"` or `"wide"`, and `Figure` / `ImageGrid`
+take `"prose"` or `"wide"`. A `wide` element **must be a direct child of the `<Section>` body**
+(a top-level tag between the `<Section>` tags), not nested inside another component, or the
 breakout maths won't resolve.
 
 ### 3. Images stay as markdown
@@ -125,9 +126,16 @@ Consolidating disjointed platform libraries into a single source of truth.
 ```
 
 ### `PullQuote` / `QuoteStack`
-`PullQuote` — a pulled sentence or client quote. `cite` + optional `role`; `variant="testimonial"`
-for the role-only attribution style. `QuoteStack` wraps a run of research verbatims.
+`PullQuote` — a pulled sentence or client quote, in the large testimonial type treatment.
+Attribution is optional: add `cite` and/or `role`, or omit both for a bare pulled line.
+`QuoteStack` wraps a run of research verbatims.
 ```mdx
+<PullQuote>
+
+This cross-platform foundation let us ship a single library with 60% fewer components.
+
+</PullQuote>
+
 <PullQuote cite="Head of Product (Payments)" role="Dojo">
 
 That page looks really cool — the previous version didn't inspire enough excitement.
@@ -154,7 +162,7 @@ Outcome metrics. `columns` is optional — omit for the current responsive 2→4
 ```
 
 ### `Figure` / `ImageGrid` / `BeforeAfter`
-`Figure` — one image, optional caption, `width` tier. `ImageGrid` — 2–6 images in a grid (`cols`).
+`Figure` — one image, optional caption, `width` tier. `ImageGrid` — images in a grid (`cols` 1–4; `cols={1}` is a single stacked column, pair with `width="prose"`).
 `BeforeAfter` — a labelled pair.
 ```mdx
 <Figure caption="Payment screens on Starling, Dave, Marcus and Betterment" width="wide">
@@ -185,38 +193,17 @@ Outcome metrics. `columns` is optional — omit for the current responsive 2→4
 </BeforeAfter>
 ```
 
-Named slots that carry a markdown image (`before`/`after` here, `icon` on `Feature`,
-`media` on `StageCard`) need the **same blank-line delimiting** inside the
-`<Fragment>` as any other slot.
+Named slots that carry a markdown image (`before`/`after` here, `icon` on `Stage` / `Card`)
+need the **same blank-line delimiting** inside the `<Fragment>` as any other slot.
 
-### `StageCards` / `StageCard`
-A journey broken into ordered stages: title + optional 40px icon (`media` slot) + short
-description.
+### `Journey` / `Stage`
+Multi-column block, no background, prose width — each `<Stage>` is an icon → title → subtitle
+stack. Named for its usual job: the ordered steps of a journey. `columns` is 2–4 (default 2
+from 640px; 3/4 kick in from 900px). Omit `title` for an icon-only "objectives" list.
 ```mdx
-<StageCards>
-  <StageCard title="Fact-find">Understand the customer's financial situation.</StageCard>
-  <StageCard title="Customise">Add details for accurate savings figures.</StageCard>
-</StageCards>
-```
+<Journey columns={4}>
 
-### `InsightGrid` / `InsightCard`
-Data-driven design insight: metric + problem statement + "Idea" response.
-```mdx
-<InsightGrid>
-  <InsightCard figure="46%" title="Recipients">
-    <Fragment slot="problem">of payments went to one of the last three recipients.</Fragment>
-    <Fragment slot="idea">Add a "Recent" section to the recipients list.</Fragment>
-  </InsightCard>
-</InsightGrid>
-```
-
-### `FeatureList` / `Feature`
-Icon + text rows. Replaces the `![icon]() + #### heading + line` hack. Also does icon-only
-"objectives" lists (omit `title`).
-```mdx
-<FeatureList>
-
-<Feature title="Time estimates">
+<Stage title="Time estimates">
 <Fragment slot="icon">
 
 ![](./tide-portal-design-system/time-estimates.png)
@@ -225,9 +212,32 @@ Icon + text rows. Replaces the `![icon]() + #### heading + line` hack. Also does
 
 4 weeks discovery, 8 weeks design, split into 4×2-week blocks.
 
-</Feature>
+</Stage>
 
-</FeatureList>
+</Journey>
+```
+
+### `CardGrid` / `Card`
+A bordered card, prose width — every part optional: `icon` slot, `title` prop, default slot
+(body), `footer` slot. One component for design insights (body + an "Idea:" footer), grouped
+takeaways, or any grid of small blocks. `columns` is 2–4 (default 2 from 640px; 3/4 from 900px).
+Equal-height cards in a row pin the footer to the base.
+```mdx
+<CardGrid columns={2}>
+
+<Card title="Recipients">
+
+Of payments by active customers, 46% went to one of the last three recipients.
+
+<Fragment slot="footer">
+
+**Idea:** Provide a "Recent" section in the recipients list.
+
+</Fragment>
+
+</Card>
+
+</CardGrid>
 ```
 
 ### `Credits`
@@ -245,9 +255,6 @@ Closing metadata in a two-column, strokeless grid (`.meta-grid`).
 `<hr>` rule for the rare case you want a divider *inside* a section body. Sections themselves
 are separated by whitespace, not rules.
 
-### `LogoStrip`
-"Previously worked with" client marks. `heading?` + slotted images.
-
 ---
 
 ## Migration map — `tide-portal-design-system.mdx`
@@ -259,7 +266,7 @@ Within it:
 |---|---|
 | `### The Brief / Challenge / Win` | 3× `<LabelledBlock label="…">` |
 | `### Survey` + `<StatGrid>` (6 tiles) | `### Survey` + `<StatGrid columns={3}>` |
-| `### Proposal…` + 4× `![icon]()+####+line` | `<FeatureList>` + 4× `<Feature>` |
+| `### Proposal…` + 4× `![icon]()+####+line` | `<Journey>` + 4× `<Stage>` |
 | `### Objectives` + para + image | `<Lead>` + `<Figure>` |
 | `### Audit` + 4 stacked images | `<ImageGrid cols={2}>` |
 | `### Cross-platform approach` + `>` quote | `<PullQuote>` (no attribution) |

@@ -20,8 +20,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </p>
 
       <section class="about-row">
-        <div class="about-row-head">
+        <div class="about-row-band">
           <span class="about-row-num">01 —</span>
+        </div>
+        <div class="about-row-head">
           <h2 class="about-row-title">Background & Mindset</h2>
         </div>
         <div class="about-row-body prose">
@@ -39,8 +41,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </section>
 
       <section class="about-row">
-        <div class="about-row-head">
+        <div class="about-row-band">
           <span class="about-row-num">02 —</span>
+        </div>
+        <div class="about-row-head">
           <h2 class="about-row-title">Approach to Leadership</h2>
         </div>
         <div class="about-row-body prose">
@@ -59,8 +63,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </section>
 
       <section class="about-row">
-        <div class="about-row-head">
+        <div class="about-row-band">
           <span class="about-row-num">03 —</span>
+        </div>
+        <div class="about-row-head">
           <h2 class="about-row-title">How I Operate</h2>
         </div>
         <div class="about-row-body prose">
@@ -152,6 +158,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     margin-top: var(--section-gap);
   }
 
+  /* Number band — its own full-width row above the two columns, with a
+     stroke beneath. Mirrors .cs-section-band on the case studies. */
+  .about-row-band {
+    grid-column: 1 / -1;
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-border);
+  }
+
   .about-row-head {
     grid-column: 1 / -1;
     margin-bottom: var(--space-4);
@@ -160,10 +175,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .about-row-num {
     display: block;
     font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
     text-transform: uppercase;
     letter-spacing: var(--tracking-wide);
     color: var(--color-text-muted);
-    margin-bottom: var(--space-2);
   }
 
   .about-row-title {
