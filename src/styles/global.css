@@ -545,6 +545,13 @@ ul.statement-list {
   border: none;
 }
 
+/* Moneybox — the UI screenshots are mostly white, so a hairline keeps the
+   screen edges legible (especially in light mode). Opt-in per study. */
+.case-study[data-project="moneybox-goals"] .cs-image-grid img,
+.case-study[data-project="moneybox-goals"] .cs-figure img {
+  border: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent);
+}
+
 /* --- Shared: meta grid (Credits) ------------------------------------- */
 .meta-grid {
   display: grid;
@@ -736,13 +743,17 @@ ul.statement-list {
 /* --- BeforeAfter ------------------------------------------------ */
 .case-study .cs-compare {
   margin-block: var(--space-10);
+}
+
+/* Split mode — the original side-by-side pair */
+.case-study .cs-compare--split {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--gutter);
 }
 
 @media (min-width: 640px) {
-  .case-study .cs-compare {
+  .case-study .cs-compare--split {
     grid-template-columns: repeat(2, 1fr);
   }
 }
@@ -769,6 +780,132 @@ ul.statement-list {
 
 .case-study .cs-compare-item img {
   width: 100%;
+}
+
+/* Slider mode — the pair overlaid with a draggable divider */
+.case-study .cs-compare--slider {
+  --pos: 50%;
+}
+
+.case-study .cs-compare-viewport {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  line-height: 0;
+  touch-action: pan-y;
+}
+
+.case-study .cs-compare-base,
+.case-study .cs-compare-clip {
+  margin: 0;
+}
+
+.case-study .cs-compare-base > p,
+.case-study .cs-compare-clip > p {
+  margin: 0;
+  display: contents;
+}
+
+.case-study .cs-compare-base img,
+.case-study .cs-compare-clip img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The "before" layer sits on top, clipped to the divider position */
+.case-study .cs-compare-clip {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(0 calc(100% - var(--pos)) 0 0);
+}
+
+.case-study .cs-compare-tag {
+  position: absolute;
+  top: var(--space-3);
+  z-index: 2;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-strong);
+}
+
+.case-study .cs-compare-tag--before { left: var(--space-3); }
+.case-study .cs-compare-tag--after { right: var(--space-3); }
+
+.case-study .cs-compare-divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--pos);
+  z-index: 3;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--color-border-strong);
+  pointer-events: none;
+}
+
+.case-study .cs-compare-grip {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  transform: translate(-50%, -50%);
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-strong);
+}
+
+/* Full-bleed range input drives the divider — free pointer drag + keyboard */
+.case-study .cs-compare-range {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  opacity: 0;
+  cursor: ew-resize;
+  touch-action: pan-y;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.case-study .cs-compare-range:focus-visible {
+  opacity: 1;
+  outline: none;
+}
+
+.case-study .cs-compare-range:focus-visible + .cs-compare-divider {
+  outline: 2px solid var(--color-border-strong);
+  outline-offset: 2px;
+}
+
+.case-study .cs-compare-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 2.25rem;
+  height: 100%;
+}
+
+.case-study .cs-compare-range::-moz-range-thumb {
+  width: 2.25rem;
+  height: 100%;
+  border: 0;
+  background: transparent;
 }
 
 /* --- CardGrid / Card — one bordered block for journey stages, analysis

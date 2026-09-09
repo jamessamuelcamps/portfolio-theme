@@ -4,19 +4,67 @@ interface Props {
   afterLabel?: string;
   /** Width tier — see docs/case-study-components.md */
   width?: 'prose' | 'wide';
+  /** 'slider' (default) overlays the pair with a draggable divider; 'split' shows them side by side. */
+  mode?: 'slider' | 'split';
 }
 
-const { beforeLabel = 'Before', afterLabel = 'After', width = 'wide' } = Astro.props;
+const {
+  beforeLabel = 'Before',
+  afterLabel = 'After',
+  width = 'wide',
+  mode = 'slider',
+} = Astro.props;
 const widthClass = width === 'wide' ? 'bleed-wide' : null;
 ---
 
-<div class:list={['cs-compare', widthClass]}>
-  <figure class="cs-compare-item">
-    <figcaption class="cs-compare-label">{beforeLabel}</figcaption>
-    <slot name="before" />
-  </figure>
-  <figure class="cs-compare-item">
-    <figcaption class="cs-compare-label">{afterLabel}</figcaption>
-    <slot name="after" />
-  </figure>
-</div>
+{mode === 'split' ? (
+  <div class:list={['cs-compare cs-compare--split', widthClass]}>
+    <figure class="cs-compare-item">
+      <figcaption class="cs-compare-label">{beforeLabel}</figcaption>
+      <slot name="before" />
+    </figure>
+    <figure class="cs-compare-item">
+      <figcaption class="cs-compare-label">{afterLabel}</figcaption>
+      <slot name="after" />
+    </figure>
+  </div>
+) : (
+  <div class:list={['cs-compare cs-compare--slider', widthClass]} data-compare>
+    <div class="cs-compare-viewport">
+      <div class="cs-compare-base">
+        <span class="cs-compare-tag cs-compare-tag--after">{afterLabel}</span>
+        <slot name="after" />
+      </div>
+      <div class="cs-compare-clip">
+        <span class="cs-compare-tag cs-compare-tag--before">{beforeLabel}</span>
+        <slot name="before" />
+      </div>
+      <input
+        class="cs-compare-range"
+        type="range"
+        min="0"
+        max="100"
+        value="50"
+        step="1"
+        aria-label={`Reveal ${beforeLabel} versus ${afterLabel}`}
+      />
+      <div class="cs-compare-divider" aria-hidden="true">
+        <span class="cs-compare-grip">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M6 3 2 8l4 5M10 3l4 5-4 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" />
+          </svg>
+        </span>
+      </div>
+    </div>
+  </div>
+)}
+
+<script>
+  for (const el of document.querySelectorAll<HTMLElement>('[data-compare]')) {
+    const range = el.querySelector<HTMLInputElement>('.cs-compare-range');
+    if (!range) continue;
+    const apply = () => el.style.setProperty('--pos', `${range.value}%`);
+    apply();
+    range.addEventListener('input', apply);
+  }
+</script>

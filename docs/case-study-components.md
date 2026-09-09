@@ -163,7 +163,10 @@ Outcome metrics. `columns` is optional — omit for the current responsive 2→4
 
 ### `Figure` / `ImageGrid` / `BeforeAfter`
 `Figure` — one image, optional caption, `width` tier. `ImageGrid` — images in a grid (`cols` 1–4; `cols={1}` is a single stacked column, pair with `width="prose"`).
-`BeforeAfter` — a labelled pair.
+`BeforeAfter` — a labelled pair. Defaults to `mode="slider"`: the two images are overlaid
+with a draggable divider (pointer drag or keyboard — it's a range input under the hood), so
+the pair needs **identical dimensions**. Pass `mode="split"` for the old side-by-side layout,
+which tolerates mismatched sizes.
 ```mdx
 <Figure caption="Payment screens on Starling, Dave, Marcus and Betterment" width="wide">
 
@@ -180,6 +183,7 @@ Outcome metrics. `columns` is optional — omit for the current responsive 2→4
 </ImageGrid>
 
 <BeforeAfter beforeLabel="Before" afterLabel="After">
+{/* add mode="split" for a static side-by-side pair */}
 <Fragment slot="before">
 
 ![Old form](./application-youlend/financial-info-before.png)
