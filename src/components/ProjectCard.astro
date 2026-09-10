@@ -15,9 +15,7 @@ const displayTitle = title.split('•')[0].trim();
 <article class="project-card">
   <a href={`/work/${project.id}`} class="project-card-link">
     {client && <span class="project-client">{client}</span>}
-    <h3 class="project-title">
-      <span>{displayTitle} <span class="arrow" aria-hidden="true">→</span></span>
-    </h3>
+    <h3 class="project-title"><span>{displayTitle}</span></h3>
     <p class="project-description"><span>{description}</span></p>
   </a>
 </article>
@@ -52,15 +50,15 @@ const displayTitle = title.split('•')[0].trim();
   .project-title {
     align-self: flex-start;
     max-width: 100%;
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-2xl);
     font-weight: var(--font-weight-semibold);
     color: var(--color-text);
     margin-bottom: 0;
   }
 
   /* No negative margin-left here (unlike .cs-card-title): the chip sits a
-     hair in from the card edge so its right side — and the arrow's hover
-     nudge — never bleed past the content box. */
+     hair in from the card edge so its right side never bleeds past the
+     content box. */
   .project-title span {
     display: inline;
     background-color: var(--color-text);
@@ -84,19 +82,5 @@ const displayTitle = title.split('•')[0].trim();
     box-decoration-break: clone;
     padding: 0.12em 0.3em;
     margin-left: -0.3em;
-  }
-
-  /* Needs to out-specify `.project-title span`, and must be inline-block so
-     the hover transform actually applies. */
-  .project-title .arrow {
-    display: inline-block;
-    background: none;
-    padding: 0;
-    margin: 0;
-    transition: transform var(--transition-base);
-  }
-
-  .project-card-link:hover .arrow {
-    transform: translateX(3px);
   }
 </style>
