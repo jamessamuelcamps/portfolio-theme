@@ -12,7 +12,7 @@ const { title, description, heroImage, heroImageAlt, heroLayout, draft } = proje
 ---
 
 <BaseLayout title={`${title} · James Samuel Camps`} description={description} noindex={draft}>
-  <article class="case-study">
+  <article class="case-study" data-project={project.id}>
     <div class="container">
       <nav class="back-nav" aria-label="Breadcrumb">
         <a href="/work" class="back-link">
