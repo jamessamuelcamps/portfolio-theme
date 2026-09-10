@@ -193,7 +193,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
      body that opens on an in-prose heading sits right under the 2xl section
      title — add a little air so the two titles don't run together. */
   @media (max-width: 767.98px) {
-    .about-row-body > :is(h2, h3, h4):first-child {
+    .about-row-body > h2:first-child,
+    .about-row-body > h3:first-child,
+    .about-row-body > h4:first-child {
       margin-top: var(--space-3);
     }
   }
