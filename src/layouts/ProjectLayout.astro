@@ -8,7 +8,11 @@ interface Props {
 }
 
 const { project } = Astro.props;
-const { title, description, heroImage, heroImageAlt, heroLayout, draft } = project.data;
+const { title, description, client, heroImage, heroImageAlt, heroLayout, draft } = project.data;
+
+// Titles are authored as "Feature • Client"; the header shows the client in
+// the eyebrow and the feature on its own.
+const displayTitle = title.split('•')[0].trim();
 ---
 
 <BaseLayout title={`${title} · James Samuel Camps`} description={description} noindex={draft}>
@@ -22,7 +26,8 @@ const { title, description, heroImage, heroImageAlt, heroLayout, draft } = proje
       </nav>
 
       <header class="case-study-header">
-        <h1 class="case-study-title">{title}</h1>
+        {client && <span class="case-study-eyebrow">{client}</span>}
+        <h1 class="case-study-title">{displayTitle}</h1>
         <p class="case-study-lead">{description}</p>
       </header>
     </div>
@@ -77,8 +82,19 @@ const { title, description, heroImage, heroImageAlt, heroLayout, draft } = proje
     margin-bottom: var(--space-4);
   }
 
+  /* Same kicker treatment as the work-card eyebrow and .cs-labelled-label. */
+  .case-study-eyebrow {
+    display: block;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-3);
+  }
+
   .case-study-title {
-    font-size: var(--font-size-4xl);
+    font-size: var(--font-size-5xl);
     line-height: var(--line-height-tight);
     margin-bottom: var(--space-4);
   }
