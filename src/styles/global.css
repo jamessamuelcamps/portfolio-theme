@@ -637,16 +637,25 @@ ul.statement-list {
   margin-block: var(--space-8);
 }
 
-/* Type treatment (size / weight / tracking) comes from .statement; the quote
-   sits flush, without the em-dash leader. */
+/* Type treatment (size / weight / tracking) comes from .statement; the
+   em-dash leader is swapped for a quote mark, and the quote itself is set
+   in italic so it reads as speech rather than a plain statement. */
 .case-study .cs-pullquote .cs-pullquote-text {
+  position: relative;
   margin: 0;
-  padding-left: 0;
+  padding-left: 1.4rem;
   border-left: none;
+  font-style: italic;
 }
 
 .case-study .cs-pullquote .cs-pullquote-text::before {
-  content: none;
+  content: "\201C";
+  position: absolute;
+  left: 0;
+  top: 0.02em;
+  font-style: normal;
+  font-size: 1.5em;
+  line-height: 1;
 }
 
 .case-study .cs-pullquote-text > p {
@@ -675,9 +684,22 @@ ul.statement-list {
 }
 
 .case-study .cs-quote-stack blockquote {
+  position: relative;
   margin: 0;
+  padding-left: 1.2rem;
   font-size: var(--font-size-lg);
   line-height: var(--line-height-snug);
+  font-style: italic;
+}
+
+.case-study .cs-quote-stack blockquote::before {
+  content: "\201C";
+  position: absolute;
+  left: 0;
+  top: -0.05em;
+  font-style: normal;
+  font-size: 1.4em;
+  line-height: 1;
 }
 
 .case-study .cs-quote-stack blockquote p {
