@@ -1,4 +1,6 @@
 ---
+import SocialLinks from './SocialLinks.astro';
+
 const pathname = new URL(Astro.request.url).pathname;
 const currentPath = pathname.replace(/\/$/, '');
 
@@ -7,13 +9,19 @@ const navLinks = [
   { href: '/about', label: 'About' },
   { href: '/writing', label: 'Writing' },
 ];
+
+const isActive = (href: string) =>
+  currentPath === href || currentPath.startsWith(`${href}/`);
 ---
 
 <header class="site-header">
   <div class="container header-inner">
     <a href="/" class="brand">
-      <span class="brand-name">James Samuel-Camps</span>
-      <span class="brand-title">Lead Product Designer</span>
+      <span class="brand-full">
+        <span class="brand-name">James Samuel-Camps</span>
+        <span class="brand-title">Lead Product Designer</span>
+      </span>
+      <span class="brand-short">JSC</span>
     </a>
 
     <div class="theme-switch" role="group" aria-label="Theme">
@@ -23,29 +31,69 @@ const navLinks = [
 
     <nav class="nav" aria-label="Main Navigation">
       <ul class="nav-list">
-        {navLinks.map((link) => {
-          const isActive = currentPath === link.href || currentPath.startsWith(`${link.href}/`);
-          return (
-            <li>
-              <a
-                href={link.href}
-                class="nav-link marker-link"
-                aria-current={isActive ? 'page' : undefined}
-              >
-                {link.label}
-              </a>
-            </li>
-          );
-        })}
+        {navLinks.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              class="nav-link marker-link"
+              aria-current={isActive(link.href) ? 'page' : undefined}
+            >
+              {link.label}
+            </a>
+          </li>
+        ))}
       </ul>
     </nav>
+
+    <button
+      type="button"
+      class="menu-trigger marker-link"
+      data-menu-open
+      aria-expanded="false"
+      aria-controls="menu-overlay"
+    >Menu</button>
   </div>
 </header>
 
-<script>
-  const options = document.querySelectorAll('[data-theme-option]');
+<div class="menu-overlay" id="menu-overlay" aria-label="Menu">
+  <div class="container menu-overlay-inner">
+    <button type="button" class="menu-close marker-link" data-menu-close>Close</button>
 
-  function sync() {
+    <div class="menu-identity">
+      <span class="menu-name">James Samuel-Camps</span>
+      <span class="menu-role">Lead Product Designer</span>
+    </div>
+
+    <nav class="menu-nav" aria-label="Menu Navigation">
+      <ul>
+        {navLinks.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              class="marker-link statement"
+              aria-current={isActive(link.href) ? 'page' : undefined}
+            >
+              {link.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <SocialLinks class="menu-social" emailLabel="Email" variant="stack" />
+
+    <div class="theme-switch menu-theme" role="group" aria-label="Theme">
+      <button type="button" class="theme-option" data-theme-option="light">Light</button>
+      <button type="button" class="theme-option" data-theme-option="dark">Dark</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // --- Theme switch (all instances: header + menu overlay) --------------------
+  const options = document.querySelectorAll<HTMLButtonElement>('[data-theme-option]');
+
+  function syncTheme() {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     options.forEach((option) => {
       const active = option.getAttribute('data-theme-option') === (isDark ? 'dark' : 'light');
@@ -54,16 +102,84 @@ const navLinks = [
     });
   }
 
-  sync();
+  syncTheme();
 
   options.forEach((option) => {
     option.addEventListener('click', () => {
       const next = option.getAttribute('data-theme-option') === 'dark' ? 'dark' : 'light';
       document.documentElement.setAttribute('data-theme', next);
       localStorage.setItem('theme', next);
-      sync();
+      syncTheme();
     });
   });
+
+  // --- Mobile menu overlay ---------------------------------------------------
+  const overlay = document.getElementById('menu-overlay');
+  const trigger = document.querySelector<HTMLButtonElement>('[data-menu-open]');
+  const behind = document.querySelectorAll<HTMLElement>('.site-header, #main-content, .site-footer');
+  const wideQuery = window.matchMedia('(min-width: 640px)');
+
+  if (overlay && trigger) {
+    const overlayEl = overlay;
+    const triggerEl = trigger;
+    const closers = overlayEl.querySelectorAll<HTMLElement>('[data-menu-close], .menu-nav a');
+
+    const isOpen = () => overlayEl.classList.contains('is-open');
+
+    const focusables = () =>
+      Array.from(
+        overlayEl.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')
+      ).filter((el) => el.offsetParent !== null);
+
+    function open() {
+      overlayEl.classList.add('is-open');
+      document.documentElement.classList.add('menu-open');
+      triggerEl.setAttribute('aria-expanded', 'true');
+      behind.forEach((el) => el.setAttribute('inert', ''));
+      focusables()[0]?.focus();
+    }
+
+    function close({ restoreFocus = true } = {}) {
+      overlayEl.classList.remove('is-open');
+      document.documentElement.classList.remove('menu-open');
+      triggerEl.setAttribute('aria-expanded', 'false');
+      behind.forEach((el) => el.removeAttribute('inert'));
+      if (restoreFocus) triggerEl.focus();
+    }
+
+    triggerEl.addEventListener('click', open);
+    closers.forEach((el) => el.addEventListener('click', () => close()));
+
+    document.addEventListener('keydown', (event) => {
+      if (!isOpen()) return;
+
+      if (event.key === 'Escape') {
+        close();
+        return;
+      }
+
+      if (event.key === 'Tab') {
+        const items = focusables();
+        if (items.length === 0) return;
+        const first = items[0];
+        const last = items[items.length - 1];
+        const active = document.activeElement as HTMLElement | null;
+
+        if (event.shiftKey && (active === first || !overlayEl.contains(active))) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && active === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    });
+
+    // Bail out if the viewport grows past the mobile breakpoint while open.
+    wideQuery.addEventListener('change', (event) => {
+      if (event.matches && isOpen()) close({ restoreFocus: false });
+    });
+  }
 </script>
 
 <style>
@@ -90,6 +206,12 @@ const navLinks = [
     justify-self: start;
   }
 
+  .brand-full {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
   .brand-name {
     font-weight: var(--font-weight-semibold);
     font-size: var(--font-size-base);
@@ -100,6 +222,13 @@ const navLinks = [
     font-size: var(--font-size-xs);
     color: var(--color-text-muted);
     letter-spacing: 0.02em;
+  }
+
+  .brand-short {
+    display: none;
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-base);
+    color: var(--color-text);
   }
 
   .theme-switch {
@@ -142,12 +271,124 @@ const navLinks = [
     color: var(--color-text);
   }
 
-  @media (max-width: 640px) {
+  /* button reset that keeps .marker-link's gradient — `background: transparent`
+     shorthand would wipe background-image and kill the highlight sweep. */
+  .menu-trigger,
+  .menu-close {
+    font: inherit;
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .menu-trigger {
+    display: none;
+    justify-self: end;
+    align-self: start;
+  }
+
+  /* --- Full-screen mobile menu ------------------------------------------- */
+  :global(html.menu-open) {
+    overflow: hidden;
+  }
+
+  .menu-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background-color: var(--color-bg);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .menu-overlay.is-open {
+    display: block;
+  }
+
+  .menu-overlay-inner {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-8);
+    padding-top: var(--gutter);
+    padding-bottom: var(--space-12);
+  }
+
+  .menu-identity {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .menu-name {
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-lg);
+    color: var(--color-text);
+  }
+
+  .menu-role {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+  }
+
+  /* Nav links carry the global .statement treatment (em-dash + tracking).
+     The .marker-link sweep owns the hover — colour flips to the page bg as the
+     highlight wipes across. Only size is overridden here (a full-screen menu
+     wants big targets); never colour — a scoped colour rule out-specifies
+     .marker-link:hover and re-breaks the flip (black-on-black). */
+  .menu-nav ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .menu-nav a {
+    font-size: var(--font-size-2xl);
+  }
+
+  /* SocialLinks renders its own element, so reach it through :global */
+  .menu-overlay-inner :global(.menu-social) {
+    font-size: var(--font-size-lg);
+  }
+
+  .menu-theme {
+    margin-top: auto;
+    align-self: flex-start;
+    padding: 0;
+  }
+
+  .menu-theme .theme-option {
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--font-size-sm);
+  }
+
+  @media (max-width: 639.98px) {
     .header-inner {
       grid-template-columns: auto 1fr;
     }
 
-    .theme-switch {
+    .brand-full,
+    .theme-switch:not(.menu-theme),
+    .nav {
+      display: none;
+    }
+
+    .brand-short,
+    .menu-trigger {
+      display: block;
+    }
+  }
+
+  @media (min-width: 640px) {
+    /* Never expose the overlay above the mobile breakpoint. */
+    .menu-overlay,
+    .menu-overlay.is-open {
       display: none;
     }
   }
