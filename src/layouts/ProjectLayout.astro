@@ -18,13 +18,6 @@ const displayTitle = title.split('•')[0].trim();
 <BaseLayout title={`${title} · James Samuel Camps`} description={description} noindex={draft}>
   <article class="case-study" data-project={project.id}>
     <div class="container">
-      <nav class="back-nav" aria-label="Breadcrumb">
-        <a href="/work" class="back-link">
-          <span aria-hidden="true">←</span>
-          <span>Back to Work</span>
-        </a>
-      </nav>
-
       <header class="case-study-header">
         {client && <span class="case-study-eyebrow">{client}</span>}
         <h1 class="case-study-title">{displayTitle}</h1>
@@ -54,31 +47,9 @@ const displayTitle = title.split('•')[0].trim();
 
 <style>
   /* Header, hero and body all align to the same centred measure */
-  .back-nav,
   .case-study-header {
     max-width: var(--wide-max);
     margin-inline: auto;
-  }
-
-  .back-nav {
-    margin-bottom: var(--space-8);
-  }
-
-  .back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: var(--font-size-sm);
-    color: var(--color-text-muted);
-    text-decoration: none;
-    transition: color var(--transition-fast);
-  }
-
-  .back-link:hover {
-    color: var(--color-text);
-  }
-
-  .case-study-header {
     margin-bottom: var(--space-4);
   }
 
