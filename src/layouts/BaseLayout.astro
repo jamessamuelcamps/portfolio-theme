@@ -2,6 +2,8 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import '@fontsource-variable/dm-sans';
+import '@fontsource/dm-mono/latin-400.css';
+import '@fontsource/press-start-2p/latin-400.css';
 import '../styles/global.css';
 
 interface Props {
@@ -24,18 +26,29 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 <!doctype html>
 <html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link id="favicon" rel="icon" type="image/png" href="/favicon.png" />
+    <meta id="theme-color" name="theme-color" content="#ffffff" />
     <script is:inline>
       (function () {
         var stored = localStorage.getItem('theme');
-        var theme = stored === 'light' || stored === 'dark'
+        var valid = ['light', 'dark', 'vapor'];
+        var theme = valid.indexOf(stored) !== -1
           ? stored
           : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
         document.documentElement.setAttribute('data-theme', theme);
+
+        // Browser chrome + favicon follow the theme (incl. the vapor Easter egg).
+        var colors = { light: '#ffffff', dark: '#000000', vapor: '#f7c8ec' };
+        document.getElementById('theme-color').setAttribute('content', colors[theme] || colors.light);
+        if (theme === 'vapor') {
+          var icon = document.getElementById('favicon');
+          icon.setAttribute('type', 'image/svg+xml');
+          icon.setAttribute('href', '/favicon-vapor.svg');
+        }
       })();
     </script>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="canonical" href={canonicalURL} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <meta name="generator" content={Astro.generator} />
@@ -58,6 +71,54 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta property="twitter:description" content={description} />
   </head>
   <body class:list={{ 'is-full-bleed': fullBleed }}>
+    {/* "Chewed VHS tape" distortion — only referenced by the vapor theme's
+        .display-quote (see global.css). Horizontal-band tearing whose seed and
+        amount SNAP between held states (calcMode="discrete") rather than
+        morphing — that's what keeps it from reading as an underwater ripple.
+        Invisible / inert in every other theme. */}
+    <svg class="vapor-filter-defs" width="0" height="0" aria-hidden="true" focusable="false">
+      <filter id="vapor-ripple" x="-30%" y="-25%" width="160%" height="150%" color-interpolation-filters="sRGB">
+        {/* Near-zero X frequency + high Y frequency => noise is ~constant along
+            each row, so whole horizontal strips shear together (tape tearing).
+            Seed jumps hold, then flick to a new pattern (signal dropout). */}
+        <feTurbulence type="fractalNoise" baseFrequency="0.0025 0.09" numOctaves="1" seed="3" result="noise">
+          <animate
+            attributeName="seed"
+            dur="1.3s"
+            values="3;3;10;3;3;3;16;3;3;5;3;22;3"
+            calcMode="discrete"
+            repeatCount="indefinite"
+          />
+        </feTurbulence>
+        {/* Baseline tear is always slightly off (5), and SNAPS to a hard shear
+            several times a loop, then back — never a smooth build. */}
+        <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" result="torn">
+          <animate
+            attributeName="scale"
+            dur="3s"
+            values="5;5;22;5;5;40;6;5;5;15;5;5;28;5;5;5;12;5"
+            calcMode="discrete"
+            repeatCount="indefinite"
+          />
+        </feDisplacementMap>
+        {/* Colour shifts hold then jump — no smooth hue drift. */}
+        <feColorMatrix in="torn" type="hueRotate" values="0">
+          <animate
+            attributeName="values"
+            dur="9s"
+            values="-14; 8; -22; 12; -6; -14"
+            calcMode="discrete"
+            keyTimes="0; 0.28; 0.5; 0.72; 0.9; 1"
+            repeatCount="indefinite"
+          />
+        </feColorMatrix>
+      </filter>
+    </svg>
+
+    {/* Cycling gradient sky + VHS scanlines — fixed behind the content, vapor only (global.css). */}
+    <div class="vapor-bg" aria-hidden="true"></div>
+    <div class="vhs-overlay" aria-hidden="true"></div>
+
     <Header />
     <main id="main-content" class:list={{ 'full-bleed': fullBleed }}>
       <slot />
@@ -79,6 +140,13 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 </html>
 
 <style>
+  .vapor-filter-defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
   body.is-full-bleed {
     height: 100svh;
     min-height: 100svh;
