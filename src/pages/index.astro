@@ -44,7 +44,7 @@ const fullBleed = recentWriting.length === 0;
         href="https://github.com/jamessamuelcamps/portfolio-theme"
         target="_blank"
         rel="noopener noreferrer"
-      ><span>Steal this theme →</span></a>
+      ><span>Steal this theme <span class="arrow" aria-hidden="true">→</span></span></a>
     </section>
 
     <!-- Writing Section -->
@@ -203,6 +203,18 @@ const fullBleed = recentWriting.length === 0;
   .hero-mark:hover span {
     text-decoration: underline;
     text-underline-offset: 3px;
+  }
+
+  /* Same nudge as the work-index card arrow. The label is vertical and
+     rotated 180°, so a local +Y translate moves the arrow the way it
+     points (upward on screen). */
+  .hero-mark .arrow {
+    display: inline-block;
+    transition: transform var(--transition-base);
+  }
+
+  .hero-mark:hover .arrow {
+    transform: translateY(3px);
   }
 
   @media (min-width: 1024px) {
