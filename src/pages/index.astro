@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import WritingCard from '../components/WritingCard.astro';
+import SocialLinks from '../components/SocialLinks.astro';
 import { getCollection } from 'astro:content';
 
 const allWriting = await getCollection('writing');
@@ -17,10 +18,10 @@ const fullBleed = recentWriting.length === 0;
     <section class="hero-section">
       <div class="hero-main">
         <p class="availability-pill">Available for new opportunities. Let’s talk →</p>
-        <h1 class="hero-quote">
+        <h1 class="display-quote">
           <span>“I’d rather he didn’t come back at all. His trainers are shit and he’s too tall. No-one even likes him.”</span>
         </h1>
-        <p class="hero-cite">— Design Director, VML</p>
+        <p class="display-quote-cite">— Design Director, VML</p>
       </div>
 
       <div class="hero-bottom">
@@ -33,12 +34,7 @@ const fullBleed = recentWriting.length === 0;
           </p>
         </div>
 
-        <div class="hero-social">
-          <a class="marker-link" data-email data-email-user="hello" data-email-domain="james-sc.co.uk" data-email-label="Email">Email</a>
-          <a href="https://www.linkedin.com/in/jamessc/" class="marker-link" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-          <a href="https://www.instagram.com/james_sc/" class="marker-link" target="_blank" rel="noopener noreferrer">Instagram</a>
-          <a href="https://github.com/jamessamuelcamps" class="marker-link" target="_blank" rel="noopener noreferrer">GitHub</a>
-        </div>
+        <SocialLinks class="hero-social" emailLabel="Email" variant="column" />
       </div>
 
       <a
@@ -103,37 +99,8 @@ const fullBleed = recentWriting.length === 0;
     max-width: 1144px;
   }
 
-  .hero-quote {
-    font-size: var(--font-size-4xl);
-    /* Looser than line-height-tight so the stacked highlight fragments
-       don't overlap. */
-    line-height: 1.6;
-    letter-spacing: -0.05em;
-    margin-bottom: var(--space-8);
-  }
-
-  /* Per-line highlight — same treatment as the case-study card title:
-     text-colour background, page-colour glyphs, one fragment per line. */
-  .hero-quote span {
-    display: inline;
-    background-color: var(--color-text);
-    color: var(--color-bg);
-    -webkit-box-decoration-break: clone;
-    box-decoration-break: clone;
-    padding: 0.12em 0.3em;
-    margin-left: -0.3em;
-  }
-
-  @media (min-width: 768px) {
-    .hero-quote {
-      font-size: var(--font-size-7xl);
-    }
-  }
-
-  .hero-cite {
-    font-size: var(--font-size-xl);
-    color: var(--color-text);
-  }
+  /* Display quote + cite type live in global.css (.display-quote /
+     .display-quote-cite) so the homepage and About page stay in sync. */
 
   .hero-bottom {
     display: flex;
@@ -168,16 +135,6 @@ const fullBleed = recentWriting.length === 0;
 
   .highlight-link:hover {
     color: var(--color-text-secondary);
-  }
-
-  .hero-social {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: var(--space-2);
-    font-size: var(--font-size-sm);
-    color: var(--color-text);
-    text-align: right;
   }
 
   .hero-mark {
@@ -266,5 +223,28 @@ const fullBleed = recentWriting.length === 0;
     display: flex;
     flex-direction: column;
     gap: var(--space-6);
+  }
+
+  /* Mobile: release the single-screen lock so a tall hero scrolls instead of
+     clipping (see BaseLayout's matching .is-full-bleed override). */
+  @media (max-width: 639.98px) {
+    .hero-section {
+      overflow: visible;
+      gap: var(--space-8);
+      padding: var(--space-6) 0 var(--space-10);
+    }
+
+    .hero-main {
+      justify-content: flex-start;
+    }
+
+    .availability-pill {
+      margin-bottom: var(--space-6);
+    }
+
+    /* Social links live in the menu overlay on mobile */
+    .hero-bottom :global(.hero-social) {
+      display: none;
+    }
   }
 </style>

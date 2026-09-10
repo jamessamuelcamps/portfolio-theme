@@ -85,6 +85,19 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     overflow: hidden;
   }
 
+  /* Mobile: let a tall hero grow the page and scroll rather than clip. The
+     first screen still fills the viewport via #main-content's min-height. */
+  @media (max-width: 639.98px) {
+    body.is-full-bleed {
+      height: auto;
+      overflow: visible;
+    }
+
+    #main-content.full-bleed {
+      min-height: 100svh;
+    }
+  }
+
   #main-content {
     flex: 1;
     padding: var(--space-8) 0 var(--space-16);

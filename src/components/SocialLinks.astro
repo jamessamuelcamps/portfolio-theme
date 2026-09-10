@@ -1,0 +1,66 @@
+---
+interface Props {
+  /**
+   * Visible text for the email link. When omitted, the link shows the
+   * spelled-out obfuscated address as its no-JS fallback. The real mailto:
+   * is assembled client-side by the [data-email] script in BaseLayout.
+   */
+  emailLabel?: string;
+  /**
+   * row    — wraps horizontally (footer)
+   * column — stacks, right-aligned (homepage hero)
+   * stack  — stacks, left-aligned (mobile menu overlay)
+   */
+  variant?: 'row' | 'column' | 'stack';
+  class?: string;
+}
+
+const { emailLabel, variant = 'row', class: className } = Astro.props;
+
+const links = [
+  { href: 'https://www.linkedin.com/in/jamessc/', label: 'LinkedIn' },
+  { href: 'https://www.instagram.com/james_sc/', label: 'Instagram' },
+  { href: 'https://github.com/jamessamuelcamps', label: 'GitHub' },
+];
+---
+
+<div class:list={['social-links', `social-links--${variant}`, className]}>
+  <a
+    class="marker-link"
+    data-email
+    data-email-user="hello"
+    data-email-domain="james-sc.co.uk"
+    data-email-label={emailLabel}
+  >{emailLabel ?? 'hello [at] james-sc [dot] co [dot] uk'}</a>
+  {links.map((link) => (
+    <a href={link.href} class="marker-link" target="_blank" rel="noopener noreferrer">
+      {link.label}
+    </a>
+  ))}
+</div>
+
+<style>
+  .social-links {
+    display: flex;
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+  }
+
+  .social-links--row {
+    flex-wrap: wrap;
+    gap: var(--space-4);
+  }
+
+  .social-links--column {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-2);
+    text-align: right;
+  }
+
+  .social-links--stack {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+</style>

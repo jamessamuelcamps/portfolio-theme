@@ -8,10 +8,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 >
   <div class="container">
     <header class="about-header">
-      <h1 class="about-quote">
+      <h1 class="display-quote">
         <span>“I will fight you one of these days.”</span>
       </h1>
-      <p class="about-cite">— Product Manager, YouLend</p>
+      <p class="display-quote-cite">— Product Manager, YouLend</p>
     </header>
 
     <div class="about-grid">
@@ -96,37 +96,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     margin: 0 auto var(--space-16);
   }
 
-  .about-quote {
-    font-size: var(--font-size-4xl);
-    /* Looser than line-height-tight so the stacked highlight fragments
-       don't overlap. */
-    line-height: 1.6;
-    letter-spacing: -0.05em;
-    margin-bottom: var(--space-8);
-  }
-
-  /* Per-line highlight — same treatment as the case-study card title:
-     text-colour background, page-colour glyphs, one fragment per line. */
-  .about-quote span {
-    display: inline;
-    background-color: var(--color-text);
-    color: var(--color-bg);
-    -webkit-box-decoration-break: clone;
-    box-decoration-break: clone;
-    padding: 0.12em 0.3em;
-    margin-left: -0.3em;
-  }
-
-  @media (min-width: 768px) {
-    .about-quote {
-      font-size: var(--font-size-7xl);
-    }
-  }
-
-  .about-cite {
-    font-size: var(--font-size-xl);
-    color: var(--color-text);
-  }
+  /* Display quote + cite type live in global.css (.display-quote /
+     .display-quote-cite) so the homepage and About page stay in sync. */
 
   /* Centred 12-col container; the label + copy columns sit inset from both edges */
   .about-grid {
@@ -139,12 +110,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     margin-inline: auto;
   }
 
-  /* .statement / .statement-list carry the type treatment (see global.css) */
-  /* Lead paragraph: statement type, but without the em-dash marker */
+  /* .statement / .statement-list carry the weight + tracking (see global.css) */
+  /* Lead paragraph: statement family, no em-dash marker, one step up from a
+     plain statement (xl vs lg); grows to 3xl on the wide layout. */
   .about-standfirst {
     grid-column: 1 / -1;
     margin-bottom: var(--section-gap);
     padding-left: 0;
+    font-size: var(--font-size-xl);
   }
 
   .about-standfirst::before {
@@ -195,7 +168,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
 
   .about-row-title {
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-2xl);
     margin: 0;
   }
 
@@ -214,6 +187,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   .about-row-body > :last-child {
     margin-bottom: 0;
+  }
+
+  /* While the head + body are stacked (below the 768px two-column split), a
+     body that opens on an in-prose heading sits right under the 2xl section
+     title — add a little air so the two titles don't run together. */
+  @media (max-width: 767.98px) {
+    .about-row-body > h2:first-child,
+    .about-row-body > h3:first-child,
+    .about-row-body > h4:first-child {
+      margin-top: var(--space-3);
+    }
   }
 
   @media (min-width: 768px) {

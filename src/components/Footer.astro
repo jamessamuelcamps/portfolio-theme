@@ -1,4 +1,6 @@
 ---
+import SocialLinks from './SocialLinks.astro';
+
 const currentYear = new Date().getFullYear();
 ---
 
@@ -6,16 +8,10 @@ const currentYear = new Date().getFullYear();
   <div class="container footer-inner">
     <div class="footer-meta">
       <p class="copyright">© {currentYear} James Samuel-Camps. All rights reserved.</p>
+      <p class="footer-built">Built with Astro</p>
     </div>
 
-    <p class="footer-built">Built with Astro</p>
-
-    <div class="footer-links">
-      <a class="marker-link" data-email data-email-user="hello" data-email-domain="james-sc.co.uk">hello [at] james-sc [dot] co [dot] uk</a>
-      <a href="https://www.linkedin.com/in/jamessc/" class="marker-link" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-      <a href="https://www.instagram.com/james_sc/" class="marker-link" target="_blank" rel="noopener noreferrer">Instagram</a>
-      <a href="https://github.com/jamessamuelcamps" class="marker-link" target="_blank" rel="noopener noreferrer">GitHub</a>
-    </div>
+    <SocialLinks class="footer-links" />
   </div>
 </footer>
 
@@ -44,7 +40,7 @@ const currentYear = new Date().getFullYear();
   .footer-meta {
     display: flex;
     flex-direction: column;
-    gap: var(--space-1);
+    gap: 2px;
   }
 
   .copyright {
@@ -57,11 +53,9 @@ const currentYear = new Date().getFullYear();
     color: var(--color-text-muted);
   }
 
-  .footer-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-4);
-    font-size: var(--font-size-sm);
-    color: var(--color-text);
+  @media (max-width: 639.98px) {
+    .footer-inner :global(.footer-links) {
+      display: none;
+    }
   }
 </style>

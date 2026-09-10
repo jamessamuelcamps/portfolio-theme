@@ -145,10 +145,14 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.02em;
 }
 
+/* In-prose headings. The structural section-title anchor is 2xl
+   (.cs-section-title / .about-row-title); headings *inside* body copy step
+   down from there so a single stacked column (mobile) still reads as a
+   hierarchy. h1 stays display-scale for the rare bare page title. */
 h1 { font-size: var(--font-size-4xl); margin-bottom: var(--space-4); }
-h2 { font-size: var(--font-size-2xl); margin-bottom: var(--space-3); }
-h3 { font-size: var(--font-size-xl); margin-bottom: var(--space-2); }
-h4 { font-size: var(--font-size-lg); }
+h2 { font-size: var(--font-size-xl); margin-bottom: var(--space-3); }
+h3 { font-size: var(--font-size-lg); margin-bottom: var(--space-2); }
+h4 { font-size: var(--font-size-base); }
 
 p {
   line-height: var(--line-height-relaxed);
@@ -291,7 +295,7 @@ code, pre {
 }
 
 .case-study .cs-section-title {
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-2xl);
   line-height: var(--line-height-snug);
   margin: 0;
 }
@@ -311,6 +315,15 @@ code, pre {
 
 .case-study .cs-section-body > :first-child { margin-top: 0; }
 .case-study .cs-section-body > :last-child { margin-bottom: 0; }
+
+/* While the head + body are stacked (below the 768px two-column split), a
+   body that opens on an in-prose heading sits right under the 2xl section
+   title — add a little air so the two titles don't run together. */
+@media (max-width: 767.98px) {
+  .case-study .cs-section-body > :is(h2, h3, h4):first-child {
+    margin-top: var(--space-3);
+  }
+}
 
 @media (min-width: 768px) {
   .cs-section {
@@ -502,13 +515,74 @@ code, pre {
 }
 
 /* ==========================================================================
-   Statement — the hero-quote treatment at a smaller, reusable scale, led by
-   an em-dash. Sits between body copy and display headings. Use on a pulled
-   sentence, a lead paragraph, or the items of a .statement-list.
+   Display quote — the oversized pull-quote that leads the homepage and the
+   About page. Wrap each line-fragment in its own <span>: per-line inverted
+   highlight (text-colour background, page-colour glyphs), the same treatment
+   as the case-study card title. Pair with .display-quote-cite for the
+   attribution line.
+
+   Scale: 2xl quote / base cite on mobile, flush to the gutter; 4xl / xl from
+   640px with the highlight's left bleed restored; 7xl display size from 768px.
+   ========================================================================== */
+.display-quote {
+  font-size: var(--font-size-2xl);
+  /* Looser than line-height-tight so the stacked highlight fragments
+     don't overlap. */
+  line-height: 1.6;
+  letter-spacing: -0.05em;
+  margin-bottom: var(--space-8);
+}
+
+.display-quote span {
+  display: inline;
+  background-color: var(--color-text);
+  color: var(--color-bg);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding: 0.12em 0.3em;
+  /* Mobile: no left bleed, so the quote lines up flush with the pill, cite
+     and body copy at the gutter. */
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.display-quote-cite {
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+}
+
+@media (min-width: 640px) {
+  .display-quote {
+    font-size: var(--font-size-4xl);
+  }
+
+  .display-quote span {
+    padding-left: 0.3em;
+    margin-left: -0.3em;
+  }
+
+  .display-quote-cite {
+    font-size: var(--font-size-xl);
+  }
+}
+
+@media (min-width: 768px) {
+  .display-quote {
+    font-size: var(--font-size-7xl);
+  }
+}
+
+/* ==========================================================================
+   Statement — an emphasised assertion, led by an em-dash. lg / 600 / tight
+   tracking: louder than body copy, but it sits *below* the section-title
+   anchor (2xl) and in-prose headings so it never outranks a heading when the
+   page stacks to one column. Use on a pulled sentence or a .statement-list.
+   Prominent uses (page standfirsts, pull quotes) set their own larger size
+   on top of this — see .cs-lead, .about-standfirst, .cs-pullquote-text.
    ========================================================================== */
 .statement,
 .statement-list li {
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-normal);
   letter-spacing: -0.05em;
@@ -616,6 +690,9 @@ ul.statement-list {
 .case-study .cs-lead {
   padding-left: 0;
   margin-block: var(--space-6);
+  /* Page standfirst: sits above .statement's base size (xl vs lg), and the
+     standalone variant grows again at ≥768 (below). */
+  font-size: var(--font-size-xl);
 }
 
 .case-study .cs-lead::before {
@@ -667,12 +744,14 @@ ul.statement-list {
   margin-block: var(--space-8);
 }
 
-/* Type treatment (size / weight / tracking) comes from .statement; the quote
-   sits flush, without the em-dash leader. */
+/* Weight / tracking come from .statement; the quote sits flush, without the
+   em-dash leader, and one step larger than a plain statement (xl vs lg) so a
+   pulled quote still carries. */
 .case-study .cs-pullquote .cs-pullquote-text {
   margin: 0;
   padding-left: 0;
   border-left: none;
+  font-size: var(--font-size-xl);
 }
 
 .case-study .cs-pullquote .cs-pullquote-text::before {
