@@ -86,7 +86,9 @@ const displayTitle = title.split('•')[0].trim();
     margin-left: -0.3em;
   }
 
-  .arrow {
+  /* Needs to out-specify `.project-title span`, and must be inline-block so
+     the hover transform actually applies. */
+  .project-title .arrow {
     display: inline-block;
     background: none;
     padding: 0;
