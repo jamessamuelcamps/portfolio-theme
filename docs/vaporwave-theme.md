@@ -1,6 +1,6 @@
 # Design Doc: `vaporwave` Easter-egg theme
 
-**Status:** Built (branch `feat/vaporwave-theme`, unreviewed) · **Owner:** James S-C · **Created:** 2026-09-10
+**Status:** Committed (8273a33) · PR [#4](https://github.com/jamessamuelcamps/portfolio/pull/4) open · **Owner:** James S-C · **Created:** 2026-09-10
 
 > **2026-09-10 — built, then revised.** §2–§6 implemented plus the optional
 > special cases. `npm run build` + `npx astro check` clean; verified across `/`,
