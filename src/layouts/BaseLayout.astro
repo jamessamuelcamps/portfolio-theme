@@ -63,6 +63,18 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       <slot />
     </main>
     {!fullBleed && <Footer />}
+
+    <script>
+      // Assemble mailto: links client-side so the address is never in the static HTML.
+      document.querySelectorAll<HTMLAnchorElement>('[data-email]').forEach((el) => {
+        const user = el.dataset.emailUser;
+        const domain = el.dataset.emailDomain;
+        if (!user || !domain) return;
+        const address = `${user}@${domain}`;
+        el.setAttribute('href', `mailto:${address}`);
+        el.textContent = el.dataset.emailLabel || address;
+      });
+    </script>
   </body>
 </html>
 

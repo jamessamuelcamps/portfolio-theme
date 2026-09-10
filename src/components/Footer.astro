@@ -6,23 +6,23 @@ const currentYear = new Date().getFullYear();
   <div class="container footer-inner">
     <div class="footer-meta">
       <p class="copyright">© {currentYear} James Samuel-Camps. All rights reserved.</p>
-      <p class="hosting-note">Lead Product Designer · Built with Astro & Vanilla CSS</p>
     </div>
 
+    <p class="footer-built">Built with Astro</p>
+
     <div class="footer-links">
-      <a href="mailto:hello@james-sc.co.uk">hello@james-sc.co.uk</a>
-      <a href="https://www.linkedin.com/in/jamessc/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-      <a href="https://www.instagram.com/james_sc/" target="_blank" rel="noopener noreferrer">Instagram</a>
-      <a href="https://github.com/jamessamuelcamps" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a class="marker-link" data-email data-email-user="hello" data-email-domain="james-sc.co.uk">hello [at] james-sc [dot] co [dot] uk</a>
+      <a href="https://www.linkedin.com/in/jamessc/" class="marker-link" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a href="https://www.instagram.com/james_sc/" class="marker-link" target="_blank" rel="noopener noreferrer">Instagram</a>
+      <a href="https://github.com/jamessamuelcamps" class="marker-link" target="_blank" rel="noopener noreferrer">GitHub</a>
     </div>
   </div>
 </footer>
 
 <style>
   .site-footer {
-    border-top: 1px solid var(--color-border-strong);
     margin-top: auto;
-    padding: var(--space-8) 0;
+    padding: var(--space-5) 0;
     background-color: var(--color-bg);
   }
 
@@ -52,7 +52,7 @@ const currentYear = new Date().getFullYear();
     color: var(--color-text-secondary);
   }
 
-  .hosting-note {
+  .footer-built {
     font-size: var(--font-size-xs);
     color: var(--color-text-muted);
   }
@@ -62,15 +62,6 @@ const currentYear = new Date().getFullYear();
     flex-wrap: wrap;
     gap: var(--space-4);
     font-size: var(--font-size-sm);
-  }
-
-  .footer-links a {
-    color: var(--color-text-secondary);
-    text-decoration: none;
-  }
-
-  .footer-links a:hover {
     color: var(--color-text);
-    text-decoration: underline;
   }
 </style>
