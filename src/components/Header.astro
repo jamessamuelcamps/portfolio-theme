@@ -257,6 +257,9 @@ const isActive = (href: string) =>
     color: var(--color-text);
   }
 
+  /* Matches the hero social column: sm text on its own line-box, space-2 gap.
+     font-size sits on the list so the <li> line-height tracks the link (a
+     16px <li> box would space the rows 3px taller than the social nav). */
   .nav-list {
     display: flex;
     flex-direction: column;
@@ -264,10 +267,10 @@ const isActive = (href: string) =>
     list-style: none;
     gap: var(--space-2);
     justify-self: end;
+    font-size: var(--font-size-sm);
   }
 
   .nav-link {
-    font-size: var(--font-size-sm);
     color: var(--color-text);
   }
 
