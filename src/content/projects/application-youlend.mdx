@@ -7,57 +7,100 @@ role: "Lead Product Designer"
 timeline: "4 Months"
 heroImage: "./application-youlend/Application-Journey-Thumbnail.png"
 heroImageAlt: "Thumbnail showing the redesigned YouLend capital application journey"
+heroLayout: "wide"
 tags: ["FinTech","Onboarding","Conversion Optimisation","UX Research"]
-order: 2
+order: 3
 ---
+import Section from '../../components/Section.astro';
+import LabelledBlock from '../../components/LabelledBlock.astro';
+import PullQuote from '../../components/PullQuote.astro';
+import QuoteStack from '../../components/QuoteStack.astro';
 import StatTile from '../../components/StatTile.astro';
 import StatGrid from '../../components/StatGrid.astro';
+import Figure from '../../components/Figure.astro';
+import ImageGrid from '../../components/ImageGrid.astro';
+import BeforeAfter from '../../components/BeforeAfter.astro';
+import Journey from '../../components/Journey.astro';
+import Stage from '../../components/Stage.astro';
+import CardGrid from '../../components/CardGrid.astro';
+import Card from '../../components/Card.astro';
+import Credits from '../../components/Credits.astro';
 
-## Context
+<Section number="01" title="Context">
 
-### The Brief
+<LabelledBlock label="The Brief">
 
 Redesign YouLend’s white-label merchant financing flow to increase capital approval conversions across global partner platforms (e.g., eBay, Amazon, Shopify).
 
-### The Architectural Challenge
+</LabelledBlock>
+
+<LabelledBlock label="The Architectural Challenge">
 
 Abstracting complex risk assessments, open banking data connections, and multi-currency terms into an adaptive, low-friction application journey that abides by strict partner styling limits.
 
-### The Operational Win
+</LabelledBlock>
+
+<LabelledBlock label="The Operational Win">
 
 Replaced rigid application steps with a responsive UI, significantly cutting drop-off rates and support queries.
 
-* * *
+</LabelledBlock>
 
-## Research & Discovery
+</Section>
+
+<Section number="02" title="Research & Discovery">
 
 ### Analytics
 
 Before I joined YouLend, Yvonne had spent time mapping the journey in Miro, and using Heap analytics to identify the most problematic steps in the journey.
 
-![Landing page step of the application journey](./application-youlend/landing.png)
+<Journey columns={4}>
 
-#### Landing
+<Stage title="Landing">
+<Fragment slot="icon">
+
+![](./application-youlend/landing.svg)
+
+</Fragment>
 
 Landing page that explains the product, and an indication of what you can borrow
 
-![Business details step of the application journey](./application-youlend/office.png)
+</Stage>
 
-#### Business
+<Stage title="Business">
+<Fragment slot="icon">
+
+![](./application-youlend/office.svg)
+
+</Fragment>
 
 Tell us your business name, type, country and address
 
-![Personal details step of the application journey](./application-youlend/personal.png)
+</Stage>
 
-#### Personal
+<Stage title="Personal">
+<Fragment slot="icon">
+
+![](./application-youlend/personal.svg)
+
+</Fragment>
 
 Tell us about all shareholders who own at least 25% of the company
 
-![Financial connection step of the application journey](./application-youlend/bank.png)
+</Stage>
 
-#### Financial
+<Stage title="Financial">
+<Fragment slot="icon">
+
+![](./application-youlend/bank.svg)
+
+</Fragment>
 
 Connect to your business bank via Open Banking, or submit PDF statements
+
+</Stage>
+
+</Journey>
 
 The biggest areas of drop-off were the Landing page (47% conversion) and Financial (56% conversion) – unsurprising as these were the areas that required the biggest ‘leaps-of-faith’.
 
@@ -69,61 +112,112 @@ Yvonne gathered feedback from our CS team, who said ‘help with sign up’ was 
 
 With this in mind, we aimed for the following metrics:
 
-![Icon representing an upward metric](./application-youlend/increase.png)
+<CardGrid columns={3}>
+
+<Card>
+<Fragment slot="icon">
+
+![](./application-youlend/increase.svg)
+
+</Fragment>
 
 Increase in sign-up conversion (landing page)
 
-![Icon representing an upward metric](./application-youlend/increase.png)
+</Card>
+
+<Card>
+<Fragment slot="icon">
+
+![](./application-youlend/increase.svg)
+
+</Fragment>
 
 Increase in Stage 1 conversion (submitting application)
 
-![Icon representing an upward metric](./application-youlend/increase.png)
+</Card>
+
+<Card>
+<Fragment slot="icon">
+
+![](./application-youlend/increase.svg)
+
+</Fragment>
 
 Increase in customer NPS mentioning application
 
-* * *
+</Card>
 
-## Design
+</CardGrid>
+
+</Section>
+
+<Section number="03" title="Design">
 
 ### Landing page
 
 Complete redesign of the landing page to emphasise the product’s features + benefits, along with social proof and some key information.
 
+<ImageGrid cols={1}>
+
 ![Redesigned landing page hero section](./application-youlend/Landing-Page-Hero.png)
-
 ![Redesigned landing page bento-box feature layout](./application-youlend/Bento-Box.png)
-
 ![Redesigned landing page customer reviews section](./application-youlend/Reviews.png)
+
+</ImageGrid>
 
 ### Account creation
 
 Simple modal to capture customer details. Initially our hypothesis was that this was causing the drop-off, but according to some previous team discovery into passwordless sign-up, customers who hadn’t entered these details upfront were less likely to convert.
 
+<Figure caption="Account creation modal" width="prose">
+
 ![Account creation modal](./application-youlend/Account-creation-1.png)
+
+</Figure>
 
 ### Form design
 
 As mentioned before, mobile optimisation was crucial to this project, which ended up informing the design a lot – beyond the Landing page, the majority of the screens are single-column forms, cutting out any complexity for responsive layouts.
 
-![Company details form screen](./application-youlend/Company-Details-03.png)
+<ImageGrid cols={1} width="prose">
 
+![Company details form screen](./application-youlend/Company-Details-03.png)
 ![Personal details form screen](./application-youlend/Personal-Details-03.png)
+
+</ImageGrid>
 
 I looked to eCommerce UX principles to help streamline and guide the user – removing all navigation, providing a clear progress indicator and adding helpful copy, to explain _why_ we were asking for particular information.
 
-![Form screen showing title and subtitle copy pattern](./application-youlend/Title-Subtitle-2.png)
+<Figure width="prose">
+
+![Example UI](./application-youlend/Title-Subtitle-2.png)
+
+</Figure>
 
 ### Financial information
 
-As the other significant drop-off, this page was a priority. The old design was uninspiring (see below left) and didn’t explain the Open Banking connection particularly well. Customers said it didn’t feel safe, and they didn’t understand what they had to do.
+As the other significant drop-off, this page was a priority. The old design was uninspiring and didn’t explain the Open Banking connection particularly well. Customers said it didn’t feel safe, and they didn’t understand what they had to do.
+
+<BeforeAfter beforeLabel="Before" afterLabel="After" width="prose">
+<Fragment slot="before">
 
 ![Original financial information screen before redesign](./application-youlend/financial-info-before.png)
 
+</Fragment>
+<Fragment slot="after">
+
 ![Redesigned financial information screen](./application-youlend/financial-info-after.png)
+
+</Fragment>
+</BeforeAfter>
 
 The new design prioritises the desired action, explains the reason plainly, provides social proof and some clear benefits to using this method over the manual upload, which is much more time-consuming and error-prone.
 
+<Figure caption="Financial information screen with supporting benefit cards" width="prose">
+
 ![Financial information screen with supporting benefit cards](./application-youlend/financial-info-cards-1.png)
+
+</Figure>
 
 ### Review
 
@@ -131,7 +225,11 @@ The old journey did feature a final ‘submit’ screen, but it was just a scree
 
 It didn’t align with what customers would expect from a ‘final step’ in a sign up flow, so I created a Review screen where they could look back at their information and then Submit. This felt much more like the final step in the application, and provided much-needed affordance to fix any mistakes.
 
+<Figure caption="Review screen summarising the submitted application details" width="prose">
+
 ![Review screen summarising submitted application details](./application-youlend/Review.png)
+
+</Figure>
 
 ### Offers
 
@@ -139,11 +237,17 @@ Once the application is submitted and the customer has offers available, we send
 
 As it’s one of the most important parts of the entire process, I emphasised interactivity, dynamic content and clear, easy-to-understand copy. I also included some contextual help content, rather than just relying on the FAQ section. These links, framed as questions, would open a simple modal to explain aspects of the product.
 
+<Figure caption="Offers selection screen with payment plan and fee controls" width="prose">
+
 ![Offers selection screen with payment plan and fee controls](./application-youlend/offers.png)
 
-> That page looks really cool. The previous version was factually all there but visually, it didn’t inspire enough excitement. But this is really good, I like it.
->
-> — Head of Product (Payments), Dojo
+</Figure>
+
+<PullQuote cite="Head of Product (Payments)" role="Dojo">
+
+That page looks really cool. The previous version was factually all there but visually, it didn’t inspire enough excitement. But this is really good, I like it.
+
+</PullQuote>
 
 ### Application status
 
@@ -151,33 +255,40 @@ Customer Support also told us that their most popular query was ‘what’s the 
 
 To help reduce inbound call volumes, we created an application status page to explain how their application was progressing and if they needed to do anything to proceed.
 
-![Application status overview screen](./application-youlend/app-status.png)
+<ImageGrid cols={1} width="prose">
 
+![Application status overview screen](./application-youlend/app-status.png)
 ![Application status detail screen](./application-youlend/Status.png)
 
-* * *
+</ImageGrid>
 
-## Testing
+</Section>
+
+<Section number="04" title="Testing">
 
 I used Userbrain to conduct usability testing; overall the feedback was extremely positive, but had some useful pointers too.
 
-> It’s very transparent and clear, no difficulty in understanding what I’m needing to do.
+<QuoteStack>
 
-> ‘Type of person’ sounds very awkward, could that be ‘role’ or something else?
+> “It’s very transparent and clear, no difficulty in understanding what I’m needing to do.”
 
-> Deciding on the percentage is going to slow me down slightly
+> “‘Type of person’ sounds very awkward, could that be ‘role’ or something else?”
 
-> I would do my research on YouLend first, make sure people are happy – check TrustPilot and things like that
+> “Deciding on the percentage is going to slow me down slightly.”
 
-> Incredibly clear, everything is laid out in a way where it’s easy to fill out the information, but also I understand each process and why my information is needed
+> “I would do my research on YouLend first, make sure people are happy – check TrustPilot and things like that.”
 
-> I think [the instructions] were really clear, I never had a moment where I didn’t know what I needed to do next. I did sometimes want to read text again but the instructions were very clear in terms of what to do.
+> “Incredibly clear, everything is laid out in a way where it’s easy to fill out the information, but also I understand each process and why my information is needed.”
 
-> Just clarify who you’re verifying with, is it YouLend or someone else
+> “I think [the instructions] were really clear, I never had a moment where I didn’t know what I needed to do next. I did sometimes want to read text again but the instructions were very clear in terms of what to do.”
 
-* * *
+> “Just clarify who you’re verifying with, is it YouLend or someone else.”
 
-## Challenges
+</QuoteStack>
+
+</Section>
+
+<Section number="05" title="Challenges">
 
 ### Product complexity
 
@@ -189,15 +300,19 @@ YouLend operates in nine countries internationally, so everything from UI to con
 
 Varying word/sentence lengths can cause issues, so I designed everything with the potential for wrapping in mind, to ensure it didn’t break anything.
 
+<Figure caption="Screens designed to accommodate longer translated copy" width="prose">
+
 ![Screens designed to accommodate longer translated copy](./application-youlend/translations.png)
+
+</Figure>
 
 Maintaining tone-of-voice is also difficult when you’re not in control of the output. Yvonne and I worked on the copy in English, used DeepL to provide a first-draft translation and then asked native speakers within the company to double-check their respective languages.
 
 All teams have to follow this process – it’s a bottleneck for every team, and without dedicated bilingual copywriters who can own the TOV for each language, there’s often disagreement on what the ‘correct’ translation is.
 
-* * *
+</Section>
 
-## Results
+<Section number="06" title="Results">
 
 At the time of writing (November 2024) the new journey is being rolled out to all partners – there is some account management/comms to consider as some partners weren’t happy to migrate without understanding the impact, which is fair.
 
@@ -205,7 +320,7 @@ I’ve personally led sessions with product/design teams at eBay, Amazon, Bookin
 
 ### Numbers
 
-<StatGrid>
+<StatGrid columns={4}>
   <StatTile value="83%">initial conversion uplift</StatTile>
   <StatTile value="7%">increase in Open Banking connections</StatTile>
   <StatTile value="55%">reduction in customer service calls about application status</StatTile>
@@ -218,24 +333,18 @@ For the application status page, in the first month after launch we saw a 55% de
 
 I will update with more definitive results in a few months, as well as some insights on the expected commercial uplift.
 
-* * *
+</Section>
 
-## Credits
+<Section title="Credits">
 
-**My role**  
-Design Lead
+<Credits
+  role="Design Lead"
+  tools={["Figma", "Userbrain", "Figjam", "Miro", "LaunchDarkly", "Heap"]}
+  date="Spring/summer 2024"
+  team={[
+    "Yvonne Regan, Senior Product Manager",
+    "Jessica O’Hare, VP Product",
+  ]}
+/>
 
-**Tools used**  
-Figma  
-Userbrain  
-Figjam  
-Miro  
-LaunchDarkly  
-Heap
-
-**Date**  
-Spring/summer 2024
-
-**Team**  
-Yvonne Regan, Senior Product Manager  
-Jessica O’Hare, VP Product
+</Section>

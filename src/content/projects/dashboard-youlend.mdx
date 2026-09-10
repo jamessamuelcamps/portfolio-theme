@@ -7,29 +7,45 @@ role: "Lead Product Designer"
 timeline: "3 Months"
 heroImage: "./dashboard-youlend/Merchant-Dash-Thumbnail-1.png"
 heroImageAlt: "Thumbnail showing the redesigned YouLend merchant servicing dashboard"
+heroLayout: "wide"
 tags: ["FinTech","B2B SaaS","Dashboard","Data Visualisation"]
-order: 1
+order: 2
 ---
+import Section from '../../components/Section.astro';
+import LabelledBlock from '../../components/LabelledBlock.astro';
 import StatTile from '../../components/StatTile.astro';
 import StatGrid from '../../components/StatGrid.astro';
+import Figure from '../../components/Figure.astro';
+import ImageGrid from '../../components/ImageGrid.astro';
+import Journey from '../../components/Journey.astro';
+import Stage from '../../components/Stage.astro';
+import CardGrid from '../../components/CardGrid.astro';
+import Card from '../../components/Card.astro';
+import Credits from '../../components/Credits.astro';
 
-## Context
+<Section number="01" title="Context">
 
-### The Brief
+<LabelledBlock label="The Brief">
 
 Build a scalable servicing platform for YouLend merchants to monitor funding offers, real-time repayments, and account health.
 
-### The Architectural Challenge
+</LabelledBlock>
+
+<LabelledBlock label="The Architectural Challenge">
 
 Organising dense financial data, multi-variable underwriting parameters, and complex repayment schedules into intuitive, self-service dashboards.
 
-### The Operational Win
+</LabelledBlock>
+
+<LabelledBlock label="The Operational Win">
 
 Aimed to deliver a modular dashboard framework that reduced customer support queries and gave partners clear, real-time visibility over their loan portfolios.
 
-* * *
+</LabelledBlock>
 
-## Research & Discovery
+</Section>
+
+<Section number="02" title="Research & Discovery">
 
 ### Part 1: Payment reconciliation
 
@@ -47,21 +63,37 @@ The team estimated that by closing 80% of the gap between renewal rates of merch
 
 ### Survey
 
-Nicole kicked off by putting out a survey to current dashboard customers via Hotjar.
+Nicole kicked off by putting out a survey to current dashboard customers via Hotjar. She found that:
 
-She found that:
+<CardGrid columns={2}>
 
-![Icon representing a piggy bank](./dashboard-youlend/piggy-bank.png)
+<Card>
+<Fragment slot="icon">
+
+![](./dashboard-youlend/piggy-bank.svg)
+
+</Fragment>
 
 Customers mostly visit the dashboard to check their current balance, or to review recent transactions/payments
 
-![Icon representing an award](./dashboard-youlend/award.png)
+</Card>
+
+<Card>
+<Fragment slot="icon">
+
+![](./dashboard-youlend/award.svg)
+
+</Fragment>
 
 They generally like the dashboard, rating it 4.2/5 when asked ‘how easy is it to complete your tasks?’
 
+</Card>
+
+</CardGrid>
+
 When asked _‘What’s one thing you would improve about the dashboard?’_:
 
-<StatGrid>
+<StatGrid columns={3}>
   <StatTile value="50%">wanted better options for renewing their funding, or viewing offers</StatTile>
   <StatTile value="27%">wanted better projections of how they are repaying over time</StatTile>
   <StatTile value="12%">wanted more clarity in the statements and graphs included in the dashboard</StatTile>
@@ -83,35 +115,63 @@ Interestingly, all of this functionality exists within the current dashboard. Cu
 
 The make-up of the current dashboard is fairly basic:
 
-![Icon representing an overview and advance details](./tide-payments/features.png)
+<Journey columns={4}>
 
-#### Overview + Advance details
+<Stage title="Overview + Advance details">
+<Fragment slot="icon">
+
+![](./dashboard-youlend/features.svg)
+
+</Fragment>
 
 Select your advance, view balance, see recent aggregated payments, see payment performance, view contracts
 
-![Icon representing an invoice](./dashboard-youlend/invoice.png)
+</Stage>
 
-#### Transactions
+<Stage title="Transactions">
+<Fragment slot="icon">
+
+![](./dashboard-youlend/invoice.svg)
+
+</Fragment>
 
 Reconcile individual transactions, download spreadsheets of transaction data, see account details
 
-![Icon representing personal/company details](./application-youlend/personal.png)
+</Stage>
 
-#### Company details
+<Stage title="Company details">
+<Fragment slot="icon">
+
+![](./dashboard-youlend/personal.svg)
+
+</Fragment>
 
 See your saved company info and contact information
 
-![Icon representing repeat renewals](./tide-payments/repeat.png)
+</Stage>
 
-#### Renewals
+<Stage title="Renewals">
+<Fragment slot="icon">
+
+![](./dashboard-youlend/repeat.svg)
+
+</Fragment>
 
 If eligible (usually once current advance is 80% paid off), apply for additional funding
 
-### Overview + Advance Details (deep dive)
+</Stage>
+
+</Journey>
+
+#### Overview + Advance Details (deep dive)
 
 This is the ‘homepage’ of the dashboard.
 
+<Figure caption="Current Overview and Advance Details dashboard screens" width="prose">
+
 ![Current Overview and Advance Details dashboard screens](./dashboard-youlend/Overview-Advance-Details.png)
+
+</Figure>
 
 *   The main content column is small – only 650px wide
 *   When customers first join, Advance Details (above right) is their first screen. Once they renew, they’re given the Overview screen (above left), which allows them to select one of their advances, showing them the respective Advance Details screen
@@ -120,24 +180,32 @@ This is the ‘homepage’ of the dashboard.
     *   The narrow column, and default timescale of ‘all time’ leads to a very zoomed-out graph where it’s difficult to discern anything of value
 *   Neither page features the information customers need to avoid Collections
 
-### Transactions (deep dive)
+#### Transactions (deep dive)
 
-This page features tables of transactions, organised by ‘Business bank account’ (the customer’s bank account) or ‘Settlement account’ (the account we open for them, where their payments go)
+This page features tables of transactions, organised by ‘Business bank account’ (the customer’s bank account) or ‘Settlement account’ (the account we open for them, where their payments go).
+
+<Figure caption="Current Transactions dashboard screen" width="prose">
 
 ![Current Transactions dashboard screen](./dashboard-youlend/Transactions.png)
+
+</Figure>
 
 *   This page is where Transaction reconciliation should happen, but few people find it
 *   Those that do are left confused by what they see – it’s not immediately obvious what the table is telling them, and some key information is being left out
 *   The ‘Settlement account’ page contains the most useful information but is hidden behind a click (and the dropdown to select it doesn’t feel very interactive)
 *   The copy is inefficient – we use jargon to label the transactions, and then over 120 words to explain the labels
 
-* * *
+</Section>
 
-## Design
+<Section number="03" title="Design">
 
 ### Wireframes + early concepts
 
+<Figure caption="Early wireframes and concepts for the redesigned dashboard" width="prose">
+
 ![Early wireframes and concepts for the redesigned dashboard](./dashboard-youlend/wireframes.png)
+
+</Figure>
 
 I put these together so that Nicole and I could discuss changes to the designs, mainly IA. Main things to note:
 
@@ -158,63 +226,114 @@ We spoke with six YouLend merchants that had logged in at least twice in the las
 
 ### Use cases
 
-![Icon representing analytics](./dashboard-youlend/analytics.png)
+<CardGrid columns={2}>
 
-#### Repayment tracking & business monitoring
+<Card title="Repayment tracking & business monitoring">
+<Fragment slot="icon">
+
+![](./dashboard-youlend/analytics.svg)
+
+</Fragment>
 
 Users primarily log in to view outstanding balances, repayment percentages, and daily repayment amounts
 
-![Icon representing a pen tool](./dashboard-youlend/pen-tool.png)
+</Card>
 
-#### Renewal applications
+<Card title="Renewal applications">
+<Fragment slot="icon">
+
+![](./dashboard-youlend/pen-tool.svg)
+
+</Fragment>
 
 Participants occasionally use the dashboard to explore eligibility for new funding
 
-![Icon representing an appointment](./dashboard-youlend/appointment.png)
+</Card>
 
-#### Reconciliation
+<Card title="Reconciliation">
+<Fragment slot="icon">
+
+![](./dashboard-youlend/appointment.svg)
+
+</Fragment>
 
 Many participants compare gross sales and repayment data with internal records or EPOS systems
 
-![Icon representing taxes](./dashboard-youlend/taxes.png)
+</Card>
 
-#### Financial reporting
+<Card title="Financial reporting">
+<Fragment slot="icon">
+
+![](./dashboard-youlend/taxes.svg)
+
+</Fragment>
 
 Participants download data and agreements for VAT submissions or tax filings
 
+</Card>
+
+</CardGrid>
+
 ### Pain points
 
-![Icon representing an alert](./dashboard-youlend/alert.png)
+<CardGrid columns={2}>
 
-#### Lack of detailed performance metrics
+<Card title="Lack of detailed performance metrics">
+<Fragment slot="icon">
+
+![](./dashboard-youlend/alert.svg)
+
+</Fragment>
 
 Users want to know if they are ahead or behind on repayment schedules, and by how much, rather than only seeing ‘on-track’
 
-![Icon representing an alert](./dashboard-youlend/alert.png)
+</Card>
 
-#### Limited visibility into transactions
+<Card title="Limited visibility into transactions">
+<Fragment slot="icon">
+
+![](./dashboard-youlend/alert.svg)
+
+</Fragment>
 
 The breakdown of gross sales, repayments, and net settlements is not easily accessible without downloading data
 
-![Icon representing an alert](./dashboard-youlend/alert.png)
+</Card>
 
-#### Clunky renewal process
+<Card title="Clunky renewal process">
+<Fragment slot="icon">
+
+![](./dashboard-youlend/alert.svg)
+
+</Fragment>
 
 While generally easy, the renewal flow is inconsistent. Some users prefer to email their account manager rather than use the dashboard
 
-![Icon representing an alert](./dashboard-youlend/alert.png)
+</Card>
 
-#### Mobile compatibility
+<Card title="Mobile compatibility">
+<Fragment slot="icon">
+
+![](./dashboard-youlend/alert.svg)
+
+</Fragment>
 
 Some users experience blank screens or difficulty accessing features on older mobile devices
+
+</Card>
+
+</CardGrid>
 
 ### Testing: Moderated usability testing
 
 After the interview section, I shared the prototype with the participants, and then set some simple tasks to do, such as identify your current balance, see how much you repaid on a given day, and find where you would download the contract for a specific advance.
 
-![Prototype screen used in moderated usability testing](./dashboard-youlend/Prototype-1.png)
+<ImageGrid cols={1} width="prose">
 
+![Prototype screen used in moderated usability testing](./dashboard-youlend/Prototype-1.png)
 ![Prototype screen used in moderated usability testing](./dashboard-youlend/Prototype-2.png)
+
+</ImageGrid>
 
 Overall the sentiment was positive – users appreciated the consolidated layout, making it easier to access key metrics at a glance. The clear display of gross sales, repayment deductions, and net settlements was highly praised, and seeing the percentage repaid and projected payoff date seemed to resonate well.
 
@@ -234,25 +353,31 @@ I reworked the designs again, to address the above and to refine the layout furt
 
 ‘Motivational’ was an often-used word by participants so I added more data near the top to show current performance this week, compared to last week, and the best all-time week.
 
+<ImageGrid cols={1} width="prose">
+
 ![Finalised Overview dashboard screen](./dashboard-youlend/Dashboard.png)
-
 ![Finalised on-track status UI](./dashboard-youlend/Ontrack-ui.png)
-
 ![Finalised stats UI component](./dashboard-youlend/stats-ui.png)
+
+</ImageGrid>
 
 #### Advance details
 
 Key information about the advance is shown at the top, as well as a reworking of the graph and the transaction detail panel, which can be switched from a summary to the detailed timeline.
 
+<ImageGrid cols={1} width="prose">
+
 ![Finalised Advance details dashboard screen](./dashboard-youlend/Advance-details.png)
-
 ![Finalised transaction overview panel](./dashboard-youlend/Transaction-overview.png)
-
+![Finalised transaction breakdown view](./dashboard-youlend/Transaction-breakdown.png)
 ![Finalised transaction UI detail view](./dashboard-youlend/Transaction-ui.png)
-
 ![Finalised cards UI component](./dashboard-youlend/cards-ui-1.png)
 
-## Complexities
+</ImageGrid>
+
+</Section>
+
+<Section number="04" title="Complexities">
 
 At its heart, YouLend’s Merchant Cash Advance is a complex product. Aside from the nine countries we’re present in, each with varying rules to abide by, not to mention the six languages we use, we also have to account for:
 
@@ -263,28 +388,21 @@ At its heart, YouLend’s Merchant Cash Advance is a complex product. Aside from
 
 The design is flexible and scalable enough to cater for these variations, some of which are thankfully quite narrow edge cases.
 
-* * *
+</Section>
 
-## Next steps
+<Section number="05" title="Next steps">
 
 At the time of writing (December 2024) the design phase is now complete. We’re currently working with legal to ensure everything we’ve done is compliant, and we will also need to produce localised versions of the dashboard for all geographies. The build will begin in Q1 2025.
 
-* * *
+</Section>
 
-## Credits
+<Section title="Credits">
 
-**My role**  
-Design Lead
+<Credits
+  role="Design Lead"
+  tools={["Figma", "Userbrain", "Figjam", "Miro", "Heap"]}
+  date="Autumn/winter 2024"
+  team={["Nicole Ng, Product Manager"]}
+/>
 
-**Tools used**  
-Figma  
-Userbrain  
-Figjam  
-Miro  
-Heap
-
-**Date**  
-Autumn/winter 2024
-
-**Team**  
-Nicole Ng, Product Manager
+</Section>

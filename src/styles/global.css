@@ -14,6 +14,7 @@
   --color-border: #d0d0d0;
   --color-border-strong: var(--black);
   --color-surface: #f7f7f7;
+  --color-dot: #d4d4d4;
 
   /* Radii — flat everywhere except pill controls (toggle, availability badge) */
   --radius-full: 999px;
@@ -62,7 +63,11 @@
 
   /* Layout */
   --prose-max: 720px;
+  --wide-max: 1140px;
   --gutter: 1.5rem;
+
+  /* Rhythm between case-study sections (promoted from about.astro) */
+  --section-gap: calc(var(--space-16) + var(--space-8));
 
   /* Transitions — color/border/background only, never transform */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -71,6 +76,10 @@
 
 @media (min-width: 1024px) {
   :root { --gutter: 2rem; }
+}
+
+@media (min-width: 768px) {
+  :root { --section-gap: calc(var(--space-24) + var(--space-6)); }
 }
 
 /* Dark mode — pure inversion, same semantic names, opposite values */
@@ -82,6 +91,7 @@ html[data-theme="dark"] {
   --color-border: #3a3a3a;
   --color-border-strong: var(--white);
   --color-surface: #1a1a1a;
+  --color-dot: #404040;
 }
 
 /* ==========================================================================
@@ -157,6 +167,27 @@ a:hover {
   text-underline-offset: 3px;
 }
 
+/* Marker-sweep link — on hover/focus a text-colour highlight wipes across the
+   text from start to end and the glyphs flip to the page colour, like a marker
+   stroke. Same inverted highlight as the hero quote and case-study card titles.
+   The highlight hugs the text exactly (no bleed) so it stays symmetric even
+   when the link is right-aligned against a tight gutter. */
+.marker-link {
+  display: inline-block;
+  background-image: linear-gradient(var(--color-text), var(--color-text));
+  background-repeat: no-repeat;
+  background-position: 0 50%;
+  background-size: 0% 100%;
+  transition: background-size var(--transition-base), color var(--transition-base);
+}
+
+.marker-link:hover,
+.marker-link:focus-visible {
+  color: var(--color-bg);
+  background-size: 100% 100%;
+  text-decoration: none;
+}
+
 code, pre {
   font-family: var(--font-mono);
   font-size: 0.9em;
@@ -192,6 +223,139 @@ code, pre {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   gap: var(--gutter);
+}
+
+/* ==========================================================================
+   Case-study layout — About-style label column
+
+   The case study body ( .cs-body ) is a full-width block inside .container.
+   Its direct children are centred: raw markdown (un-migrated studies) at
+   --prose-max, and <Section> blocks at --wide-max. Each <Section> is a
+   two-column grid — a hanging label column ( .cs-section-head ) and a prose
+   column ( .cs-section-body ) — mirroring .about-row on the About page.
+
+   Media inside a section body breaks out of the prose column with negative
+   inline margins, sized off --cs-body-inset (how far the prose column is
+   inset from the section's left edge). .case-study clips 50vw overshoot.
+   ========================================================================== */
+.case-study {
+  overflow-x: clip;
+  --cs-head-width: 15rem;
+}
+
+/* Direct children of the body wrapper are centred to a measure */
+.case-study .cs-body > * {
+  max-width: var(--prose-max);
+  margin-inline: auto;
+}
+
+.case-study .cs-body > .cs-section,
+.case-study .cs-body > .cs-credits,
+.case-study .cs-body > .cs-lead {
+  max-width: var(--wide-max);
+}
+
+/* Section: full-width number band, then label column + prose column */
+.cs-section {
+  --cs-body-inset: 0px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: var(--gutter);
+  align-items: start;
+}
+
+.cs-section + .cs-section {
+  margin-top: var(--section-gap);
+}
+
+/* Number / eyebrow band — its own full-width row above the two columns,
+   so the title top-aligns with the body copy. (Provisional bottom stroke.) */
+.cs-section-band {
+  grid-column: 1 / -1;
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.cs-section-eyebrow {
+  display: block;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-muted);
+}
+
+.cs-section-head {
+  margin-bottom: var(--space-4);
+}
+
+.case-study .cs-section-title {
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-snug);
+  margin: 0;
+}
+
+.case-study .cs-section-body :is(h3, h4) {
+  line-height: var(--line-height-snug);
+}
+
+.case-study .cs-section-body,
+.case-study .cs-section-body > p {
+  color: var(--color-text);
+}
+
+.case-study .cs-section-body {
+  max-width: var(--prose-max);
+}
+
+.case-study .cs-section-body > :first-child { margin-top: 0; }
+.case-study .cs-section-body > :last-child { margin-bottom: 0; }
+
+@media (min-width: 768px) {
+  .cs-section {
+    --cs-body-inset: calc(var(--cs-head-width) + var(--gutter));
+    grid-template-columns: var(--cs-head-width) minmax(0, 1fr);
+  }
+
+  .cs-section-head {
+    margin-bottom: 0;
+  }
+}
+
+/* Width tier inside a section body — media fills the whole section
+   (reclaims the label column via the negative inset margin) */
+.case-study .cs-section-body > .bleed-wide {
+  width: min(var(--wide-max), calc(100vw - 2 * var(--gutter)));
+  max-width: none;
+  margin-inline: calc(-1 * var(--cs-body-inset)) 0;
+}
+
+/* Fallback for a wide element used loose in .cs-body (not in a Section) */
+.case-study .cs-body > .bleed-wide {
+  width: min(var(--wide-max), calc(100vw - 2 * var(--gutter)));
+  max-width: none;
+  margin-inline: calc(50% - min(var(--wide-max) / 2, 50vw - var(--gutter)));
+}
+
+/* Case-study hero — sibling of the body wrapper. Centres itself on the same
+   measure as the header and section content (no inner padding, so a "wide"
+   hero is exactly as wide as the title and body above/below it). */
+.case-study-hero {
+  margin-block: var(--space-8);
+  margin-inline: auto;
+}
+
+.case-study-hero-image {
+  width: 100%;
+}
+
+.case-study-hero--inset {
+  width: min(var(--prose-max), 100% - 2 * var(--gutter));
+}
+
+.case-study-hero--wide {
+  width: min(var(--wide-max), 100% - 2 * var(--gutter));
 }
 
 /* Tag / Badge */
@@ -371,4 +535,655 @@ ul.statement-list {
 
 .statement-list li {
   margin: 0;
+}
+
+/* ==========================================================================
+   Case Study Components
+
+   Styling for the components in src/components/ consumed by case studies
+   (src/content/projects/*.mdx). Everything is rendered inside
+   `.case-study .prose`, so selectors are `.case-study`-scoped to reliably
+   beat the base `.prose` element rules (0,2,x vs 0,1,x).
+
+   Rules:
+   - semantic tokens only — dark mode is automatic
+   - flat: 1px borders, no radius, no shadow, no hover on non-links
+   - no transform anywhere
+   - block-direction spacing uses `margin-block` so the width-tier utilities
+     (.bleed-wide / .bleed-full) keep control of `margin-inline`
+   See docs/case-study-components.md.
+   ========================================================================== */
+
+/* --- Flat pass: no image borders, no quote rules --------------------
+   The case study drops strokes everywhere except SectionDivider and the
+   provisional Section band rule. Card-like blocks switch to a surface fill. */
+.case-study .prose blockquote {
+  border-left: none;
+  padding-left: 0;
+}
+
+/* base `.prose figure img` sets a 1px border — kill it inside case studies */
+.case-study .prose img,
+.case-study .prose figure img {
+  border: none;
+}
+
+/* Moneybox — the UI screenshots are mostly white, so a hairline keeps the
+   screen edges legible (especially in light mode). Opt-in per study. */
+.case-study[data-project="moneybox-goals"] .cs-image-grid img,
+.case-study[data-project="moneybox-goals"] .cs-figure img {
+  border: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent);
+}
+
+/* --- Shared: meta grid (Credits) ------------------------------------- */
+.meta-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.meta-label {
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+.meta-value {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+@media (min-width: 640px) {
+  .meta-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-8);
+  }
+}
+
+/* --- Section (label column) — see "Case-study layout" section above ---- */
+
+/* --- Lead ---------------------------------------------------------------- */
+.case-study .cs-lead {
+  padding-left: 0;
+  margin-block: var(--space-6);
+}
+
+.case-study .cs-lead::before {
+  content: none;
+}
+
+.case-study .cs-lead > p {
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+/* Standalone standfirst (not inside a Section) reads larger, like About */
+@media (min-width: 768px) {
+  .case-study .cs-body > .cs-lead {
+    font-size: var(--font-size-3xl);
+    margin-block: 0 var(--section-gap);
+  }
+}
+
+/* --- LabelledBlock ---------------------------------------------------- */
+.cs-labelled + .cs-labelled {
+  margin-top: var(--space-8);
+}
+
+.cs-labelled-label {
+  display: block;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-3);
+}
+
+/* Nested paragraphs aren't direct children of .cs-section-body, so the
+   global grey `p` colour would otherwise win here. */
+.case-study .cs-labelled-body,
+.case-study .cs-labelled-body > p {
+  color: var(--color-text);
+}
+
+.case-study .cs-labelled-body > :first-child { margin-top: 0; }
+.case-study .cs-labelled-body > :last-child { margin-bottom: 0; }
+
+/* --- PullQuote / QuoteStack ----------------------------------------- */
+.case-study .cs-pullquote {
+  margin-block: var(--space-8);
+}
+
+/* Type treatment (size / weight / tracking) comes from .statement; the quote
+   sits flush, without the em-dash leader. */
+.case-study .cs-pullquote .cs-pullquote-text {
+  margin: 0;
+  padding-left: 0;
+  border-left: none;
+}
+
+.case-study .cs-pullquote .cs-pullquote-text::before {
+  content: none;
+}
+
+.case-study .cs-pullquote-text > p {
+  margin: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+}
+
+.case-study .cs-pullquote-text > * + * {
+  margin-top: var(--space-3);
+}
+
+.case-study .cs-pullquote .cs-pullquote-attribution {
+  display: block;
+  margin-top: var(--space-4);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-align: left;
+}
+
+.case-study .cs-quote-stack {
+  margin-block: var(--space-8);
+  display: grid;
+  gap: var(--space-6);
+}
+
+.case-study .cs-quote-stack blockquote {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-snug);
+  font-style: italic;
+}
+
+.case-study .cs-quote-stack blockquote p {
+  margin: 0;
+}
+
+/* --- Figure --------------------------------------------------------- */
+.case-study .cs-figure {
+  margin-block: var(--space-10);
+}
+
+.case-study .cs-figure > p {
+  margin: 0;
+  display: contents;
+}
+
+.case-study .cs-figure img {
+  width: 100%;
+}
+
+.case-study .cs-figure-caption {
+  display: block;
+  margin-top: var(--space-3);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* --- ImageGrid ---------------------------------------------------- */
+.case-study .cs-image-grid {
+  margin-block: var(--space-10);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+.case-study .cs-image-grid > p {
+  margin: 0;
+  display: contents;
+}
+
+.case-study .cs-image-grid img {
+  width: 100%;
+}
+
+.case-study .cs-image-grid > .cs-figure-caption {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 640px) {
+  .case-study .cs-image-grid--2,
+  .case-study .cs-image-grid--3,
+  .case-study .cs-image-grid--4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  .case-study .cs-image-grid--3 { grid-template-columns: repeat(3, 1fr); }
+  .case-study .cs-image-grid--4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* --- BeforeAfter ------------------------------------------------ */
+.case-study .cs-compare {
+  margin-block: var(--space-10);
+}
+
+/* Split mode — the original side-by-side pair */
+.case-study .cs-compare--split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gutter);
+}
+
+@media (min-width: 640px) {
+  .case-study .cs-compare--split {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.case-study .cs-compare-item {
+  margin: 0;
+}
+
+.case-study .cs-compare-label {
+  display: block;
+  margin-bottom: var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-muted);
+  text-align: left;
+}
+
+.case-study .cs-compare-item > p {
+  margin: 0;
+  display: contents;
+}
+
+.case-study .cs-compare-item img {
+  width: 100%;
+}
+
+/* Slider mode — the pair overlaid with a draggable divider */
+.case-study .cs-compare--slider {
+  --pos: 50%;
+}
+
+.case-study .cs-compare-viewport {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  line-height: 0;
+  touch-action: pan-y;
+}
+
+.case-study .cs-compare-base,
+.case-study .cs-compare-clip {
+  margin: 0;
+}
+
+.case-study .cs-compare-base > p,
+.case-study .cs-compare-clip > p {
+  margin: 0;
+  display: contents;
+}
+
+.case-study .cs-compare-base img,
+.case-study .cs-compare-clip img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The "before" layer sits on top, clipped to the divider position */
+.case-study .cs-compare-clip {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(0 calc(100% - var(--pos)) 0 0);
+}
+
+.case-study .cs-compare-tag {
+  position: absolute;
+  top: var(--space-3);
+  z-index: 2;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-strong);
+}
+
+.case-study .cs-compare-tag--before { left: var(--space-3); }
+.case-study .cs-compare-tag--after { right: var(--space-3); }
+
+.case-study .cs-compare-divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--pos);
+  z-index: 3;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--color-border-strong);
+  pointer-events: none;
+}
+
+.case-study .cs-compare-grip {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  transform: translate(-50%, -50%);
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-strong);
+}
+
+/* Full-bleed range input drives the divider — free pointer drag + keyboard */
+.case-study .cs-compare-range {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  opacity: 0;
+  cursor: ew-resize;
+  touch-action: pan-y;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.case-study .cs-compare-range:focus-visible {
+  opacity: 1;
+  outline: none;
+}
+
+.case-study .cs-compare-range:focus-visible + .cs-compare-divider {
+  outline: 2px solid var(--color-border-strong);
+  outline-offset: 2px;
+}
+
+.case-study .cs-compare-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 2.25rem;
+  height: 100%;
+}
+
+.case-study .cs-compare-range::-moz-range-thumb {
+  width: 2.25rem;
+  height: 100%;
+  border: 0;
+  background: transparent;
+}
+
+/* --- CardGrid / Card — one bordered block for journey stages, analysis
+   insights and icon-led objectives. Each part is optional: icon, title,
+   body, footer. Single column on mobile, 2-up from 640px, 3/4-up from 900px
+   per data-columns (capped at 4). */
+.case-study .cs-card-grid {
+  margin-block: var(--space-10);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gutter);
+}
+
+@media (min-width: 640px) {
+  .case-study .cs-card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  .case-study .cs-card-grid[data-columns="3"] {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .case-study .cs-card-grid[data-columns="4"] {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.cs-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  /* Borderless — the card's rectangle is implied by a fine dot field:
+     sub-pixel dots on a tight 6px grid read as texture, not a grey fill,
+     so the text on top keeps its contrast against the page. */
+  background-color: var(--color-bg);
+  background-image: radial-gradient(var(--color-dot) 0.75px, transparent 0.75px);
+  background-size: 6px 6px;
+  background-position: center;
+}
+
+/* Icon sits on a solid disc so it reads cleanly over the card's dot field.
+   The disc lives on the container; the filter that recolours the grey source
+   SVG is on the <img> alone — a filter applied to the disc element would
+   recolour the disc too. */
+.case-study .cs-card-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-text);
+}
+
+.case-study .cs-card-icon > p {
+  margin: 0;
+  display: contents;
+}
+
+.case-study .cs-card-icon img {
+  width: 22px;
+  height: 22px;
+  border: none;
+  object-fit: contain;
+  /* Inverted against the body copy: disc is the text colour, glyph is the
+     page colour — white icon on a black disc in light mode, and vice versa. */
+  filter: brightness(0) invert(1);
+}
+
+html[data-theme="dark"] .case-study .cs-card-icon img {
+  filter: brightness(0);
+}
+
+.cs-card-title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.cs-card-body {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  color: var(--color-text);
+}
+
+.case-study .cs-card-body > :first-child { margin-top: 0; }
+.case-study .cs-card-body > :last-child { margin-bottom: 0; }
+.case-study .cs-card-body p { color: var(--color-text); }
+
+/* Every text run in the card sits on a highlight of the page background so it
+   stays legible over the dot field — per line, hugging the words (not a panel
+   behind the block). Each highlighted run is inline so the background fragments
+   per line (box-decoration-break: clone); the title carries its highlight on an
+   inner <span> since the .cs-card-title element itself is a blockified flex
+   child. The matched -/+ margin/padding on the inline start keeps every line
+   flush to the card's content edge while the highlight bleeds a few px past the
+   text on both sides. */
+.case-study .cs-card-title {
+  align-self: flex-start;
+  max-width: 100%;
+}
+
+.case-study .cs-card-title span,
+.case-study .cs-card-body p,
+.case-study .cs-card-footer p {
+  display: inline;
+  background-color: var(--color-bg);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding: 0.12em 0.3em;
+  margin-left: -0.3em;
+}
+
+/* Title runs inverted — text colour highlight, page-colour glyphs — to match
+   the inverted icon disc. */
+.case-study .cs-card-title span {
+  background-color: var(--color-text);
+  color: var(--color-bg);
+}
+
+/* Footer pins to the base of an equal-height card (the "Idea" line on an
+   analysis card, say) */
+.cs-card-footer {
+  margin-top: auto;
+  padding-top: var(--space-3);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  color: var(--color-text);
+}
+
+.case-study .cs-card-footer > :first-child { margin-top: 0; }
+.case-study .cs-card-footer > :last-child { margin-bottom: 0; }
+.case-study .cs-card-footer p { color: var(--color-text); }
+
+/* --- Journey — multi-column, icon → title → subtitle stack per stage,
+   no background. Single column on mobile, 2-up from 640px, 3/4-up from 900px
+   when data-columns asks for it (capped at 4). */
+.case-study .cs-journey {
+  margin-block: var(--space-8);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8) var(--gutter);
+}
+
+@media (min-width: 640px) {
+  .case-study .cs-journey {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  .case-study .cs-journey[data-columns="3"] {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .case-study .cs-journey[data-columns="4"] {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.cs-journey-stage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Icon disc — matches the Card icon treatment: the disc sits on the
+   container, the recolour filter on the <img> alone (a filter on the disc
+   would recolour the disc too). */
+.case-study .cs-journey-stage-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-text);
+}
+
+.case-study .cs-journey-stage-icon > p {
+  margin: 0;
+  display: contents;
+}
+
+.case-study .cs-journey-stage-icon img {
+  width: 22px;
+  height: 22px;
+  border: none;
+  object-fit: contain;
+  /* Inverted against the body copy: disc is the text colour, glyph is the
+     page colour — white icon on a black disc in light mode, and vice versa. */
+  filter: brightness(0) invert(1);
+}
+
+html[data-theme="dark"] .case-study .cs-journey-stage-icon img {
+  filter: brightness(0);
+}
+
+.cs-journey-stage-title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.cs-journey-stage-body {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-secondary);
+}
+
+.case-study .cs-journey-stage-body > :first-child { margin-top: 0; }
+.case-study .cs-journey-stage-body > :last-child { margin-bottom: 0; }
+
+/* --- Credits --------------------------------------------- */
+.cs-credits {
+  margin-top: var(--section-gap);
+}
+
+.case-study .cs-section-body > .cs-credits {
+  margin-top: 0;
+}
+
+.cs-credits .meta-item {
+  gap: var(--space-2);
+}
+
+.case-study .cs-credits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-secondary);
+}
+
+.case-study .cs-credits-list li {
+  margin: 0;
+}
+
+/* --- SectionDivider ------------------------------------- */
+.case-study .cs-divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin-block: var(--section-gap);
 }

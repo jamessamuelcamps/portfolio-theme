@@ -1,0 +1,27 @@
+---
+interface Props {
+  /** Section title, e.g. "Context" */
+  title: string;
+  /** Text kicker above the title, e.g. "Research" */
+  eyebrow?: string;
+  /** Ordinal kicker, e.g. "01" — rendered as "01 —". Wins over `eyebrow`. */
+  number?: string;
+}
+
+const { title, eyebrow, number } = Astro.props;
+const kicker = number ? `${number} —` : eyebrow;
+---
+
+<section class="cs-section">
+  {kicker && (
+    <div class="cs-section-band">
+      <span class="cs-section-eyebrow">{kicker}</span>
+    </div>
+  )}
+  <div class="cs-section-head">
+    <h2 class="cs-section-title">{title}</h2>
+  </div>
+  <div class="cs-section-body prose">
+    <slot />
+  </div>
+</section>

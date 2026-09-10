@@ -1,0 +1,12 @@
+---
+interface Props {
+  /** Stage count at desktop width (2 at ≥640px). Max 4. */
+  columns?: 2 | 3 | 4;
+}
+
+const { columns } = Astro.props;
+---
+
+<div class="cs-journey" data-columns={columns}>
+  <slot />
+</div>

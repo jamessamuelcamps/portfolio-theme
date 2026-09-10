@@ -8,12 +8,14 @@ interface Props {
   title?: string;
   description?: string;
   fullBleed?: boolean;
+  noindex?: boolean;
 }
 
 const {
   title = 'James Samuel-Camps · Lead Product Designer',
   description = 'Product design portfolio - case studies in fintech, digital banking and user research.',
   fullBleed = false,
+  noindex = false,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -35,6 +37,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="canonical" href={canonicalURL} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <meta name="generator" content={Astro.generator} />
 
     <!-- Primary Meta Tags -->
@@ -60,6 +63,18 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       <slot />
     </main>
     {!fullBleed && <Footer />}
+
+    <script>
+      // Assemble mailto: links client-side so the address is never in the static HTML.
+      document.querySelectorAll<HTMLAnchorElement>('[data-email]').forEach((el) => {
+        const user = el.dataset.emailUser;
+        const domain = el.dataset.emailDomain;
+        if (!user || !domain) return;
+        const address = `${user}@${domain}`;
+        el.setAttribute('href', `mailto:${address}`);
+        el.textContent = el.dataset.emailLabel || address;
+      });
+    </script>
   </body>
 </html>
 

@@ -3,21 +3,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import { getCollection } from 'astro:content';
 
-const projects = (await getCollection('projects')).sort(
+const projects = (await getCollection('projects', ({ data }) => !data.draft)).sort(
   (a, b) => a.data.order - b.data.order
 );
 ---
 
 <BaseLayout 
-  title="Work & Case Studies · James Samuel Camps" 
+  title="Projects · James Samuel Camps" 
   description="Product design case studies, design systems, and mobile interfaces by James Samuel Camps."
 >
   <div class="container">
     <header class="page-header">
-      <h1 class="page-title">Work & Case Studies</h1>
-      <p class="page-subtitle">
-        A curated selection of product design projects focusing on complex workflows, multi-platform design systems, and end-to-end user experiences.
-      </p>
+      <h1 class="page-title">Projects</h1>
     </header>
 
     <div class="projects-grid">
@@ -37,11 +34,6 @@ const projects = (await getCollection('projects')).sort(
   .page-title {
     font-size: var(--font-size-4xl);
     margin-bottom: var(--space-3);
-  }
-
-  .page-subtitle {
-    font-size: var(--font-size-lg);
-    color: var(--color-text-secondary);
   }
 
   .projects-grid {

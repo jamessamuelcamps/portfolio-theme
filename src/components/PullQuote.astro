@@ -1,0 +1,18 @@
+---
+interface Props {
+  /** Person or source name */
+  cite?: string;
+  /** Their role / company, e.g. "Dojo" */
+  role?: string;
+}
+
+const { cite, role } = Astro.props;
+const attribution = [cite, role].filter(Boolean).join(', ');
+---
+
+<figure class="cs-pullquote">
+  <blockquote class="cs-pullquote-text statement">
+    <slot />
+  </blockquote>
+  {attribution && <figcaption class="cs-pullquote-attribution">— {attribution}</figcaption>}
+</figure>

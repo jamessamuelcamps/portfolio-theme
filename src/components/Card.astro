@@ -1,0 +1,18 @@
+---
+interface Props {
+  /** Optional heading. Omit for an icon + text card. */
+  title?: string;
+}
+
+const { title } = Astro.props;
+const hasIcon = Astro.slots.has('icon');
+const hasBody = Astro.slots.has('default');
+const hasFooter = Astro.slots.has('footer');
+---
+
+<div class="cs-card">
+  {hasIcon && <div class="cs-card-icon"><slot name="icon" /></div>}
+  {title && <div class="cs-card-title"><span>{title}</span></div>}
+  {hasBody && <div class="cs-card-body"><slot /></div>}
+  {hasFooter && <div class="cs-card-footer"><slot name="footer" /></div>}
+</div>

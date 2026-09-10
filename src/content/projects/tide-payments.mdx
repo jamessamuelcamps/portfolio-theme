@@ -1,41 +1,54 @@
 ---
 title: "Payments • Tide"
-description: "Streamlining Tide’s business banking payment journey, reducing errors and speeding up payroll and batch transactions."
+description: "Streamlining Tide’s business banking payment journey."
 publishDate: 2024-10-18
 client: "Tide"
 role: "Lead Product Designer"
 timeline: "4 Months"
 heroImage: "./tide-payments/Payments-Thumbnail.png"
 heroImageAlt: "Thumbnail showing the redesigned Tide payments flow on mobile"
+heroLayout: "wide"
 tags: ["FinTech","Business Banking","Payments","Workflow Simplification"]
-order: 5
+order: 6
 ---
+import Section from '../../components/Section.astro';
+import LabelledBlock from '../../components/LabelledBlock.astro';
+import PullQuote from '../../components/PullQuote.astro';
 import StatTile from '../../components/StatTile.astro';
 import StatGrid from '../../components/StatGrid.astro';
+import Figure from '../../components/Figure.astro';
+import ImageGrid from '../../components/ImageGrid.astro';
+import CardGrid from '../../components/CardGrid.astro';
+import Card from '../../components/Card.astro';
+import Credits from '../../components/Credits.astro';
 
-## Context
+<Section number="01" title="Context">
 
-### The Brief
+<LabelledBlock label="The Brief">
 
 Redesign Tide’s core domestic payment experience, delivering a seamless payment flow for UK SMEs.
 
-### The Architectural Challenge
+</LabelledBlock>
+
+<LabelledBlock label="The Architectural Challenge">
 
 Consolidating several fragmented, legacy payment journeys into a single, dynamic flow that handles complex payment rules, validation, and edge cases. All while building UI architecture flexible enough to support future FX and international capabilities.
 
-### The Operational Win
+</LabelledBlock>
+
+<LabelledBlock label="The Operational Win">
 
 Streamlined the core payment UX to reduce cognitive friction and error rates, while establishing modular, reusable payment components that expanded Tide’s overall design system.
 
-* * *
+</LabelledBlock>
 
-## Research & Discovery
+</Section>
+
+<Section number="02" title="Research & Discovery">
 
 ### Vision workshop
 
-Over two days, the team ran workshops to define the vision for the new payments proposition.  
-  
-We wanted a consistent target to aim for, as well as tangible guardrails for any future updates or integrations. We discussed:
+Over two days, the team ran workshops to define the vision for the new payments proposition. We wanted a consistent target to aim for, as well as tangible guardrails for any future updates or integrations. We discussed:
 
 *   _Who is the target audience?_
 *   _What are their problems?_
@@ -45,37 +58,75 @@ We wanted a consistent target to aim for, as well as tangible guardrails for any
 
 We looked to our own in-house data to answer these questions, as well as other research materials from the likes of Accenture and McKinsey.
 
-Next, we set definitions around four key factors — what the product is; what it is not; what it does; and what it doesn’t do.
+Next, we set definitions around four key factors — what the product is; what it is not; what it does; and what it doesn’t do. With this information, we wrote a final vision statement:
 
-With this information, we wrote a final vision statement:
+<PullQuote>
 
-> For SMEs who need to carry out essential tasks as they grow, our payment flow is an experience-led stream that can evolve to tackle any demands. Unlike banks, our product is convenient, adaptable and non-intrusive.
+For SMEs who need to carry out essential tasks as they grow, our payment flow is an experience-led stream that can evolve to tackle any demands. Unlike banks, our product is convenient, adaptable and non-intrusive.
+
+</PullQuote>
 
 We were happy with this statement overall — the word ‘stream’ felt a little ambiguous but we liked the concept of the area resembling a river, with one main flow that has several smaller tributaries feeding into it.
 
 So no matter your starting point, you always join a flow that is pre-existing, familiar and wholly governed by our team.
 
-![Team whiteboard from the vision workshop, mapping the target audience, problems, and product category](./tide-payments/Payments-Image-1.png)
+<Figure>
+
+![Example UI](./tide-payments/Payments-Image-1.png)
+
+</Figure>
 
 ### Setting objectives
 
 We defined some key objectives for the new payments area:
 
-![Icon representing alignment with business OKRs](./tide-payments/okrs.png)
+<CardGrid columns={2}>
+
+<Card>
+<Fragment slot="icon">
+
+![](./tide-payments/okrs.svg)
+
+</Fragment>
 
 We would align with business OKRs on member satisfaction and revenue
 
-![Icon representing a gold-standard benchmark](./tide-payments/gold-standard.png)
+</Card>
+
+<Card>
+<Fragment slot="icon">
+
+![](./tide-payments/gold-standard.svg)
+
+</Fragment>
 
 Given its popularity, payments should become our company gold standard for UX
 
-![Icon representing customer-led experience](./tide-payments/experience.png)
+</Card>
+
+<Card>
+<Fragment slot="icon">
+
+![](./tide-payments/experience.svg)
+
+</Fragment>
 
 Experience should be led by what our customers need, not our technical limitations
 
-![Icon representing combined features](./tide-payments/features.png)
+</Card>
+
+<Card>
+<Fragment slot="icon">
+
+![](./tide-payments/features.svg)
+
+</Fragment>
 
 We should combine disparate payment management features into a single payments ‘hub’
+
+</Card>
+
+</CardGrid>
 
 ### Heuristic review
 
@@ -89,105 +140,169 @@ We looked at payments products from challenger banks, High Street banks and inve
 
 It felt like almost all were converging on a similar interaction pattern – a single screen for amount and reference, with a toggle to display scheduling options.
 
-![Comparison of payment screens from Starling, Dave, Marcus and Betterment](./tide-payments/Payments-Image-3.png)
 
-*Payment screens on Starling, Dave, Marcus and Betterment*
 
 Making a payment is never really a ‘fun’ experience; it’s functional and the user needs to have explicit trust.
 
 In other words, rather than trying to reinvent the wheel, we should focus on external consistency, familiarity and affordance to let our customers get things done fast.
 
-* * *
+<Figure caption="Payment screens on Starling, Dave, Marcus and Betterment">
 
-## Design
+![Comparison of payment screens from Starling, Dave, Marcus and Betterment](./tide-payments/Payments-Image-3.png)
+
+</Figure>
+
+</Section>
+
+<Section number="03" title="Design">
 
 As we weren’t looking to explore new, exotic ways to present this product, I jumped almost straight into high-fidelity UI. We revisited our data from the discovery work and found some interesting ways that we could refine and streamline the design:
 
-![Icon representing multiple users/recipients](./tide-payments/user-multiple.png)
+<CardGrid columns={2}>
 
-### Recipients
+<Card title="Recipients">
+<Fragment slot="icon">
+
+![](./tide-payments/user-multiple.svg)
+
+</Fragment>
 
 46% of payments made by active customers had been to one of their three last-paid recipients
 
-_Idea: We could provide a ‘Recent’ section in the recipients list to optimise the flow for paying these recipients_
+<Fragment slot="footer">
 
-![Icon representing a repeated action](./tide-payments/repeat.png)
+**Idea:** Provide a ‘Recent’ section in the recipients list to optimise the flow for paying these recipients
 
-### Making multiple payments
+</Fragment>
+
+</Card>
+
+<Card title="Making multiple payments">
+<Fragment slot="icon">
+
+![](./tide-payments/repeat.svg)
+
+</Fragment>
 
 19% of payments made by active customers were done less than 3 minutes after the previous one
 
-_Idea: We could provide the ability to immediately make another payment upon submitting a payment_
+<Fragment slot="footer">
 
-![Icon representing a shared wallet](./tide-payments/wallet.png)
+**Idea:** Provide the ability to immediately make another payment upon submitting a payment
 
-### Multiple account holders
+</Fragment>
+
+</Card>
+
+<Card title="Multiple account holders">
+<Fragment slot="icon">
+
+![](./tide-payments/wallet.svg)
+
+</Fragment>
 
 80% of payments made by multiple account holders came from the primary account
 
-_Idea: We could pre-select the primary account rather than making the customer select the ‘From’ account each time_
+<Fragment slot="footer">
 
-![Icon representing payment management tools](./tide-payments/wrench.png)
+**Idea:** Pre-select the primary account rather than making the customer select the ‘From’ account each time
 
-### Payment management
+</Fragment>
+
+</Card>
+
+<Card title="Payment management">
+<Fragment slot="icon">
+
+![](./tide-payments/wrench.svg)
+
+</Fragment>
 
 The location of payment management features, such as managing Direct Debits and scheduled payments, was unintuitive
 
-_Idea: We could bring these features into the main Pay tab under a secondary navigation_
+<Fragment slot="footer">
 
-![Icon representing navigation](./tide-payments/maps.png)
+**Idea:** Bring these features into the main Pay tab under a secondary navigation
 
-### Navigation
+</Fragment>
+
+</Card>
+
+<Card title="Navigation">
+<Fragment slot="icon">
+
+![](./tide-payments/maps.svg)
+
+</Fragment>
 
 In a usability test, all users expected to be brought back to the main Account tab once a payment had been made
 
-_Idea: We could take customers back to the main Accounts tab once done, alongside the ‘make another payment’ option_
+<Fragment slot="footer">
 
-![Icon representing a repeated payment schedule](./tide-payments/repeat-1.png)
+**Idea:** Take customers back to the main Accounts tab once done, alongside the ‘make another payment’ option
 
-### Repeated payments
+</Fragment>
+
+</Card>
+
+<Card title="Repeated payments">
+<Fragment slot="icon">
+
+![](./tide-payments/repeat-1.svg)
+
+</Fragment>
 
 When scheduling a payment to repeat/defer, over 65% of payments were ‘send once’ (don’t repeat) and send ‘tomorrow’
 
-_Idea: By pre-selecting these options, we will cater for nearly two-thirds of scheduled payments with a single tap_
+<Fragment slot="footer">
+
+**Idea:** By pre-selecting these options, we cater for nearly two-thirds of scheduled payments with a single tap
+
+</Fragment>
+
+</Card>
+
+</CardGrid>
 
 Throughout the process, we worked closely with engineering and compliance to bridge legacy limits with modern UI performance, ensuring zero disruption to daily business transactions.
 
 Also, the way I designed payment cards, recipient selectors, and status states to be modular and reusable meant future teams could plug in FX and multi-currency rails without blowing up the core user mental model or rewriting the UI.
 
-* * *
+</Section>
 
-## Final UI
+<Section number="04" title="Final UI">
 
 ### Domestic payment
 
+<ImageGrid cols={2} width="prose">
+
 ![Pay tab showing the recipients list](./tide-payments/recipients-list.png)
-
 ![Domestic payment main entry screen](./tide-payments/pay-main.png)
-
 ![Domestic payment review screen](./tide-payments/review-1.png)
-
 ![Payment successful confirmation screen](./tide-payments/payment-success.png)
+
+</ImageGrid>
 
 ### Scheduled payment
 
+<ImageGrid cols={2}  width="prose">
+
 ![Scheduled payment review screen](./tide-payments/review-scheduled.png)
-
 ![Scheduled payment date picker](./tide-payments/pick-a-date.png)
-
 ![Scheduled payment frequency selector](./tide-payments/select-frequency.png)
-
 ![Confirm scheduled payment screen](./tide-payments/scheduled-payment-confirm.png)
 
-* * *
+</ImageGrid>
 
-## Conclusion
+</Section>
+
+<Section number="05" title="Conclusion">
 
 The new area’s modular structure allowed new services like sending and receiving foreign currency, Open Banking or even multi-currency wallets to be implemented easily.
 
 In terms of metrics, we were quite modest as this was such a crucial function within the app:
 
-<StatGrid>
+<StatGrid columns={4}>
   <StatTile value="7">point increase in our NPS (68 to 75)</StatTile>
   <StatTile value="9%">reduction in time-on-task</StatTile>
   <StatTile value="0">change to payment completion %</StatTile>
@@ -196,22 +311,18 @@ In terms of metrics, we were quite modest as this was such a crucial function wi
 
 This project was a great exercise in collaboration and design thinking. Arnoud, Katie and I worked closely together over the course of several months, and our decisions were well thought out and backed by good research and data.
 
-* * *
+</Section>
 
-## Credits
+<Section title="Credits">
 
-**My role**  
-Design Lead
+<Credits
+  role="Design Lead"
+  tools={["Figma", "Mural", "Invision", "Usertesting.com"]}
+  date="Spring/summer 2021"
+  team={[
+    "Arnoud de Nicolay, Product Manager",
+    "Katie Hayward, UX Writer",
+  ]}
+/>
 
-**Tools used**  
-Figma  
-Mural  
-Invision  
-Usertesting.com
-
-**Date**  
-Spring/summer 2021
-
-**Team**  
-Arnoud de Nicolay, Product Manager  
-Katie Hayward, UX Writer
+</Section>

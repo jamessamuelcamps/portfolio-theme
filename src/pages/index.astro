@@ -18,7 +18,7 @@ const fullBleed = recentWriting.length === 0;
       <div class="hero-main">
         <p class="availability-pill">Available for new opportunities. Let’s talk →</p>
         <h1 class="hero-quote">
-          “I’d rather he didn’t come back at all. His trainers are shit and he’s too tall. No-one even likes him.”
+          <span>“I’d rather he didn’t come back at all. His trainers are shit and he’s too tall. No-one even likes him.”</span>
         </h1>
         <p class="hero-cite">— Design Director, VML</p>
       </div>
@@ -34,8 +34,10 @@ const fullBleed = recentWriting.length === 0;
         </div>
 
         <div class="hero-social">
-          <a href="https://www.linkedin.com/in/jamessc/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-          <a href="https://www.instagram.com/james_sc/" target="_blank" rel="noopener noreferrer">Instagram</a>
+          <a class="marker-link" data-email data-email-user="hello" data-email-domain="james-sc.co.uk" data-email-label="Email">Email</a>
+          <a href="https://www.linkedin.com/in/jamessc/" class="marker-link" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href="https://www.instagram.com/james_sc/" class="marker-link" target="_blank" rel="noopener noreferrer">Instagram</a>
+          <a href="https://github.com/jamessamuelcamps" class="marker-link" target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
       </div>
 
@@ -44,7 +46,7 @@ const fullBleed = recentWriting.length === 0;
         href="https://github.com/jamessamuelcamps/portfolio-theme"
         target="_blank"
         rel="noopener noreferrer"
-      ><span>Steal this theme →</span></a>
+      ><span>Steal this theme</span></a>
     </section>
 
     <!-- Writing Section -->
@@ -55,7 +57,7 @@ const fullBleed = recentWriting.length === 0;
             <h2 class="section-title">Writing & Insights</h2>
             <p class="section-description">Thoughts on design engineering, system architecture, and UX methodologies.</p>
           </div>
-          <a href="/writing" class="section-link">View All Writing →</a>
+          <a href="/writing" class="section-link marker-link">View All Writing →</a>
         </div>
 
         <div class="writing-list">
@@ -103,10 +105,23 @@ const fullBleed = recentWriting.length === 0;
 
   .hero-quote {
     font-size: var(--font-size-4xl);
-    line-height: var(--line-height-tight);
+    /* Looser than line-height-tight so the stacked highlight fragments
+       don't overlap. */
+    line-height: 1.6;
     letter-spacing: -0.05em;
-    color: var(--color-text);
     margin-bottom: var(--space-8);
+  }
+
+  /* Per-line highlight — same treatment as the case-study card title:
+     text-colour background, page-colour glyphs, one fragment per line. */
+  .hero-quote span {
+    display: inline;
+    background-color: var(--color-text);
+    color: var(--color-bg);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    padding: 0.12em 0.3em;
+    margin-left: -0.3em;
   }
 
   @media (min-width: 768px) {
@@ -165,11 +180,6 @@ const fullBleed = recentWriting.length === 0;
     text-align: right;
   }
 
-  .hero-social a:hover {
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-
   .hero-mark {
     position: absolute;
     top: 50%;
@@ -178,18 +188,35 @@ const fullBleed = recentWriting.length === 0;
     display: none;
   }
 
-  .hero-mark span {
+  .hero-mark > span {
     display: inline-block;
     writing-mode: vertical-rl;
     transform: rotate(180deg);
     white-space: nowrap;
     font-size: var(--font-size-sm);
     color: var(--color-text);
+    padding: 0.15em 0.3em;
+    /* Marker sweep: a text-colour highlight grows from the start of the label
+       (screen-bottom, after the 180° rotation) to the end on hover, glyphs
+       flipping to the page colour — the inverted highlight from the hero quote
+       and card titles, revealed like a marker stroke. */
+    background-image: linear-gradient(var(--color-text), var(--color-text));
+    background-repeat: no-repeat;
+    background-position: 50% 0;
+    background-size: 100% 0%;
+    transition: background-size var(--transition-base), color var(--transition-base);
   }
 
-  .hero-mark:hover span {
-    text-decoration: underline;
-    text-underline-offset: 3px;
+  /* Also overrides the global `a:hover` underline on the anchor itself. */
+  .hero-mark:hover,
+  .hero-mark:focus-visible {
+    text-decoration: none;
+  }
+
+  .hero-mark:hover > span,
+  .hero-mark:focus-visible > span {
+    background-size: 100% 100%;
+    color: var(--color-bg);
   }
 
   @media (min-width: 1024px) {
@@ -233,11 +260,6 @@ const fullBleed = recentWriting.length === 0;
     font-weight: var(--font-weight-medium);
     color: var(--color-text);
     white-space: nowrap;
-  }
-
-  .section-link:hover {
-    text-decoration: underline;
-    text-underline-offset: 3px;
   }
 
   .writing-list {

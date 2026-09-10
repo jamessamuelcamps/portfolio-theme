@@ -1,181 +1,236 @@
 ---
 title: "Goals • Moneybox"
-description: "Creating a personalized financial advice and goal-setting platform for over 18 million UK savers."
+description: "Creating a personalized financial advice and goal-setting platform for over 1.5 million UK savers."
 publishDate: 2024-10-18
 client: "Moneybox"
 role: "Lead Product Designer"
 timeline: "6 Months"
 heroImage: "./moneybox-goals/goals-hero-1.png"
 heroImageAlt: "Thumbnail showing the Moneybox home-buying savings goal feature"
+heroLayout: "wide"
 tags: ["FinTech","Mobile App","Financial Advice","User Research"]
-order: 4
+order: 5
 ---
+import Section from '../../components/Section.astro';
+import LabelledBlock from '../../components/LabelledBlock.astro';
 import StatTile from '../../components/StatTile.astro';
 import StatGrid from '../../components/StatGrid.astro';
+import Figure from '../../components/Figure.astro';
+import ImageGrid from '../../components/ImageGrid.astro';
+import Journey from '../../components/Journey.astro';
+import Stage from '../../components/Stage.astro';
+import Credits from '../../components/Credits.astro';
 
-## Context
+<Section number="01" title="Context">
 
-### Problem
+<LabelledBlock label="Problem">
 
 In 2022, there were over 18m people in the UK with £10,000 or more in low-interest savings or current accounts.
 
 We believed that these people would benefit from financial advice, a service largely misunderstood and mistrusted by the general public.
 
-### Solution
+</LabelledBlock>
+
+<LabelledBlock label="Solution">
 
 If we could provide free, quality financial advice for all Moneybox customers, that would be a significant disruptor in the UK savings & investments market.
 
 To test the idea, we created a service designed to help Lifetime ISA customers create a holistic savings goal for their first home. This was chosen for its commercial potential; revenue and x-sell are key metrics in the CX mission.
 
-* * *
+</LabelledBlock>
 
-## Research & Discovery
+</Section>
+
+<Section number="02" title="Research & Discovery">
 
 ### Prior efforts
 
-The team had already completed some research prior to me joining the company – a competitor analysis, survey, and some initial prototypes which they had tested with customers.
+The team had already completed some research prior to me joining the company – a competitor analysis, survey, and some initial prototypes which they had tested with customers. They found that:
 
-They found that:
+<Journey columns={2}>
 
-![Icon representing a query or question](./moneybox-goals/help-circle.png)
+<Stage>
+<Fragment slot="icon">
+
+![](./moneybox-goals/help-circle.svg)
+
+</Fragment>
 
 Low numbers had received financial advice
 
-![Icon representing a starred/favourite feature](./moneybox-goals/star.png)
+</Stage>
+
+<Stage>
+<Fragment slot="icon">
+
+![](./moneybox-goals/star.svg)
+
+</Fragment>
 
 The most sought-after features included: recommended accounts, goal tracking, and financial coaching
 
-![Icon representing cash savings](./moneybox-goals/cash-01.png)
+</Stage>
+
+<Stage>
+<Fragment slot="icon">
+
+![](./moneybox-goals/cash.svg)
+
+</Fragment>
 
 Those that hadn’t received advice were mostly in their 20s, and only had cash savings, very few investments
 
-![Icon representing an achievement](./moneybox-goals/champion.png)
+</Stage>
+
+<Stage>
+<Fragment slot="icon">
+
+![](./moneybox-goals/champion.svg)
+
+</Fragment>
 
 Most-wanted guidance: ‘how to invest’, ‘save my money’, ‘create an investment strategy’
+
+</Stage>
+
+</Journey>
 
 All signs pointed to yes – this feature would serve as an MVP of the wider ‘financial goals’ concept, with a view to rolling out a more updated experience across the entire app.
 
 The decision was also made to target potential homebuyers (Lifetime ISA customers), because of the commercial potential.
 
-* * *
+</Section>
 
-## User journey
+<Section number="03" title="User journey">
 
 The home-buying feature was split into four parts:
 
-![Icon representing a fact-finding form](./moneybox-goals/fact-find.png)
+<Journey columns={4}>
 
-#### Fact-find
+<Stage title="Fact-find">
+<Fragment slot="icon">
 
-Understand the customer’s current financial situation
+![](./moneybox-goals/fact-find.svg)
 
-Enter salary, location, timeframe, solo/with partner
+</Fragment>
 
-![Icon representing customisation controls](./moneybox-goals/customise.png)
+Understand the customer’s current financial situation. Enter salary, location, timeframe, solo/with partner
 
-#### Customise
+</Stage>
 
-Add more details to get the most accurate savings figure
+<Stage title="Customise">
+<Fragment slot="icon">
 
-Select deposit %, additional fees, savings level
+![](./moneybox-goals/customise.svg)
 
-![Icon representing cross-selling](./moneybox-goals/cross-sell.png)
+</Fragment>
 
-#### Cross-sell
+Add more details to get the most accurate savings figure. Select deposit %, additional fees, savings level
 
-Save for non-deposit items – survey, moving, stamp duty
+</Stage>
 
-Choose from available savings accounts
+<Stage title="Cross-sell">
+<Fragment slot="icon">
 
-![Icon representing progress tracking](./moneybox-goals/track.png)
+![](./moneybox-goals/cross-sell.svg)
 
-#### Track
+</Fragment>
 
-Monitor savings progress over time, and access other resources
+Save for non-deposit items – survey, moving, stamp duty. Choose from available savings accounts
 
-View currently saved, overall target, account breakdown, other tools
+</Stage>
 
-* * *
+<Stage title="Track">
+<Fragment slot="icon">
 
-## Wireframes
+![](./moneybox-goals/track.svg)
+
+</Fragment>
+
+Monitor savings progress over time, and access other resources. View currently saved, overall target, account breakdown, other tools
+
+</Stage>
+
+</Journey>
+
+</Section>
+
+<Section number="04" title="Design">
+
+I started mapping out the flow as wireframes to ensure it all made sense; once we were happy with it, I created high-res versions of the screens. I leaned into our design system components as much as possible, even reusing existing illustrations to reduce overhead.
+
+Where custom UI was needed, I liaised with our developers to ensure requirements were clear. I also conducted design QA during product review.
 
 ### Fact-find
 
 Simple, continuously-scrolling form. This was an existing pattern within the app which made development straightforward, although it did limit the types of questions we could ask and information we could display.
 
-![Fact-find wireframe screen 1](./moneybox-goals/fact-find-wireframe-1.jpg)
+<ImageGrid cols={2} width="prose">
 
-![Fact-find wireframe screen 2](./moneybox-goals/fact-find-wireframe-2.jpg)
+![Fact-find: buying solo or with a partner](./moneybox-goals/formfill-solojoint.png)
+![Fact-find: where you’re looking to buy](./moneybox-goals/formfill-location.png)
+![Fact-find: your buying timescale](./moneybox-goals/formfill-timescale.png)
+![Fact-find: how much you’ve already saved](./moneybox-goals/formfill-already-saved.png)
 
-![Fact-find wireframe screen 3](./moneybox-goals/fact-find-wireframe-3.jpg)
-
-![Fact-find wireframe screen 4](./moneybox-goals/fact-find-wireframe-4.jpg)
+</ImageGrid>
 
 ### Customise
 
 Customers receive their basic target value from the fact-find, and use a number of controls to fine-tune it.
 
-![Customise wireframe screen 1](./moneybox-goals/customise-wireframe-1.jpg)
+<ImageGrid cols={2} width="prose">
 
-![Customise wireframe screen 2](./moneybox-goals/customise-wireframe-2.jpg)
+![Customise: your personalised savings estimate](./moneybox-goals/customise-estimate.png)
+![Customise: adding extra costs to the goal](./moneybox-goals/customise-extras.png)
+![Customise: choosing a savings plan](./moneybox-goals/customise-plan.png)
+![Customise: ready to start saving](./moneybox-goals/customise-ready.png)
 
-![Customise wireframe screen 3](./moneybox-goals/customise-wireframe-3.jpg)
+</ImageGrid>
 
-![Customise wireframe screen 4](./moneybox-goals/customise-wireframe-4.jpg)
-
-### Cross-sell & track
+### Cross-sell
 
 Lifetime ISAs can only be used for a house deposit. Everything else, such as a survey, moving costs, stamp duty, will need to be saved for elsewhere.
 
-This part of the feature allows Lifetime ISA customers to open a second account for these items and decide how to allocate their savings. Once finished, the Tracking screen is their ‘hub’ where they can view progress, update their savings amounts and access other related tools.
+This part of the feature allows Lifetime ISA customers to open a second account for these items and decide how to allocate their savings.
 
-![Cross-sell and track wireframe screen 1](./moneybox-goals/cross-sell-track-wireframe-1.jpg)
+<ImageGrid cols={3} width="prose">
 
-![Cross-sell and track wireframe screen 2](./moneybox-goals/cross-sell-track-wireframe-2.jpg)
+![Cross-sell: selecting what else to save for](./moneybox-goals/xsell-select.png)
+![Cross-sell: entering the details](./moneybox-goals/xsell-details.png)
+![Cross-sell: allocating savings across accounts](./moneybox-goals/xsell-allocation.png)
 
-![Cross-sell and track wireframe screen 3](./moneybox-goals/cross-sell-track-wireframe-3.jpg)
+</ImageGrid>
 
-![Cross-sell and track wireframe screen 4](./moneybox-goals/cross-sell-track-wireframe-4.jpg)
+### Track
 
-* * *
+Once finished, the Tracking screen is their ‘hub’ where they can view progress, update their savings amounts and access other related tools.
 
-## Final UI
+<ImageGrid cols={2} width="prose">
 
-Once we were happy with the overall flow, I began creating high-res versions of the screens. I leaned into our design system components as much as possible, even reusing existing illustrations to reduce overhead.
+![Track: the savings goal home screen](./moneybox-goals/track-home.png)
+![Track: reaching the savings goal](./moneybox-goals/track-success.png)
 
-Where custom UI was needed, I liaised with our developers to ensure requirements were clear. I also conducted design QA during product review.
-
-_(Fact-find and Cross-sell portions of the flow used pre-existing UI, and so I haven’t included them here.)_
-
-### Customise & Track
-
-![Finalised savings estimate screen](./moneybox-goals/Estimate-473x1024-1.jpg)
-
-![Finalised customise extras screen](./moneybox-goals/Customise-extras-473x1024-2.jpg)
-
-![Finalised savings allocation screen](./moneybox-goals/Allocation-473x1024-1.jpg)
-
-![Finalised tracking screen](./moneybox-goals/Tracking-389x1024-1.jpg)
+</ImageGrid>
 
 ### Further exploration
 
 I also explored other ideas such as interstitial screens to break up the flow and prime the user for the next section; and milestones to make the target feel more achievable over long time periods.
 
-![Interstitial screen concept 1](./moneybox-goals/interstitial-screen-1.jpg)
+<ImageGrid cols={3} width="prose">
 
-![Interstitial screen concept 2](./moneybox-goals/interstitial-screen-2.jpg)
+![Interstitial screen to prime the user for the next section](./moneybox-goals/further-interstitial.png)
+![Alternative goal-tracking concept](./moneybox-goals/further-tracking.png)
+![Milestone trophies to mark progress](./moneybox-goals/further-trophies.png)
 
-![Milestone concept screen 1](./moneybox-goals/milestone-concept-1.jpg)
+</ImageGrid>
 
-![Milestone concept screen 2](./moneybox-goals/milestone-concept-2.jpg)
+</Section>
 
-* * *
-
-## Conclusion
+<Section number="05" title="Conclusion">
 
 The feature saw some early positive success – test participants reported that it was an innovative and useful feature, bringing to light aspects of home-buying they hadn’t considered previously.
 
-<StatGrid>
+<StatGrid columns={4}>
   <StatTile value="51%">engagement with initial comms (company benchmark of 10%)</StatTile>
   <StatTile value="10%">made positive contributions to their savings through the feature</StatTile>
   <StatTile value="49%">engagement with the home-buying goal feature</StatTile>
@@ -184,31 +239,27 @@ The feature saw some early positive success – test participants reported that 
 
 ### Personal learnings
 
-Despite the project’s initial success, it also showed the value of a tight, well-defined MVP. The business chose this feature because of its revenue potential, but the complexity meant months of ideation, design and build.  
-  
-As a proof-of-concept, it may have been better to start smaller e.g. savings pots, and enrich it over time with customisation options, ability to share goals with others etc.  
-  
+Despite the project’s initial success, it also showed the value of a tight, well-defined MVP. The business chose this feature because of its revenue potential, but the complexity meant months of ideation, design and build.
+
+As a proof-of-concept, it may have been better to start smaller e.g. savings pots, and enrich it over time with customisation options, ability to share goals with others etc.
+
 Had the brief aimed to solve a customer problem rather than a business one, we could have created a real differentiator.
 
-* * *
+</Section>
 
-## Credits
+<Section title="Credits">
 
-**My role**  
-Design Lead
+<Credits
+  role="Design Lead"
+  tools={["Figma", "Figjam", "Attest", "Usertesting.com"]}
+  date="Apr–Oct 2022"
+  team={[
+    "Eden Fish, Product Designer",
+    "Karl Koch, Product Designer",
+    "Harry Boteler, Product Manager",
+    "Victoria Palmer, Senior Product Manager",
+    "Smith Forte, Chief Product Officer",
+  ]}
+/>
 
-**Tools used**  
-Figma  
-Figjam  
-Attest  
-Usertesting.com
-
-**Date**  
-Apr-Oct 2022
-
-**Team**  
-Eden Fish, Product Designer  
-Karl Koch, Product Designer  
-Harry Boteler, Product Manager  
-Victoria Palmer, Senior Product Manager  
-Smith Forte, Chief Product Officer
+</Section>
