@@ -167,6 +167,27 @@ a:hover {
   text-underline-offset: 3px;
 }
 
+/* Marker-sweep link — on hover/focus a text-colour highlight wipes across the
+   text from start to end and the glyphs flip to the page colour, like a marker
+   stroke. Same inverted highlight as the hero quote and case-study card titles.
+   The highlight hugs the text exactly (no bleed) so it stays symmetric even
+   when the link is right-aligned against a tight gutter. */
+.marker-link {
+  display: inline-block;
+  background-image: linear-gradient(var(--color-text), var(--color-text));
+  background-repeat: no-repeat;
+  background-position: 0 50%;
+  background-size: 0% 100%;
+  transition: background-size var(--transition-base), color var(--transition-base);
+}
+
+.marker-link:hover,
+.marker-link:focus-visible {
+  color: var(--color-bg);
+  background-size: 100% 100%;
+  text-decoration: none;
+}
+
 code, pre {
   font-family: var(--font-mono);
   font-size: 0.9em;
