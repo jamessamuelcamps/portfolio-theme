@@ -191,7 +191,10 @@ const fullBleed = recentWriting.length === 0;
     display: none;
   }
 
-  .hero-mark span {
+  /* Direct child only — a bare `.hero-mark span` also matches the nested
+     .arrow span and hands it the 180° rotation, which the hover transform
+     then strips (making the arrow flip). */
+  .hero-mark > span {
     display: inline-block;
     writing-mode: vertical-rl;
     transform: rotate(180deg);
@@ -200,7 +203,7 @@ const fullBleed = recentWriting.length === 0;
     color: var(--color-text);
   }
 
-  .hero-mark:hover span {
+  .hero-mark:hover > span {
     text-decoration: underline;
     text-underline-offset: 3px;
   }
