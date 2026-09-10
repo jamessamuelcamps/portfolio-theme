@@ -128,7 +128,8 @@ Consolidating disjointed platform libraries into a single source of truth.
 ### `PullQuote` / `QuoteStack`
 `PullQuote` — a pulled sentence or client quote, in the large testimonial type treatment.
 Attribution is optional: add `cite` and/or `role`, or omit both for a bare pulled line.
-`QuoteStack` wraps a run of research verbatims.
+`QuoteStack` wraps a run of research verbatims, set in italic — write the quote marks into the
+text itself (curly `“ ”`), not as styling.
 ```mdx
 <PullQuote>
 
@@ -144,9 +145,9 @@ That page looks really cool — the previous version didn't inspire enough excit
 
 <QuoteStack>
 
-> It's very transparent and clear.
+> “It's very transparent and clear.”
 
-> Deciding on the percentage is going to slow me down slightly.
+> “Deciding on the percentage is going to slow me down slightly.”
 
 </QuoteStack>
 ```
