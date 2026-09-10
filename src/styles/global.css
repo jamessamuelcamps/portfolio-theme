@@ -631,6 +631,13 @@ ul.statement-list {
   margin-bottom: var(--space-3);
 }
 
+/* Nested paragraphs aren't direct children of .cs-section-body, so the
+   global grey `p` colour would otherwise win here. */
+.case-study .cs-labelled-body,
+.case-study .cs-labelled-body > p {
+  color: var(--color-text);
+}
+
 .case-study .cs-labelled-body > :first-child { margin-top: 0; }
 .case-study .cs-labelled-body > :last-child { margin-bottom: 0; }
 
