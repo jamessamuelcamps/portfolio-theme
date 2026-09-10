@@ -14,6 +14,7 @@
   --color-border: #d0d0d0;
   --color-border-strong: var(--black);
   --color-surface: #f7f7f7;
+  --color-dot: #d4d4d4;
 
   /* Radii — flat everywhere except pill controls (toggle, availability badge) */
   --radius-full: 999px;
@@ -90,6 +91,7 @@ html[data-theme="dark"] {
   --color-border: #3a3a3a;
   --color-border-strong: var(--white);
   --color-surface: #1a1a1a;
+  --color-dot: #404040;
 }
 
 /* ==========================================================================
@@ -940,12 +942,28 @@ ul.statement-list {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  padding: var(--space-5);
-  border: 1px solid var(--color-border);
+  padding: var(--space-6);
+  /* Borderless — the card's rectangle is implied by a fine dot field:
+     sub-pixel dots on a tight 6px grid read as texture, not a grey fill,
+     so the text on top keeps its contrast against the page. */
+  background-color: var(--color-bg);
+  background-image: radial-gradient(var(--color-dot) 0.75px, transparent 0.75px);
+  background-size: 6px 6px;
+  background-position: center;
 }
 
-.cs-card-icon {
+/* Icon sits on a solid disc so it reads cleanly over the card's dot field.
+   The disc lives on the container; the filter that recolours the grey source
+   SVG is on the <img> alone — a filter applied to the disc element would
+   recolour the disc too. */
+.case-study .cs-card-icon {
   width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-text);
 }
 
 .case-study .cs-card-icon > p {
@@ -954,10 +972,17 @@ ul.statement-list {
 }
 
 .case-study .cs-card-icon img {
-  width: 40px;
-  height: 40px;
+  width: 22px;
+  height: 22px;
   border: none;
   object-fit: contain;
+  /* Inverted against the body copy: disc is the text colour, glyph is the
+     page colour — white icon on a black disc in light mode, and vice versa. */
+  filter: brightness(0) invert(1);
+}
+
+html[data-theme="dark"] .case-study .cs-card-icon img {
+  filter: brightness(0);
 }
 
 .cs-card-title {
@@ -969,18 +994,49 @@ ul.statement-list {
 .cs-card-body {
   font-size: var(--font-size-sm);
   line-height: var(--line-height-normal);
-  color: var(--color-text-secondary);
+  color: var(--color-text);
 }
 
 .case-study .cs-card-body > :first-child { margin-top: 0; }
 .case-study .cs-card-body > :last-child { margin-bottom: 0; }
+.case-study .cs-card-body p { color: var(--color-text); }
+
+/* Every text run in the card sits on a highlight of the page background so it
+   stays legible over the dot field — per line, hugging the words (not a panel
+   behind the block). Each highlighted run is inline so the background fragments
+   per line (box-decoration-break: clone); the title carries its highlight on an
+   inner <span> since the .cs-card-title element itself is a blockified flex
+   child. The matched -/+ margin/padding on the inline start keeps every line
+   flush to the card's content edge while the highlight bleeds a few px past the
+   text on both sides. */
+.case-study .cs-card-title {
+  align-self: flex-start;
+  max-width: 100%;
+}
+
+.case-study .cs-card-title span,
+.case-study .cs-card-body p,
+.case-study .cs-card-footer p {
+  display: inline;
+  background-color: var(--color-bg);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding: 0.12em 0.3em;
+  margin-left: -0.3em;
+}
+
+/* Title runs inverted — text colour highlight, page-colour glyphs — to match
+   the inverted icon disc. */
+.case-study .cs-card-title span {
+  background-color: var(--color-text);
+  color: var(--color-bg);
+}
 
 /* Footer pins to the base of an equal-height card (the "Idea" line on an
    analysis card, say) */
 .cs-card-footer {
   margin-top: auto;
   padding-top: var(--space-3);
-  border-top: 1px solid var(--color-border);
   font-size: var(--font-size-sm);
   line-height: var(--line-height-normal);
   color: var(--color-text);
@@ -988,6 +1044,7 @@ ul.statement-list {
 
 .case-study .cs-card-footer > :first-child { margin-top: 0; }
 .case-study .cs-card-footer > :last-child { margin-bottom: 0; }
+.case-study .cs-card-footer p { color: var(--color-text); }
 
 /* --- Journey — multi-column, icon → title → subtitle stack per stage,
    no background. Single column on mobile, 2-up from 640px, 3/4-up from 900px
@@ -1021,8 +1078,17 @@ ul.statement-list {
   gap: var(--space-3);
 }
 
-.cs-journey-stage-icon {
+/* Icon disc — matches the Card icon treatment: the disc sits on the
+   container, the recolour filter on the <img> alone (a filter on the disc
+   would recolour the disc too). */
+.case-study .cs-journey-stage-icon {
   width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-text);
 }
 
 .case-study .cs-journey-stage-icon > p {
@@ -1030,13 +1096,18 @@ ul.statement-list {
   display: contents;
 }
 
-/* Hard 40px cap — the source image (often 128px) would otherwise set the
-   column's min-content width. */
 .case-study .cs-journey-stage-icon img {
-  width: 40px;
-  height: 40px;
+  width: 22px;
+  height: 22px;
   border: none;
   object-fit: contain;
+  /* Inverted against the body copy: disc is the text colour, glyph is the
+     page colour — white icon on a black disc in light mode, and vice versa. */
+  filter: brightness(0) invert(1);
+}
+
+html[data-theme="dark"] .case-study .cs-journey-stage-icon img {
+  filter: brightness(0);
 }
 
 .cs-journey-stage-title {

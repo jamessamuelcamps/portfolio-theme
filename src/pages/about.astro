@@ -9,7 +9,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <div class="container">
     <header class="about-header">
       <h1 class="about-quote">
-        “I will fight you one of these days.”
+        <span>“I will fight you one of these days.”</span>
       </h1>
       <p class="about-cite">— Product Manager, YouLend</p>
     </header>
@@ -98,10 +98,23 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   .about-quote {
     font-size: var(--font-size-4xl);
-    line-height: var(--line-height-tight);
+    /* Looser than line-height-tight so the stacked highlight fragments
+       don't overlap. */
+    line-height: 1.6;
     letter-spacing: -0.05em;
-    color: var(--color-text);
     margin-bottom: var(--space-8);
+  }
+
+  /* Per-line highlight — same treatment as the case-study card title:
+     text-colour background, page-colour glyphs, one fragment per line. */
+  .about-quote span {
+    display: inline;
+    background-color: var(--color-text);
+    color: var(--color-bg);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    padding: 0.12em 0.3em;
+    margin-left: -0.3em;
   }
 
   @media (min-width: 768px) {

@@ -18,7 +18,7 @@ const fullBleed = recentWriting.length === 0;
       <div class="hero-main">
         <p class="availability-pill">Available for new opportunities. Let’s talk →</p>
         <h1 class="hero-quote">
-          “I’d rather he didn’t come back at all. His trainers are shit and he’s too tall. No-one even likes him.”
+          <span>“I’d rather he didn’t come back at all. His trainers are shit and he’s too tall. No-one even likes him.”</span>
         </h1>
         <p class="hero-cite">— Design Director, VML</p>
       </div>
@@ -103,10 +103,23 @@ const fullBleed = recentWriting.length === 0;
 
   .hero-quote {
     font-size: var(--font-size-4xl);
-    line-height: var(--line-height-tight);
+    /* Looser than line-height-tight so the stacked highlight fragments
+       don't overlap. */
+    line-height: 1.6;
     letter-spacing: -0.05em;
-    color: var(--color-text);
     margin-bottom: var(--space-8);
+  }
+
+  /* Per-line highlight — same treatment as the case-study card title:
+     text-colour background, page-colour glyphs, one fragment per line. */
+  .hero-quote span {
+    display: inline;
+    background-color: var(--color-text);
+    color: var(--color-bg);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    padding: 0.12em 0.3em;
+    margin-left: -0.3em;
   }
 
   @media (min-width: 768px) {

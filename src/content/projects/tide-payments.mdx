@@ -18,8 +18,6 @@ import StatTile from '../../components/StatTile.astro';
 import StatGrid from '../../components/StatGrid.astro';
 import Figure from '../../components/Figure.astro';
 import ImageGrid from '../../components/ImageGrid.astro';
-import Journey from '../../components/Journey.astro';
-import Stage from '../../components/Stage.astro';
 import CardGrid from '../../components/CardGrid.astro';
 import Card from '../../components/Card.astro';
 import Credits from '../../components/Credits.astro';
@@ -82,9 +80,9 @@ So no matter your starting point, you always join a flow that is pre-existing, f
 
 We defined some key objectives for the new payments area:
 
-<Journey columns={2}>
+<CardGrid columns={2}>
 
-<Stage>
+<Card>
 <Fragment slot="icon">
 
 ![](./tide-payments/okrs.svg)
@@ -93,9 +91,9 @@ We defined some key objectives for the new payments area:
 
 We would align with business OKRs on member satisfaction and revenue
 
-</Stage>
+</Card>
 
-<Stage>
+<Card>
 <Fragment slot="icon">
 
 ![](./tide-payments/gold-standard.svg)
@@ -104,9 +102,9 @@ We would align with business OKRs on member satisfaction and revenue
 
 Given its popularity, payments should become our company gold standard for UX
 
-</Stage>
+</Card>
 
-<Stage>
+<Card>
 <Fragment slot="icon">
 
 ![](./tide-payments/experience.svg)
@@ -115,9 +113,9 @@ Given its popularity, payments should become our company gold standard for UX
 
 Experience should be led by what our customers need, not our technical limitations
 
-</Stage>
+</Card>
 
-<Stage>
+<Card>
 <Fragment slot="icon">
 
 ![](./tide-payments/features.svg)
@@ -126,9 +124,9 @@ Experience should be led by what our customers need, not our technical limitatio
 
 We should combine disparate payment management features into a single payments ‘hub’
 
-</Stage>
+</Card>
 
-</Journey>
+</CardGrid>
 
 ### Heuristic review
 
