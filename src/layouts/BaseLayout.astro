@@ -115,9 +115,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       </filter>
     </svg>
 
-    {/* Cycling gradient sky + VHS scanlines — fixed behind the content, vapor only (global.css). */}
+    {/* Cycling gradient sky (fixed behind content) + CRT/SCART overlay (fixed
+        above content) — vapor only (global.css). */}
     <div class="vapor-bg" aria-hidden="true"></div>
-    <div class="vhs-overlay" aria-hidden="true"></div>
+    <div class="crt-overlay" aria-hidden="true"></div>
+    <div class="crt-glitch" aria-hidden="true"></div>
 
     <Header />
     <main id="main-content" class:list={{ 'full-bleed': fullBleed }}>
@@ -135,6 +137,150 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         el.setAttribute('href', `mailto:${address}`);
         el.textContent = el.dataset.emailLabel || address;
       });
+    </script>
+
+    <script>
+      // --- Vapor: glitch text -------------------------------------------------
+      // Occasionally swaps a handful of letters/digits in titles, subtitles,
+      // standfirsts and quotes for stray symbols (#, @, !, >, ? ...), and
+      // occasionally drops a loose symbol into a word gap — signal noise from
+      // the same "bad SCART lead" as .crt-glitch, not a typo. Body copy is
+      // never touched. Vapor theme only; runs while data-theme="vapor" and
+      // stops (restoring the original text) the moment it doesn't.
+      //
+      // Titles: any heading (h1-h3) — covers page/article/case-study titles,
+      //   section titles and card titles alike.
+      // Subtitles: .page-subtitle.
+      // Standfirsts: .statement (the lead/standfirst family — see Lead.astro).
+      // Quotes: .display-quote-cite, .cs-pullquote-attribution, and any
+      //   <blockquote> (the display quote's own text is wrapped in .statement-
+      //   free spans but is still an h1, so it's already covered).
+      //
+      // Every roll rebuilds from the stored original rather than the previous
+      // (already-glitched) value, so an inserted symbol never accumulates —
+      // it's just as likely to be gone again on the next roll.
+      //
+      // Each matched element runs its own independent, randomly-timed loop
+      // (a recursive setTimeout re-rolling its own dice every time) rather
+      // than one shared setInterval ticking everything at once — otherwise
+      // every title and quote on the page would visibly flip in lockstep,
+      // which reads as a metronome rather than noise.
+      const GLITCH_SELECTOR =
+        'h1, h2, h3, .statement, .display-quote-cite, .cs-pullquote-attribution, .page-subtitle, blockquote';
+      const GLITCH_SYMBOLS = ['#', '@', '!', '>', '?', '*', '%', '~', '/'];
+      const GLITCH_RATE = 0.045; // ~1 in 22 eligible characters, per roll
+      const GLITCH_INSERT_RATE = 0.05; // per word gap, per roll
+      const GLITCH_MAX_INSERTS = 2; // cap per text node, so long copy doesn't clutter
+      const GLITCH_MIN_DELAY_MS = 700;
+      const GLITCH_MAX_DELAY_MS = 5000;
+
+      function randomDelay(): number {
+        return GLITCH_MIN_DELAY_MS + Math.random() * (GLITCH_MAX_DELAY_MS - GLITCH_MIN_DELAY_MS);
+      }
+
+      // Original text per node, so each roll starts fresh instead of compounding.
+      const glitchOriginals = new WeakMap<Text, string>();
+
+      function glitchTextNodes(root: Element): Text[] {
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+          acceptNode(node) {
+            return node.nodeValue && node.nodeValue.trim()
+              ? NodeFilter.FILTER_ACCEPT
+              : NodeFilter.FILTER_SKIP;
+          },
+        });
+        const nodes: Text[] = [];
+        let node: Node | null;
+        while ((node = walker.nextNode())) nodes.push(node as Text);
+        return nodes;
+      }
+
+      function randomSymbol(): string {
+        return GLITCH_SYMBOLS[(Math.random() * GLITCH_SYMBOLS.length) | 0];
+      }
+
+      function glitchString(input: string): string {
+        let skipNext = false;
+        let inserts = 0;
+        let out = '';
+        for (const ch of input) {
+          if (!skipNext && /[a-zA-Z0-9]/.test(ch) && Math.random() < GLITCH_RATE) {
+            out += randomSymbol();
+            skipNext = true; // never swap two characters back to back
+          } else {
+            out += ch;
+            skipNext = false;
+          }
+
+          // Word gaps occasionally get a loose symbol dropped between them,
+          // e.g. "product # design" — reads as noise, not a swapped letter.
+          if (
+            ch === ' ' &&
+            inserts < GLITCH_MAX_INSERTS &&
+            Math.random() < GLITCH_INSERT_RATE
+          ) {
+            out += `${randomSymbol()} `;
+            inserts++;
+          }
+        }
+        return out;
+      }
+
+      function glitchRollElement(el: Element) {
+        glitchTextNodes(el).forEach((node) => {
+          if (!glitchOriginals.has(node)) glitchOriginals.set(node, node.nodeValue || '');
+          node.nodeValue = glitchString(glitchOriginals.get(node)!);
+        });
+      }
+
+      function glitchRestore() {
+        document.querySelectorAll(GLITCH_SELECTOR).forEach((el) => {
+          glitchTextNodes(el).forEach((node) => {
+            const original = glitchOriginals.get(node);
+            if (original !== undefined) node.nodeValue = original;
+          });
+        });
+      }
+
+      // One timer per element, each rescheduling itself with a fresh random
+      // delay — so elements drift in and out of phase with each other.
+      const glitchTimers = new Map<Element, number>();
+
+      function scheduleElement(el: Element) {
+        const timer = window.setTimeout(() => {
+          glitchRollElement(el);
+          scheduleElement(el);
+        }, randomDelay());
+        glitchTimers.set(el, timer);
+      }
+
+      function glitchStart() {
+        if (glitchTimers.size) return; // already running
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        document.querySelectorAll(GLITCH_SELECTOR).forEach((el) => {
+          glitchRollElement(el); // one immediate roll so it's not static until the first timer fires
+          if (!reduceMotion) scheduleElement(el);
+        });
+      }
+
+      function glitchStop() {
+        glitchTimers.forEach((timer) => window.clearTimeout(timer));
+        glitchTimers.clear();
+        glitchRestore();
+      }
+
+      function glitchSync() {
+        const vapor = document.documentElement.getAttribute('data-theme') === 'vapor';
+        if (vapor && !document.hidden) glitchStart();
+        else glitchStop();
+      }
+
+      glitchSync();
+      new MutationObserver(glitchSync).observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme'],
+      });
+      document.addEventListener('visibilitychange', glitchSync);
     </script>
   </body>
 </html>

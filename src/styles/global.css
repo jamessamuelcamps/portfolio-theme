@@ -124,7 +124,7 @@ html[data-theme="vapor"] {
 }
 
 /* --- Vapor: cycling gradient sky -------------------------------------------
-   A viewport-fixed layer (z-index -2, behind .vhs-overlay and content). Three
+   A viewport-fixed layer (z-index -2, behind .crt-overlay and content). Three
    bright pastel gradients crossfade on a ~36s loop — dark ink stays ≥8:1 on
    every stop of all three. */
 .vapor-bg { display: none; }
@@ -232,7 +232,7 @@ html[data-theme="vapor"] .display-quote {
 }
 
 html[data-theme="vapor"] .display-quote span {
-  padding: 0.15em 0.3em;
+  padding: 0.35em 0.3em;
   padding-left: 0;
   margin-left: 0;
 }
@@ -343,65 +343,95 @@ html[data-theme="vapor"] .case-study .cs-journey-stage-icon img {
   filter: brightness(0) invert(1);
 }
 
-/* --- Vapor: VHS scanlines ---------------------------------------------------
-   A viewport-fixed layer behind the page content (z-index: -1 sits above the
-   root gradient but below in-flow blocks, so body copy stays crisp). Thin dark
-   lines drift down slowly; a soft bright "tracking" band sweeps through. Both
-   animations stop under prefers-reduced-motion; the static lines stay. */
-.vhs-overlay { display: none; }
+/* --- Vapor: CRT / SCART overlay ---------------------------------------------
+   We're emulating a console on a CRT via SCART (clean RGB signal), not a
+   cassette — so no tape drift or smear. Two viewport-fixed layers, both above
+   all page content (z-index: 9000+, below .theme-flash's wipe at 9999) and
+   pointer-events: none so the page underneath stays usable:
 
-html[data-theme="vapor"] .vhs-overlay {
+   .crt-overlay  - static: sharp scanlines + a corner vignette that reads as
+                   the curve of a tube. No motion of its own.
+   .crt-glitch   - an occasional, brief sync-tear with colour dropout, as if
+                   the lead's making imperfect contact. Mostly invisible;
+                   flares for a couple of frames every few seconds. */
+.crt-overlay,
+.crt-glitch { display: none; }
+
+html[data-theme="vapor"] .crt-overlay {
   display: block;
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 9000;
   pointer-events: none;
   overflow: hidden;
 }
 
-html[data-theme="vapor"] .vhs-overlay::before {
+html[data-theme="vapor"] .crt-overlay::before {
   content: "";
   position: absolute;
-  inset: -8px 0;
+  inset: 0;
   background: repeating-linear-gradient(
     to bottom,
-    rgba(43, 16, 85, 0.10) 0 1px,
-    transparent 1px 3px
+    rgba(0, 0, 0, 0.16) 0,
+    rgba(0, 0, 0, 0.16) 1px,
+    transparent 1px,
+    transparent 3px
   );
-  animation: vhs-drift 2.6s linear infinite;
 }
 
-html[data-theme="vapor"] .vhs-overlay::after {
+html[data-theme="vapor"] .crt-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 55%,
+    rgba(10, 0, 25, 0.45) 100%
+  );
+}
+
+html[data-theme="vapor"] .crt-glitch {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 9001;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0;
+  mix-blend-mode: screen;
+  animation: crt-glitch-burst 8s ease-in-out infinite;
+}
+
+html[data-theme="vapor"] .crt-glitch::before,
+html[data-theme="vapor"] .crt-glitch::after {
   content: "";
   position: absolute;
   left: 0;
   right: 0;
-  height: 26vh;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    rgba(255, 255, 255, 0.10) 42%,
-    rgba(255, 255, 255, 0.20) 50%,
-    rgba(255, 255, 255, 0.10) 58%,
-    transparent
-  );
-  animation: vhs-band 7.5s linear infinite;
-  will-change: transform;
+  height: 12%;
 }
 
-@keyframes vhs-drift {
-  from { transform: translateY(0); }
-  to   { transform: translateY(3px); }
+html[data-theme="vapor"] .crt-glitch::before {
+  top: 24%;
+  background: linear-gradient(to right, rgba(255, 30, 190, 0.55), rgba(0, 220, 255, 0.55));
+  transform: translateX(-14px);
 }
 
-@keyframes vhs-band {
-  from { transform: translateY(-30vh); }
-  to   { transform: translateY(100vh); }
+html[data-theme="vapor"] .crt-glitch::after {
+  top: 63%;
+  background: linear-gradient(to right, rgba(0, 220, 255, 0.55), rgba(255, 30, 190, 0.55));
+  transform: translateX(10px);
+}
+
+@keyframes crt-glitch-burst {
+  0%, 94%, 100% { opacity: 0; transform: translateX(0); }
+  94.3% { opacity: 0.85; transform: translateX(-10px); }
+  94.6% { opacity: 0.85; transform: translateX(8px); }
+  95%   { opacity: 0; transform: translateX(0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html[data-theme="vapor"] .vhs-overlay::before { animation: none; }
-  html[data-theme="vapor"] .vhs-overlay::after { display: none; }
+  html[data-theme="vapor"] .crt-glitch { display: none; }
 }
 
 /* ==========================================================================
