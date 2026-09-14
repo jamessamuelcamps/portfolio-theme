@@ -34,7 +34,7 @@ jobs:
       - name: Deploy via rsync
         run: |
           rsync -avz --delete \
-            -e "ssh -i ~/.ssh/deploy_key" \
+            -e "ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o UserKnownHostsFile=~/.ssh/known_hosts" \
             dist/ "${{ secrets.DREAMHOST_USER }}@${{ secrets.DREAMHOST_HOST }}:${{ secrets.DREAMHOST_PATH }}/"
 
       - name: Clean up
