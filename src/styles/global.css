@@ -118,7 +118,7 @@ html[data-theme="vapor"] {
   --color-dot: rgba(124, 58, 237, 0.28);
 
   --font-body: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-  --font-display: "Press Start 2P", var(--font-body);
+  --font-display: "Pixelify Sans Variable", "Pixelify Sans", var(--font-body);
   /* The sky itself is the animated .vapor-bg layer below; --color-bg is the
      solid fallback behind it. */
 }
@@ -177,8 +177,11 @@ html[data-theme="vapor"] .vapor-bg::after {
 }
 
 /* --- Vapor: pixel display font on headings + chrome only ----------------
-   Body copy is --font-body (DM Mono in vapor). Press Start 2P kills negative tracking and
-   needs smaller sizes than the sans scale — hence the per-element steps. */
+   Body copy is --font-body (DM Mono in vapor). Pixelify Sans reads noticeably
+   smaller/lighter than the sans scale at a given font-size, so every vapor
+   chrome/heading rule below is bumped up (~1.35x) and pinned to its own rem
+   value instead of the shared --font-size-* tokens, so light/dark aren't
+   affected. */
 html[data-theme="vapor"] :is(
   h1, h2, h3, h4, h5, h6,
   .brand-name, .brand-short, .nav-link, .social-links a,
@@ -197,36 +200,38 @@ html[data-theme="vapor"] :is(h1, h2, h3, h4, h5, h6) {
   line-height: 1.6;
 }
 
-html[data-theme="vapor"] h1 { font-size: var(--font-size-2xl); }
-html[data-theme="vapor"] h2 { font-size: var(--font-size-lg); }
-html[data-theme="vapor"] h3 { font-size: var(--font-size-base); }
-html[data-theme="vapor"] h4 { font-size: var(--font-size-sm); }
+html[data-theme="vapor"] h1 { font-size: 2rem; }
+html[data-theme="vapor"] h2 { font-size: 1.5rem; }
+html[data-theme="vapor"] h3 { font-size: 1.35rem; }
+html[data-theme="vapor"] h4 { font-size: 1.2rem; }
 
 /* Scoped display titles (component <style> beats a bare tag selector) */
 html[data-theme="vapor"] :is(.case-study-title, .page-title, .article-title, .error-title) {
-  font-size: var(--font-size-xl);
+  font-size: 1.7rem;
   line-height: 1.6;
 }
-html[data-theme="vapor"] .case-study .cs-section-title { font-size: var(--font-size-lg); }
+html[data-theme="vapor"] .case-study .cs-section-title { font-size: 1.5rem; }
 
-html[data-theme="vapor"] .brand-name { font-size: 0.7rem; line-height: 1.5; }
-html[data-theme="vapor"] .brand-short { font-size: 0.8rem; }
-html[data-theme="vapor"] .nav-link { font-size: 0.6rem; }
-html[data-theme="vapor"] .social-links a { font-size: 0.6rem; line-height: 1.5; }
-html[data-theme="vapor"] .theme-option { font-size: 0.6rem; }
-html[data-theme="vapor"] .menu-name { font-size: var(--font-size-base); }
-html[data-theme="vapor"] .menu-nav a { font-size: var(--font-size-lg); }
+html[data-theme="vapor"] .brand-name { font-size: 0.95rem; line-height: 1.5; }
+html[data-theme="vapor"] .brand-short { font-size: 1.1rem; }
+html[data-theme="vapor"] .nav-link { font-size: 0.8rem; }
+html[data-theme="vapor"] .social-links a { font-size: 0.8rem; line-height: 1.5; }
+html[data-theme="vapor"] .theme-option { font-size: 0.8rem; }
+html[data-theme="vapor"] .menu-name { font-size: 1.35rem; }
+html[data-theme="vapor"] .menu-nav a { font-size: 1.5rem; }
 html[data-theme="vapor"] :is(.badge, .cs-section-eyebrow, .cs-labelled-label, .meta-label, .cs-compare-label) {
-  font-size: 0.6rem;
+  font-size: 0.8rem;
 }
-html[data-theme="vapor"] :is(.btn, .section-link) { font-size: 0.7rem; }
-html[data-theme="vapor"] .stat-value { font-size: var(--font-size-lg); line-height: 1.5; }
+html[data-theme="vapor"] :is(.btn, .section-link) { font-size: 0.95rem; }
+html[data-theme="vapor"] .stat-value { font-size: 1.5rem; line-height: 1.5; }
 
 /* The display quote is the mode's centrepiece — big pixel type, still smaller
-   than the sans headline scale since Press Start 2P reads large per point.
+   than the sans headline scale since Pixelify Sans reads small per point next
+   to the body copy (thinner strokes, more conventional proportions than a
+   blocky arcade face — needs a bigger bump to read with the same weight).
    Kill the optical left-bleed on the highlight spans so lines stay flush. */
 html[data-theme="vapor"] .display-quote {
-  font-size: 1.4rem;
+  font-size: 1.9rem;
   line-height: 1.85;
   letter-spacing: normal;
 }
@@ -238,12 +243,12 @@ html[data-theme="vapor"] .display-quote span {
 }
 
 html[data-theme="vapor"] .display-quote-cite {
-  font-size: var(--font-size-base);
+  font-size: 1.35rem;
 }
 
 @media (min-width: 768px) {
-  html[data-theme="vapor"] .display-quote { font-size: 2.25rem; line-height: 1.8; }
-  html[data-theme="vapor"] .display-quote-cite { font-size: var(--font-size-lg); }
+  html[data-theme="vapor"] .display-quote { font-size: 3rem; line-height: 1.8; }
+  html[data-theme="vapor"] .display-quote-cite { font-size: 1.5rem; }
 }
 
 /* --- Vapor: chewed-up-VHS-tape distortion on the display quote ----------
