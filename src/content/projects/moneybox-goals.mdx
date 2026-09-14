@@ -5,7 +5,7 @@ publishDate: 2024-10-18
 client: "Moneybox"
 role: "Lead Product Designer"
 timeline: "6 Months"
-heroImage: "./moneybox-goals/goals-hero-1.png"
+heroImage: "./moneybox-goals/goals-hero-1.svg"
 heroImageAlt: "Thumbnail showing the Moneybox home-buying savings goal feature"
 heroLayout: "wide"
 tags: ["FinTech","Mobile App","Financial Advice","User Research"]
@@ -19,6 +19,8 @@ import Figure from '../../components/Figure.astro';
 import ImageGrid from '../../components/ImageGrid.astro';
 import Journey from '../../components/Journey.astro';
 import Stage from '../../components/Stage.astro';
+import CardGrid from '../../components/CardGrid.astro';
+import Card from '../../components/Card.astro';
 import Credits from '../../components/Credits.astro';
 
 <Section number="01" title="Context">
@@ -47,9 +49,9 @@ To test the idea, we created a service designed to help Lifetime ISA customers c
 
 The team had already completed some research prior to me joining the company – a competitor analysis, survey, and some initial prototypes which they had tested with customers. They found that:
 
-<Journey columns={2}>
+<CardGrid columns={2}>
 
-<Stage>
+<Card>
 <Fragment slot="icon">
 
 ![](./moneybox-goals/help-circle.svg)
@@ -58,9 +60,9 @@ The team had already completed some research prior to me joining the company –
 
 Low numbers had received financial advice
 
-</Stage>
+</Card>
 
-<Stage>
+<Card>
 <Fragment slot="icon">
 
 ![](./moneybox-goals/star.svg)
@@ -69,9 +71,9 @@ Low numbers had received financial advice
 
 The most sought-after features included: recommended accounts, goal tracking, and financial coaching
 
-</Stage>
+</Card>
 
-<Stage>
+<Card>
 <Fragment slot="icon">
 
 ![](./moneybox-goals/cash.svg)
@@ -80,9 +82,9 @@ The most sought-after features included: recommended accounts, goal tracking, an
 
 Those that hadn’t received advice were mostly in their 20s, and only had cash savings, very few investments
 
-</Stage>
+</Card>
 
-<Stage>
+<Card>
 <Fragment slot="icon">
 
 ![](./moneybox-goals/champion.svg)
@@ -91,9 +93,9 @@ Those that hadn’t received advice were mostly in their 20s, and only had cash 
 
 Most-wanted guidance: ‘how to invest’, ‘save my money’, ‘create an investment strategy’
 
-</Stage>
+</Card>
 
-</Journey>
+</CardGrid>
 
 All signs pointed to yes – this feature would serve as an MVP of the wider ‘financial goals’ concept, with a view to rolling out a more updated experience across the entire app.
 
@@ -167,10 +169,10 @@ Simple, continuously-scrolling form. This was an existing pattern within the app
 
 <ImageGrid cols={2} width="prose">
 
-![Fact-find: buying solo or with a partner](./moneybox-goals/formfill-solojoint.png)
-![Fact-find: where you’re looking to buy](./moneybox-goals/formfill-location.png)
-![Fact-find: your buying timescale](./moneybox-goals/formfill-timescale.png)
-![Fact-find: how much you’ve already saved](./moneybox-goals/formfill-already-saved.png)
+![Fact-find: buying solo or with a partner](./moneybox-goals/formfill-solojoint.svg)
+![Fact-find: where you’re looking to buy](./moneybox-goals/formfill-location.svg)
+![Fact-find: your buying timescale](./moneybox-goals/formfill-timescale.svg)
+![Fact-find: how much you’ve already saved](./moneybox-goals/formfill-already-saved.svg)
 
 </ImageGrid>
 
@@ -180,10 +182,10 @@ Customers receive their basic target value from the fact-find, and use a number 
 
 <ImageGrid cols={2} width="prose">
 
-![Customise: your personalised savings estimate](./moneybox-goals/customise-estimate.png)
-![Customise: adding extra costs to the goal](./moneybox-goals/customise-extras.png)
-![Customise: choosing a savings plan](./moneybox-goals/customise-plan.png)
-![Customise: ready to start saving](./moneybox-goals/customise-ready.png)
+![Customise: your personalised savings estimate](./moneybox-goals/customise-estimate.svg)
+![Customise: adding extra costs to the goal](./moneybox-goals/customise-extras.svg)
+![Customise: choosing a savings plan](./moneybox-goals/customise-plan.svg)
+![Customise: ready to start saving](./moneybox-goals/customise-ready.svg)
 
 </ImageGrid>
 
@@ -195,9 +197,9 @@ This part of the feature allows Lifetime ISA customers to open a second account 
 
 <ImageGrid cols={3} width="prose">
 
-![Cross-sell: selecting what else to save for](./moneybox-goals/xsell-select.png)
-![Cross-sell: entering the details](./moneybox-goals/xsell-details.png)
-![Cross-sell: allocating savings across accounts](./moneybox-goals/xsell-allocation.png)
+![Cross-sell: selecting what else to save for](./moneybox-goals/xsell-select.svg)
+![Cross-sell: entering the details](./moneybox-goals/xsell-details.svg)
+![Cross-sell: allocating savings across accounts](./moneybox-goals/xsell-allocation.svg)
 
 </ImageGrid>
 
@@ -207,8 +209,8 @@ Once finished, the Tracking screen is their ‘hub’ where they can view progre
 
 <ImageGrid cols={2} width="prose">
 
-![Track: the savings goal home screen](./moneybox-goals/track-home.png)
-![Track: reaching the savings goal](./moneybox-goals/track-success.png)
+![Track: the savings goal home screen](./moneybox-goals/track-home.svg)
+![Track: reaching the savings goal](./moneybox-goals/track-success.svg)
 
 </ImageGrid>
 
@@ -218,9 +220,9 @@ I also explored other ideas such as interstitial screens to break up the flow an
 
 <ImageGrid cols={3} width="prose">
 
-![Interstitial screen to prime the user for the next section](./moneybox-goals/further-interstitial.png)
-![Alternative goal-tracking concept](./moneybox-goals/further-tracking.png)
-![Milestone trophies to mark progress](./moneybox-goals/further-trophies.png)
+![Interstitial screen to prime the user for the next section](./moneybox-goals/further-interstitial.svg)
+![Alternative goal-tracking concept](./moneybox-goals/further-tracking.svg)
+![Milestone trophies to mark progress](./moneybox-goals/further-trophies.svg)
 
 </ImageGrid>
 
