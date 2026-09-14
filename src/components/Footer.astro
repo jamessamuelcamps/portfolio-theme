@@ -1,5 +1,6 @@
 ---
 import SocialLinks from './SocialLinks.astro';
+import { site } from '../config';
 
 const currentYear = new Date().getFullYear();
 ---
@@ -7,7 +8,7 @@ const currentYear = new Date().getFullYear();
 <footer class="site-footer">
   <div class="container footer-inner">
     <div class="footer-meta">
-      <p class="copyright">© {currentYear} James Samuel-Camps. All rights reserved.</p>
+      <p class="copyright">© {currentYear} {site.name}. All rights reserved.</p>
       <p class="footer-built">Built with Astro</p>
     </div>
 

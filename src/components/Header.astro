@@ -1,33 +1,38 @@
 ---
 import SocialLinks from './SocialLinks.astro';
+import { site } from '../config';
 
 const pathname = new URL(Astro.request.url).pathname;
 const currentPath = pathname.replace(/\/$/, '');
 
-const navLinks = [
-  { href: '/work', label: 'Projects' },
-  { href: '/about', label: 'About' },
-  { href: '/writing', label: 'Writing' },
-];
+const navLinks = site.nav;
 
 const isActive = (href: string) =>
   currentPath === href || currentPath.startsWith(`${href}/`);
+
+// A short initials fallback for the mobile brand mark — first letter of each
+// space-separated word in the name, capped at 3 letters.
+const initials = site.name
+  .split(' ')
+  .map((word) => word[0])
+  .join('')
+  .slice(0, 3)
+  .toUpperCase();
 ---
 
 <header class="site-header">
   <div class="container header-inner">
     <a href="/" class="brand">
       <span class="brand-full">
-        <span class="brand-name">James Samuel-Camps</span>
-        <span class="brand-title">Lead Product Designer</span>
+        <span class="brand-name">{site.name}</span>
+        <span class="brand-title">{site.role}</span>
       </span>
-      <span class="brand-short">JSC</span>
+      <span class="brand-short">{initials}</span>
     </a>
 
     <div class="theme-switch" role="group" aria-label="Theme">
       <button type="button" class="theme-option" data-theme-option="light">Light</button>
       <button type="button" class="theme-option" data-theme-option="dark">Dark</button>
-      <button type="button" class="theme-option" data-theme-option="vapor">Miami</button>
     </div>
 
     <nav class="nav" aria-label="Main Navigation">
@@ -61,8 +66,8 @@ const isActive = (href: string) =>
     <button type="button" class="menu-close marker-link" data-menu-close>Close</button>
 
     <div class="menu-identity">
-      <span class="menu-name">James Samuel-Camps</span>
-      <span class="menu-role">Lead Product Designer</span>
+      <span class="menu-name">{site.name}</span>
+      <span class="menu-role">{site.role}</span>
     </div>
 
     <nav class="menu-nav" aria-label="Menu Navigation">
@@ -86,20 +91,17 @@ const isActive = (href: string) =>
     <div class="theme-switch menu-theme" role="group" aria-label="Theme">
       <button type="button" class="theme-option" data-theme-option="light">Light</button>
       <button type="button" class="theme-option" data-theme-option="dark">Dark</button>
-      <button type="button" class="theme-option" data-theme-option="vapor">Miami</button>
     </div>
   </div>
 </div>
 
 <script>
   // --- Theme switch (all instances: header + menu overlay) --------------------
-  const THEMES = ['light', 'dark', 'vapor'];
+  const THEMES = ['light', 'dark'];
   const THEME_COLORS: Record<string, string> = {
     light: '#ffffff',
     dark: '#000000',
-    vapor: '#f7c8ec',
   };
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const options = document.querySelectorAll<HTMLButtonElement>('[data-theme-option]');
 
   function currentTheme() {
@@ -110,13 +112,6 @@ const isActive = (href: string) =>
     document
       .getElementById('theme-color')
       ?.setAttribute('content', THEME_COLORS[theme] ?? THEME_COLORS.light);
-
-    const icon = document.getElementById('favicon');
-    if (icon) {
-      const vapor = theme === 'vapor';
-      icon.setAttribute('type', vapor ? 'image/svg+xml' : 'image/png');
-      icon.setAttribute('href', vapor ? '/favicon-vapor.svg' : '/favicon.png');
-    }
   }
 
   function syncTheme() {
@@ -135,45 +130,14 @@ const isActive = (href: string) =>
     syncTheme();
   }
 
-  // Entering or leaving the vapor "mode" plays a full-screen white wipe: fade
-  // up to white, swap the theme underneath, fade the white away.
-  function flashToTheme(next: string) {
-    if (reduceMotion.matches) {
-      setTheme(next);
-      return;
-    }
-
-    const flash = document.createElement('div');
-    flash.className = 'theme-flash is-in';
-    document.body.appendChild(flash);
-
-    flash.addEventListener(
-      'animationend',
-      () => {
-        setTheme(next);
-        requestAnimationFrame(() => {
-          flash.classList.replace('is-in', 'is-out');
-        });
-        flash.addEventListener('animationend', () => flash.remove(), { once: true });
-      },
-      { once: true }
-    );
-  }
-
   syncTheme();
 
   options.forEach((option) => {
     option.addEventListener('click', () => {
       const next = option.getAttribute('data-theme-option');
       if (!next || !THEMES.includes(next)) return;
-      const current = currentTheme();
-      if (next === current) return;
-
-      if (next === 'vapor' || current === 'vapor') {
-        flashToTheme(next);
-      } else {
-        setTheme(next);
-      }
+      if (next === currentTheme()) return;
+      setTheme(next);
     });
   });
 

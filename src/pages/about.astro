@@ -1,22 +1,23 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../config';
 ---
 
 <BaseLayout
-  title="About · James Samuel-Camps"
-  description="Lead Product Designer with over 15 years experience building complex B2B/B2C fintech infrastructure, design systems, and UI architecture."
+  title={`About · ${site.name}`}
+  description={`${site.role} — background, approach and how I work.`}
 >
   <div class="container">
     <header class="about-header">
       <h1 class="display-quote">
-        <span>“I will fight you one of these days.”</span>
+        <span>“A short, memorable line someone once said about working with you.”</span>
       </h1>
-      <p class="display-quote-cite">— Product Manager, YouLend</p>
+      <p class="display-quote-cite">— Their name, their role</p>
     </header>
 
     <div class="about-grid">
       <p class="about-standfirst statement">
-        I’m a Lead Product Designer with over 15 years of experience building complex B2B/B2C fintech infrastructure, design systems, and scalable UI architecture. Currently based in the UK, open to new opportunities, and building <a href="https://tilialabs.io" target="_blank" rel="noopener noreferrer">Tilia</a>, a free UX research platform for solo practitioners, small product teams, and founders.
+        A one-paragraph introduction: who you are, roughly how long you've been doing this, and the kind of work you focus on. Currently based wherever you are, open to whatever you're open to, and building whatever else is worth a mention — like <a href="#" target="_blank" rel="noopener noreferrer">a side project</a>.
       </p>
 
       <section class="about-row">
@@ -28,14 +29,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </div>
         <div class="about-row-body prose">
           <p>
-            My path into product design wasn’t standard. I studied magazine journalism, spending my early career in trend forecasting and editorial design. That background taught me two critical skills that define my approach today:
+            A short story about how you got into this line of work — the more
+            unusual the path, the better it reads. What did it teach you that
+            still shapes how you work today?
           </p>
           <ul class="about-highlights statement-list">
-            <li>Separating long-term human behaviour from short-term fads</li>
-            <li>Mastering strict information hierarchy</li>
+            <li>A principle you hold onto</li>
+            <li>Another one, stated just as plainly</li>
           </ul>
           <p>
-            In fintech, where software is often weighed down by legacy code and heavy regulatory constraints, I use those skills to abstract messy logic into simple, intuitive user mental models.
+            A closing paragraph connecting that background to the kind of
+            problems you solve now.
           </p>
         </div>
       </section>
@@ -45,19 +49,22 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <span class="about-row-num">02 —</span>
         </div>
         <div class="about-row-head">
-          <h2 class="about-row-title">Approach to Leadership</h2>
+          <h2 class="about-row-title">Approach to Work</h2>
         </div>
         <div class="about-row-body prose">
           <p>
-            I’m passionate about mentoring and supporting my team, with a strong belief in trust-based management. I trust that you’re here on merit and that you know how to do the job well. I can’t be across every project at all times, so I count on you to keep me updated, and to say early when you need support or a second opinion.
+            A paragraph or two on how you like to collaborate — with a team,
+            with stakeholders, with clients. What do people who've worked with
+            you before tend to say about that?
           </p>
           <p>
-            While I see myself as accountable for my team’s development, I encourage them to take charge of their own paths, with me providing guidance as needed. My feedback style is adaptable; happy with async, but I prefer real-time for in-depth discussions.
+            A second paragraph going a layer deeper — feedback style, how you
+            handle disagreement, how hands-on you like to be.
           </p>
           <ul class="about-highlights statement-list">
-            <li>My default setting is trust</li>
-            <li>Micromanagement stifles growth and never leads to the desired results</li>
-            <li>I expect my team to help shape their own path, not be handed one</li>
+            <li>A short, quotable belief about how you work</li>
+            <li>Another one</li>
+            <li>A third, if you've got one worth keeping</li>
           </ul>
         </div>
       </section>
@@ -70,19 +77,22 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <h2 class="about-row-title">How I Operate</h2>
         </div>
         <div class="about-row-body prose">
-          <h3>Logic over Theatre</h3>
+          <h3>A named principle</h3>
           <p>
-            I value outcomes over performative design rituals. I prefer fast, informed assumptions, quick prototypes, and immediate testing over endless “design by committee.” Process should serve product velocity, not slow it down.
+            A short paragraph unpacking it — what it means in practice, and
+            why it matters to the work you do.
           </p>
 
-          <h3>Systems Architecture</h3>
+          <h3>Another named principle</h3>
           <p>
-            I am drawn to the structural layer of product design. I turn back-end technical complexity into clear, maintainable design systems and self-service component libraries. Solid documentation and UI systems are business assets that save hundreds of engineering hours.
+            Same shape: name it, then explain what it looks like day to day.
           </p>
 
-          <h3>Autonomy, Trust & Momentum</h3>
+          <h3>A third, if useful</h3>
           <p>
-            I believe in tight, cross-functional alignment early on; aligning with product, risk, and engineering on what needs to be solved. Once aligned, I execute with high autonomy and protect the team’s maker-time so we can focus on shipping high-quality software quickly.
+            Three subsections here mirrors the original layout — feel free to
+            add, remove, or rename to fit how you actually think about your
+            own practice.
           </p>
         </div>
       </section>

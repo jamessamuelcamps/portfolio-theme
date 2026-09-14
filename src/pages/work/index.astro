@@ -2,15 +2,16 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import { getCollection } from 'astro:content';
+import { site } from '../../config';
 
 const projects = (await getCollection('projects', ({ data }) => !data.draft)).sort(
   (a, b) => a.data.order - b.data.order
 );
 ---
 
-<BaseLayout 
-  title="Projects · James Samuel Camps" 
-  description="Product design case studies, design systems, and mobile interfaces by James Samuel Camps."
+<BaseLayout
+  title={`Projects · ${site.name}`}
+  description={`Case studies by ${site.name}.`}
 >
   <div class="container">
     <header class="page-header">

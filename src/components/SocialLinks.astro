@@ -1,4 +1,6 @@
 ---
+import { site } from '../config';
+
 interface Props {
   /**
    * Visible text for the email link. When omitted, the link shows the
@@ -17,21 +19,18 @@ interface Props {
 
 const { emailLabel, variant = 'row', class: className } = Astro.props;
 
-const links = [
-  { href: 'https://www.linkedin.com/in/jamessc/', label: 'LinkedIn' },
-  { href: 'https://www.instagram.com/james_sc/', label: 'Instagram' },
-  { href: 'https://github.com/jamessamuelcamps', label: 'GitHub' },
-];
+const [emailUser, emailDomain] = site.email.split('@');
+const links = site.socials;
 ---
 
 <div class:list={['social-links', `social-links--${variant}`, className]}>
   <a
     class="marker-link"
     data-email
-    data-email-user="hello"
-    data-email-domain="james-sc.co.uk"
+    data-email-user={emailUser}
+    data-email-domain={emailDomain}
     data-email-label={emailLabel}
-  >{emailLabel ?? 'hello [at] james-sc [dot] co [dot] uk'}</a>
+  >{emailLabel ?? `${emailUser} [at] ${emailDomain.replace(/\./g, ' [dot] ')}`}</a>
   {links.map((link) => (
     <a href={link.href} class="marker-link" target="_blank" rel="noopener noreferrer">
       {link.label}

@@ -2,6 +2,7 @@
 import BaseLayout from './BaseLayout.astro';
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
+import { site } from '../config';
 
 interface Props {
   project: CollectionEntry<'projects'>;
@@ -15,7 +16,7 @@ const { title, description, client, heroImage, heroImageAlt, heroLayout, draft }
 const displayTitle = title.split('•')[0].trim();
 ---
 
-<BaseLayout title={`${title} · James Samuel Camps`} description={description} noindex={draft}>
+<BaseLayout title={`${title} · ${site.name}`} description={description} noindex={draft}>
   <article class="case-study" data-project={project.id}>
     <div class="container">
       <header class="case-study-header">

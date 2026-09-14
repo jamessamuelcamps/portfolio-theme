@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import WritingCard from '../components/WritingCard.astro';
 import SocialLinks from '../components/SocialLinks.astro';
 import { getCollection } from 'astro:content';
+import { site } from '../config';
 
 const allWriting = await getCollection('writing');
 const recentWriting = allWriting
@@ -17,32 +18,37 @@ const fullBleed = recentWriting.length === 0;
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="hero-main">
-        <p class="availability-pill">Available. Let’s talk.</p>
+        <p class="availability-pill">{site.hero.availability}</p>
         <h1 class="display-quote">
-          <span>“I’d rather he didn’t come back at all. His trainers are shit and he’s too tall. No-one even likes him.”</span>
+          <span>“{site.hero.quote}”</span>
         </h1>
-        <p class="display-quote-cite">— Design Director, VML</p>
+        <p class="display-quote-cite">{site.hero.cite}</p>
       </div>
 
       <div class="hero-bottom">
         <div class="hero-bio">
           <p>
-            I specialise in complex B2B/B2C fintech infrastructure, design systems, and product velocity. I build scalable frameworks and UI architecture that help product teams ship better software, faster.
+            A couple of short paragraphs introducing you and what you do — this
+            is the first thing a visitor reads after the headline quote above,
+            so keep it plain-spoken and specific to your own work.
           </p>
           <p>
-            I’m also building <a href="https://tilialabs.io" target="_blank" rel="noopener noreferrer" class="highlight-link">Tilia</a>, a free UX research platform for solo practitioners, small product teams, and founders.
+            Mention a project you're building, a specialism, or anything else
+            worth a link here. Edit this copy directly in <code>src/pages/index.astro</code>.
           </p>
         </div>
 
         <SocialLinks class="hero-social" emailLabel="Email" variant="column" />
       </div>
 
-      <a
-        class="hero-mark"
-        href="https://github.com/jamessamuelcamps/portfolio-theme"
-        target="_blank"
-        rel="noopener noreferrer"
-      ><span>Steal this theme</span></a>
+      {site.themeCredit && (
+        <a
+          class="hero-mark"
+          href={site.themeCredit.href}
+          target="_blank"
+          rel="noopener noreferrer"
+        ><span>{site.themeCredit.label}</span></a>
+      )}
     </section>
 
     <!-- Writing Section -->

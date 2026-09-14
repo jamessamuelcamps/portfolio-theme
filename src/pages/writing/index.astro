@@ -2,14 +2,15 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import WritingCard from '../../components/WritingCard.astro';
 import { getCollection } from 'astro:content';
+import { site } from '../../config';
 
 const posts = (await getCollection('writing')).sort(
   (a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime()
 );
 ---
 
-<BaseLayout 
-  title="Writing · James Samuel Camps" 
+<BaseLayout
+  title={`Writing · ${site.name}`}
   description="Thoughts, ideas and musings."
 >
   <div class="container-prose">

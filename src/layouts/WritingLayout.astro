@@ -1,6 +1,7 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import type { CollectionEntry } from 'astro:content';
+import { site } from '../config';
 
 interface Props {
   post: CollectionEntry<'writing'>;
@@ -16,7 +17,7 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
 }).format(publishDate);
 ---
 
-<BaseLayout title={`${title} · James Samuel Camps`} description={description}>
+<BaseLayout title={`${title} · ${site.name}`} description={description}>
   <article class="article-post">
     <div class="container-prose">
       <nav class="back-nav" aria-label="Breadcrumb">
