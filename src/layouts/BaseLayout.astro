@@ -2,6 +2,8 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import '@fontsource-variable/dm-sans';
+import '@fontsource/dm-mono/latin-400.css';
+import '@fontsource-variable/pixelify-sans';
 import '../styles/global.css';
 
 interface Props {
@@ -24,18 +26,29 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 <!doctype html>
 <html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link id="favicon" rel="icon" type="image/png" href="/favicon.png" />
+    <meta id="theme-color" name="theme-color" content="#ffffff" />
     <script is:inline>
       (function () {
         var stored = localStorage.getItem('theme');
-        var theme = stored === 'light' || stored === 'dark'
+        var valid = ['light', 'dark', 'vapor'];
+        var theme = valid.indexOf(stored) !== -1
           ? stored
           : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
         document.documentElement.setAttribute('data-theme', theme);
+
+        // Browser chrome + favicon follow the theme (incl. the vapor Easter egg).
+        var colors = { light: '#ffffff', dark: '#000000', vapor: '#f7c8ec' };
+        document.getElementById('theme-color').setAttribute('content', colors[theme] || colors.light);
+        if (theme === 'vapor') {
+          var icon = document.getElementById('favicon');
+          icon.setAttribute('type', 'image/svg+xml');
+          icon.setAttribute('href', '/favicon-vapor.svg');
+        }
       })();
     </script>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="canonical" href={canonicalURL} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <meta name="generator" content={Astro.generator} />
@@ -58,6 +71,56 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta property="twitter:description" content={description} />
   </head>
   <body class:list={{ 'is-full-bleed': fullBleed }}>
+    {/* "Chewed VHS tape" distortion — only referenced by the vapor theme's
+        .display-quote (see global.css). Horizontal-band tearing whose seed and
+        amount SNAP between held states (calcMode="discrete") rather than
+        morphing — that's what keeps it from reading as an underwater ripple.
+        Invisible / inert in every other theme. */}
+    <svg class="vapor-filter-defs" width="0" height="0" aria-hidden="true" focusable="false">
+      <filter id="vapor-ripple" x="-30%" y="-25%" width="160%" height="150%" color-interpolation-filters="sRGB">
+        {/* Near-zero X frequency + high Y frequency => noise is ~constant along
+            each row, so whole horizontal strips shear together (tape tearing).
+            Seed jumps hold, then flick to a new pattern (signal dropout). */}
+        <feTurbulence type="fractalNoise" baseFrequency="0.0025 0.09" numOctaves="1" seed="3" result="noise">
+          <animate
+            attributeName="seed"
+            dur="1.3s"
+            values="3;3;10;3;3;3;16;3;3;5;3;22;3"
+            calcMode="discrete"
+            repeatCount="indefinite"
+          />
+        </feTurbulence>
+        {/* Baseline tear is always slightly off (5), and SNAPS to a hard shear
+            several times a loop, then back — never a smooth build. */}
+        <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" result="torn">
+          <animate
+            attributeName="scale"
+            dur="3s"
+            values="5;5;22;5;5;40;6;5;5;15;5;5;28;5;5;5;12;5"
+            calcMode="discrete"
+            repeatCount="indefinite"
+          />
+        </feDisplacementMap>
+        {/* Colour shifts hold then jump — no smooth hue drift. */}
+        <feColorMatrix in="torn" type="hueRotate" values="0">
+          <animate
+            attributeName="values"
+            dur="9s"
+            values="-14; 8; -22; 12; -6; -14"
+            calcMode="discrete"
+            keyTimes="0; 0.28; 0.5; 0.72; 0.9; 1"
+            repeatCount="indefinite"
+          />
+        </feColorMatrix>
+      </filter>
+    </svg>
+
+    {/* Cycling gradient sky (fixed behind content) + CRT/SCART overlay (fixed
+        above content) — vapor only (global.css). */}
+    <div class="vapor-bg" aria-hidden="true"></div>
+    <div class="crt-overlay" aria-hidden="true"></div>
+    <div class="crt-glitch" aria-hidden="true"></div>
+
     <Header />
     <main id="main-content" class:list={{ 'full-bleed': fullBleed }}>
       <slot />
@@ -75,10 +138,161 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         el.textContent = el.dataset.emailLabel || address;
       });
     </script>
+
+    <script>
+      // --- Vapor: glitch text -------------------------------------------------
+      // Occasionally swaps a handful of letters/digits in titles, subtitles,
+      // standfirsts and quotes for stray symbols (#, @, !, >, ? ...), and
+      // occasionally drops a loose symbol into a word gap — signal noise from
+      // the same "bad SCART lead" as .crt-glitch, not a typo. Body copy is
+      // never touched. Vapor theme only; runs while data-theme="vapor" and
+      // stops (restoring the original text) the moment it doesn't.
+      //
+      // Titles: any heading (h1-h3) — covers page/article/case-study titles,
+      //   section titles and card titles alike.
+      // Subtitles: .page-subtitle.
+      // Standfirsts: .statement (the lead/standfirst family — see Lead.astro).
+      // Quotes: .display-quote-cite, .cs-pullquote-attribution, and any
+      //   <blockquote> (the display quote's own text is wrapped in .statement-
+      //   free spans but is still an h1, so it's already covered).
+      //
+      // Every roll rebuilds from the stored original rather than the previous
+      // (already-glitched) value, so an inserted symbol never accumulates —
+      // it's just as likely to be gone again on the next roll.
+      //
+      // Each matched element runs its own independent, randomly-timed loop
+      // (a recursive setTimeout re-rolling its own dice every time) rather
+      // than one shared setInterval ticking everything at once — otherwise
+      // every title and quote on the page would visibly flip in lockstep,
+      // which reads as a metronome rather than noise.
+      const GLITCH_SELECTOR =
+        'h1, h2, h3, .statement, .display-quote-cite, .cs-pullquote-attribution, .page-subtitle, blockquote';
+      const GLITCH_SYMBOLS = ['#', '@', '!', '>', '?', '*', '%', '~', '/'];
+      const GLITCH_RATE = 0.045; // ~1 in 22 eligible characters, per roll
+      const GLITCH_INSERT_RATE = 0.05; // per word gap, per roll
+      const GLITCH_MAX_INSERTS = 2; // cap per text node, so long copy doesn't clutter
+      const GLITCH_MIN_DELAY_MS = 700;
+      const GLITCH_MAX_DELAY_MS = 5000;
+
+      function randomDelay(): number {
+        return GLITCH_MIN_DELAY_MS + Math.random() * (GLITCH_MAX_DELAY_MS - GLITCH_MIN_DELAY_MS);
+      }
+
+      // Original text per node, so each roll starts fresh instead of compounding.
+      const glitchOriginals = new WeakMap<Text, string>();
+
+      function glitchTextNodes(root: Element): Text[] {
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+          acceptNode(node) {
+            return node.nodeValue && node.nodeValue.trim()
+              ? NodeFilter.FILTER_ACCEPT
+              : NodeFilter.FILTER_SKIP;
+          },
+        });
+        const nodes: Text[] = [];
+        let node: Node | null;
+        while ((node = walker.nextNode())) nodes.push(node as Text);
+        return nodes;
+      }
+
+      function randomSymbol(): string {
+        return GLITCH_SYMBOLS[(Math.random() * GLITCH_SYMBOLS.length) | 0];
+      }
+
+      function glitchString(input: string): string {
+        let skipNext = false;
+        let inserts = 0;
+        let out = '';
+        for (const ch of input) {
+          if (!skipNext && /[a-zA-Z0-9]/.test(ch) && Math.random() < GLITCH_RATE) {
+            out += randomSymbol();
+            skipNext = true; // never swap two characters back to back
+          } else {
+            out += ch;
+            skipNext = false;
+          }
+
+          // Word gaps occasionally get a loose symbol dropped between them,
+          // e.g. "product # design" — reads as noise, not a swapped letter.
+          if (
+            ch === ' ' &&
+            inserts < GLITCH_MAX_INSERTS &&
+            Math.random() < GLITCH_INSERT_RATE
+          ) {
+            out += `${randomSymbol()} `;
+            inserts++;
+          }
+        }
+        return out;
+      }
+
+      function glitchRollElement(el: Element) {
+        glitchTextNodes(el).forEach((node) => {
+          if (!glitchOriginals.has(node)) glitchOriginals.set(node, node.nodeValue || '');
+          node.nodeValue = glitchString(glitchOriginals.get(node)!);
+        });
+      }
+
+      function glitchRestore() {
+        document.querySelectorAll(GLITCH_SELECTOR).forEach((el) => {
+          glitchTextNodes(el).forEach((node) => {
+            const original = glitchOriginals.get(node);
+            if (original !== undefined) node.nodeValue = original;
+          });
+        });
+      }
+
+      // One timer per element, each rescheduling itself with a fresh random
+      // delay — so elements drift in and out of phase with each other.
+      const glitchTimers = new Map<Element, number>();
+
+      function scheduleElement(el: Element) {
+        const timer = window.setTimeout(() => {
+          glitchRollElement(el);
+          scheduleElement(el);
+        }, randomDelay());
+        glitchTimers.set(el, timer);
+      }
+
+      function glitchStart() {
+        if (glitchTimers.size) return; // already running
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        document.querySelectorAll(GLITCH_SELECTOR).forEach((el) => {
+          glitchRollElement(el); // one immediate roll so it's not static until the first timer fires
+          if (!reduceMotion) scheduleElement(el);
+        });
+      }
+
+      function glitchStop() {
+        glitchTimers.forEach((timer) => window.clearTimeout(timer));
+        glitchTimers.clear();
+        glitchRestore();
+      }
+
+      function glitchSync() {
+        const vapor = document.documentElement.getAttribute('data-theme') === 'vapor';
+        if (vapor && !document.hidden) glitchStart();
+        else glitchStop();
+      }
+
+      glitchSync();
+      new MutationObserver(glitchSync).observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme'],
+      });
+      document.addEventListener('visibilitychange', glitchSync);
+    </script>
   </body>
 </html>
 
 <style>
+  .vapor-filter-defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
   body.is-full-bleed {
     height: 100svh;
     min-height: 100svh;

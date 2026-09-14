@@ -5,8 +5,7 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  // Replace with your actual domain when deploying to Dreamhost
-  site: 'https://jamessamuelcamps.com',
+  site: 'https://james-sc.co.uk',
   output: 'static',
   integrations: [
     mdx(),

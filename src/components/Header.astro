@@ -27,6 +27,7 @@ const isActive = (href: string) =>
     <div class="theme-switch" role="group" aria-label="Theme">
       <button type="button" class="theme-option" data-theme-option="light">Light</button>
       <button type="button" class="theme-option" data-theme-option="dark">Dark</button>
+      <button type="button" class="theme-option" data-theme-option="vapor">Miami</button>
     </div>
 
     <nav class="nav" aria-label="Main Navigation">
@@ -85,31 +86,94 @@ const isActive = (href: string) =>
     <div class="theme-switch menu-theme" role="group" aria-label="Theme">
       <button type="button" class="theme-option" data-theme-option="light">Light</button>
       <button type="button" class="theme-option" data-theme-option="dark">Dark</button>
+      <button type="button" class="theme-option" data-theme-option="vapor">Miami</button>
     </div>
   </div>
 </div>
 
 <script>
   // --- Theme switch (all instances: header + menu overlay) --------------------
+  const THEMES = ['light', 'dark', 'vapor'];
+  const THEME_COLORS: Record<string, string> = {
+    light: '#ffffff',
+    dark: '#000000',
+    vapor: '#f7c8ec',
+  };
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const options = document.querySelectorAll<HTMLButtonElement>('[data-theme-option]');
 
+  function currentTheme() {
+    return document.documentElement.getAttribute('data-theme') || 'light';
+  }
+
+  function applyChrome(theme: string) {
+    document
+      .getElementById('theme-color')
+      ?.setAttribute('content', THEME_COLORS[theme] ?? THEME_COLORS.light);
+
+    const icon = document.getElementById('favicon');
+    if (icon) {
+      const vapor = theme === 'vapor';
+      icon.setAttribute('type', vapor ? 'image/svg+xml' : 'image/png');
+      icon.setAttribute('href', vapor ? '/favicon-vapor.svg' : '/favicon.png');
+    }
+  }
+
   function syncTheme() {
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const theme = currentTheme();
     options.forEach((option) => {
-      const active = option.getAttribute('data-theme-option') === (isDark ? 'dark' : 'light');
+      const active = option.getAttribute('data-theme-option') === theme;
       option.classList.toggle('active', active);
       option.setAttribute('aria-pressed', String(active));
     });
+  }
+
+  function setTheme(next: string) {
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    applyChrome(next);
+    syncTheme();
+  }
+
+  // Entering or leaving the vapor "mode" plays a full-screen white wipe: fade
+  // up to white, swap the theme underneath, fade the white away.
+  function flashToTheme(next: string) {
+    if (reduceMotion.matches) {
+      setTheme(next);
+      return;
+    }
+
+    const flash = document.createElement('div');
+    flash.className = 'theme-flash is-in';
+    document.body.appendChild(flash);
+
+    flash.addEventListener(
+      'animationend',
+      () => {
+        setTheme(next);
+        requestAnimationFrame(() => {
+          flash.classList.replace('is-in', 'is-out');
+        });
+        flash.addEventListener('animationend', () => flash.remove(), { once: true });
+      },
+      { once: true }
+    );
   }
 
   syncTheme();
 
   options.forEach((option) => {
     option.addEventListener('click', () => {
-      const next = option.getAttribute('data-theme-option') === 'dark' ? 'dark' : 'light';
-      document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
-      syncTheme();
+      const next = option.getAttribute('data-theme-option');
+      if (!next || !THEMES.includes(next)) return;
+      const current = currentTheme();
+      if (next === current) return;
+
+      if (next === 'vapor' || current === 'vapor') {
+        flashToTheme(next);
+      } else {
+        setTheme(next);
+      }
     });
   });
 
