@@ -9,7 +9,7 @@ every step below tells you exactly what to type and where.
 
 ## What you get
 
-- A homepage with a big pull-quote, a short bio, and your latest writing
+- A one-page homepage: a big pull-quote, a short bio, your socials
 - A **Projects** section for case studies — with a big kit of ready-made
   content blocks (stat grids, quotes, before/after image sliders, image
   grids, icon-and-text "journey" steps, bordered cards) so you can lay out a
