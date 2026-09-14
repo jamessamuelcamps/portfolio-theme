@@ -115,6 +115,8 @@ comfortable editing it.
 Look inside **`src/content/projects/`** — that's where each case study
 lives, one file per project. The theme's own `component-showcase.mdx` in
 there is both a working example and a catalogue of every block you can use.
+For a written reference of every component and prop, see
+[`docs/case-study-components.md`](docs/case-study-components.md).
 
 To start a new one:
 
