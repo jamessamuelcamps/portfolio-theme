@@ -1,28 +1,20 @@
 # Deploying to DreamHost
 
-**Status:** In progress · **Owner:** James S-C · **Created:** 2026-09-10 · **Updated:** 2026-09-14
+**Status:** Live · **Owner:** James S-C · **Created:** 2026-09-10 · **Updated:** 2026-09-14
 
-How to deploy this portfolio to the existing DreamHost domain + shared hosting.
+How this portfolio deploys to the DreamHost domain + shared hosting.
 
 The site is fully static ([`astro.config.mjs`](../astro.config.mjs), `output: 'static'`), so
-DreamHost shared hosting is a good fit — no Node runtime needed on the server. Build locally,
-upload `dist/`.
+DreamHost shared hosting is a good fit — no Node runtime needed on the server. GitHub Actions
+builds on push to `main` and rsyncs `dist/` over SSH.
 
 **Domain:** apex `james-sc.co.uk` is canonical; `www` redirects to it. `site` in
 `astro.config.mjs` is set accordingly.
 
+**Server:** `iad1-shared-b7-47.dreamhost.com`, user `dh_unjfm5`, web directory
+`/home/dh_unjfm5/james-sc.co.uk`.
+
 ---
-
-## One-time setup on DreamHost
-
-1. **Host the domain (not just DNS).** Panel → *Websites → Manage Websites → Add a website*
-   (or edit the existing entry). Set it to **fully host** the domain, pointing at a web
-   directory like `/home/USERNAME/james-sc.co.uk/`. If the old site lives there now, note the
-   path and back up its contents first.
-2. **Enable HTTPS.** Panel → *Websites → [domain] → HTTPS/SSL* → add the free Let's Encrypt
-   certificate. Turn on "redirect HTTP to HTTPS".
-3. **Set up SSH access** (for the automated option below). Panel → *Servers → SSH Keys*, or
-   *Users* → enable shell access for the user and add a public key.
 
 ## Build config
 
@@ -32,48 +24,65 @@ npm run build
 ```
 
 Produces `dist/` — plain HTML/CSS/JS/assets. Astro's default directory format gives clean URLs
-(`/work/foo/` → `dist/work/foo/index.html`), which work on Apache with no extra config.
+(`/work/foo/` → `dist/work/foo/index.html`), which work on Apache with no extra config. Requires
+Node ≥22.12.0 (per `package.json` engines) — the CI workflow pins Node 22.
 
 ## Deploying
 
-**Manual (simplest to start):** upload the *contents* of `dist/` (not the folder itself) into
-the domain's web directory via SFTP (FileZilla, Cyberduck) or:
+**Automated:** [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml) builds and
+rsyncs on every push to `main` (or via manual `workflow_dispatch`). Repo secrets:
+
+- `DREAMHOST_SSH_KEY` — deploy key's private key (ed25519, no passphrase)
+- `DREAMHOST_HOST` — `iad1-shared-b7-47.dreamhost.com`
+- `DREAMHOST_USER` — `dh_unjfm5`
+- `DREAMHOST_PATH` — `/home/dh_unjfm5/james-sc.co.uk`
+
+The rsync step uses `ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes` — without
+`IdentitiesOnly=yes` the runner's ssh-agent offers other identities first and DreamHost's
+`MaxAuthTries` disconnects before the deploy key is tried.
+
+**Manual (fallback):** upload the *contents* of `dist/` (not the folder itself) into the web
+directory via SFTP, or:
 
 ```
-rsync -avz --delete dist/ USERNAME@SERVER.dreamhost.com:~/james-sc.co.uk/
+rsync -avz --delete dist/ dh_unjfm5@iad1-shared-b7-47.dreamhost.com:~/james-sc.co.uk/
 ```
 
-`--delete` clears stale files from the old site. Preserve any `.well-known/` directory the SSL
-panel created (or re-issue the cert afterwards).
-
-**Automated (recommended):** a GitHub Action on push to `main` that builds and rsyncs over SSH.
-Add the DreamHost SSH private key as a repo secret. Workflow file not written yet.
+`--delete` clears stale files. There's no `.well-known/` directory in the web root to worry about
+preserving — DreamHost's Let's Encrypt renewal doesn't use one here.
 
 ## `.htaccess`
 
-Place in the web root for the `www` → apex redirect and asset caching. Astro fingerprints
-filenames in `_astro/`, so those are safe to cache hard. DreamHost's Let's Encrypt panel setting
-handles HTTP→HTTPS, so this only needs the host redirect:
+Lives at [`public/.htaccess`](../public/.htaccess), copied into `dist/` on every build. Handles
+the `www` → apex redirect, a custom 404 page, gzip compression, and asset caching headers.
+DreamHost's Let's Encrypt panel setting handles HTTP→HTTPS separately.
 
-```apache
-RewriteEngine On
-RewriteCond %{HTTP_HOST} ^www\.james-sc\.co\.uk$ [NC]
-RewriteRule ^(.*)$ https://james-sc.co.uk/$1 [L,R=301]
+## SSH access setup (already done, for reference)
 
-<IfModule mod_expires.c>
-  ExpiresActive On
-  ExpiresByType text/css "access plus 1 year"
-  ExpiresByType application/javascript "access plus 1 year"
-  ExpiresByType image/svg+xml "access plus 1 month"
-</IfModule>
-```
+1. Panel → *Websites → Manage Websites → [domain] → Content → Manage Files → Login Info* →
+   toggle **Secure Shell Access (SSH)** on for the site's user.
+2. No key-management UI in the panel — keys go straight into `~/.ssh/authorized_keys` on the
+   server. Set a one-time password via the same Login Info panel, SSH in, then:
+   ```
+   mkdir -p ~/.ssh && chmod 700 ~/.ssh
+   echo "PASTE_PUBLIC_KEY" >> ~/.ssh/authorized_keys
+   chmod 600 ~/.ssh/authorized_keys
+   ```
+3. When setting `DREAMHOST_SSH_KEY` as a GitHub secret, prefer `gh secret set DREAMHOST_SSH_KEY <
+   path/to/key` over pasting into the browser UI — a browser paste corrupted the key's line
+   breaks once and caused `Too many authentication failures` in CI.
+
+## Migration history
+
+The domain previously hosted a live WordPress install at the same web directory. Before the
+first deploy (2026-09-14) it was fully backed up: `mysqldump --no-tablespaces` of the DB and a
+`tar.gz` of the full file tree, both saved to `~/backups/` on the server and pulled down locally.
+No redirects were set up for old WordPress URLs — they 404 under the new site by design.
 
 ## Open items
 
-- [x] Confirm the exact domain + apex vs. `www` (apex `james-sc.co.uk` is canonical), then set
-      `site` in `astro.config.mjs`
-- [ ] Write the GitHub Action (build + rsync over SSH)
-- [ ] Write the `.htaccess` file above into the repo (or DreamHost web root directly) and confirm
-      the redirect + HTTPS
-- [ ] Decide on redirects for any old-site URLs that change
-- [ ] Back up the current DreamHost site contents before first deploy
+- [x] Confirm the exact domain + apex vs. `www`, set `site` in `astro.config.mjs`
+- [x] Write the GitHub Action (build + rsync over SSH)
+- [x] Write the `.htaccess` file into the repo, confirm the redirect + HTTPS
+- [x] Decide on redirects for old-site URLs — none needed
+- [x] Back up the current DreamHost site contents before first deploy
