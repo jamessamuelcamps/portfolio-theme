@@ -644,12 +644,12 @@ ul.statement-list {
   border: none;
 }
 
-/* Moneybox — the UI screenshots are mostly white, so a hairline keeps the
-   screen edges legible (especially in light mode). Opt-in per study. */
-.case-study[data-project="moneybox-goals"] .cs-image-grid img,
-.case-study[data-project="moneybox-goals"] .cs-figure img {
-  border: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent);
-}
+/* Mostly-white UI screenshots can lose their edges against the page
+   background — opt a study into a hairline border with `data-project`:
+   .case-study[data-project="your-slug"] .cs-image-grid img,
+   .case-study[data-project="your-slug"] .cs-figure img {
+     border: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent);
+   } */
 
 /* --- Shared: meta grid (Credits) ------------------------------------- */
 .meta-grid {

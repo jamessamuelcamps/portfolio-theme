@@ -1,11 +1,13 @@
 # ----------------------------------------------------------------------
-# Apache / Dreamhost Configuration
+# Apache configuration — only needed if you're deploying to a plain Apache
+# host (e.g. DreamHost, shared hosting). Netlify/Vercel/Cloudflare Pages
+# ignore this file; delete it if you're using one of those instead.
 # ----------------------------------------------------------------------
 
-# Redirect www to apex domain
-RewriteEngine On
-RewriteCond %{HTTP_HOST} ^www\.james-sc\.co\.uk$ [NC]
-RewriteRule ^(.*)$ https://james-sc.co.uk/$1 [L,R=301]
+# To redirect www to your apex domain (or vice versa), uncomment and edit:
+# RewriteEngine On
+# RewriteCond %{HTTP_HOST} ^www\.example\.com$ [NC]
+# RewriteRule ^(.*)$ https://example.com/$1 [L,R=301]
 
 # Custom 404 Error Document
 ErrorDocument 404 /404.html

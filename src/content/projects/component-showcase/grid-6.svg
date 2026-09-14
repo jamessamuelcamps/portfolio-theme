@@ -1,0 +1,10 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0.5" y="0.5" width="799" height="599" fill="#f2f2f2" stroke="#d0d0d0"/>
+  <g stroke="#d0d0d0" stroke-width="1">
+    <line x1="0" y1="0" x2="800" y2="600"/>
+    <line x1="800" y1="0" x2="0" y2="600"/>
+  </g>
+  <text x="400" y="300" text-anchor="middle" dominant-baseline="middle"
+    font-family="'DM Sans', Helvetica, Arial, sans-serif" font-size="27"
+    letter-spacing="0.08em" fill="#8a8a8a">GRID 06</text>
+</svg>
