@@ -1295,6 +1295,15 @@ ul.statement-list {
   clip-path: inset(0 calc(100% - var(--pos)) 0 0);
 }
 
+/* The "after" layer sits underneath as a full, unclipped box (the "before"
+   layer above simply paints over it) — but its label is a positioned child
+   with its own z-index, which floats above the clip regardless of how much
+   of "before" is showing. Mirror the clip onto it so the label itself is
+   only visible in the region "before" doesn't cover. */
+.case-study .cs-compare-base {
+  clip-path: inset(0 0 0 var(--pos));
+}
+
 .case-study .cs-compare-tag {
   position: absolute;
   top: var(--space-3);
