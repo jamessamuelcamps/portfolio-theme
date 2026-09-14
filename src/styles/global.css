@@ -890,11 +890,11 @@ code, pre {
    as the case-study card title. Pair with .display-quote-cite for the
    attribution line.
 
-   Scale: 2xl quote / base cite on mobile, flush to the gutter; 4xl / xl from
+   Scale: 3xl quote / base cite on mobile, flush to the gutter; 4xl / xl from
    640px with the highlight's left bleed restored; 7xl display size from 768px.
    ========================================================================== */
 .display-quote {
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-3xl);
   /* Looser than line-height-tight so the stacked highlight fragments
      don't overlap. */
   line-height: 1.6;
