@@ -2,6 +2,11 @@
 # Apache / Dreamhost Configuration
 # ----------------------------------------------------------------------
 
+# Redirect www to apex domain
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^www\.james-sc\.co\.uk$ [NC]
+RewriteRule ^(.*)$ https://james-sc.co.uk/$1 [L,R=301]
+
 # Custom 404 Error Document
 ErrorDocument 404 /404.html
 
