@@ -1,35 +1,112 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import ProjectCard from '../../components/ProjectCard.astro';
+import WorkEntry from '../../components/WorkEntry.astro';
 import { getCollection } from 'astro:content';
 import { site } from '../../config';
 
-const projects = (await getCollection('projects', ({ data }) => !data.draft)).sort(
-  (a, b) => a.data.order - b.data.order
-);
+const projects = await getCollection('projects', ({ data }) => !data.draft);
+
+// 'YYYY-MM' → 'Apr 2025'; tenure as whole months between start and end.
+const toMonths = (ym: string) => {
+  const [y, m] = ym.split('-').map(Number);
+  return y * 12 + (m - 1);
+};
+const formatMonth = (ym: string) =>
+  new Date(`${ym}-01T00:00:00Z`).toLocaleDateString('en-GB', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+const now = new Date();
+const formatTenure = (start: string, end: string | null) => {
+  const total = (end ? toMonths(end) : now.getFullYear() * 12 + now.getMonth()) - toMonths(start);
+  const years = Math.floor(total / 12);
+  const months = total % 12;
+  return [
+    years && `${years} yr${years > 1 ? 's' : ''}`,
+    months && `${months} mo${months > 1 ? 's' : ''}`,
+  ].filter(Boolean).join(' ');
+};
+
+// One group per role in site.experience (newest first); studies within a role
+// newest first by startDate, falling back to the authored `order`.
+const groups = site.experience
+  .map((job) => ({
+    ...job,
+    projects: projects
+      .filter((p) => p.data.client === job.company)
+      .sort((a, b) =>
+        a.data.startDate && b.data.startDate
+          ? b.data.startDate.getTime() - a.data.startDate.getTime()
+          : a.data.order - b.data.order
+      ),
+  }))
+  .filter((group) => group.projects.length > 0);
+
+if (import.meta.env.DEV) {
+  const companies = new Set(site.experience.map((job) => job.company));
+  for (const p of projects) {
+    if (!companies.has(p.data.client ?? '')) {
+      console.warn(`[work] "${p.id}" has client "${p.data.client}", which isn't in site.experience; it won't appear on /work.`);
+    }
+  }
+}
 ---
 
 <BaseLayout
-  title={`Projects · ${site.name}`}
-  description={`Case studies by ${site.name}.`}
+  title={`Work · ${site.name}`}
+  description={`Case studies by ${site.name}: the problem, what changed, and the results.`}
 >
   <div class="container">
-    <header class="page-header">
-      <h1 class="page-title">Projects</h1>
-    </header>
+    <div class="work-page">
+      <header class="page-header">
+        <h1 class="page-title">Work</h1>
+      </header>
 
-    <div class="projects-grid">
-      {projects.map((project) => (
-        <ProjectCard project={project} />
-      ))}
+      <ol class="timeline">
+        {groups.map((group) => (
+          <li class:list={['timeline-group', { 'is-current': group.end === null }]} data-snap>
+            <header class="group-header">
+              <h2 class="group-company">{group.company}</h2>
+              <p class="group-role">{group.role}</p>
+              <p class="group-meta">
+                {formatMonth(group.start)} – {group.end ? formatMonth(group.end) : 'Present'}
+                <span aria-hidden="true"> · </span>
+                {formatTenure(group.start, group.end)}
+              </p>
+              {group.scope && <p class="group-scope">{group.scope}</p>}
+              {group.achievements && group.achievements.length > 0 && (
+                <ul class="group-achievements">
+                  {group.achievements.map((item) => <li>{item}</li>)}
+                </ul>
+              )}
+            </header>
+
+            <div class="group-entries">
+              {group.projects.map((project) => (
+                <WorkEntry project={project} />
+              ))}
+            </div>
+          </li>
+        ))}
+      </ol>
     </div>
   </div>
 </BaseLayout>
 
 <style>
+  /* On the page grid: held to the --wide-max measure like a case study,
+     then from 768px the page starts on column 3, so it spans columns 3–12
+     and the timeline's content (indented two more columns) spans 5–12. */
+  .work-page {
+    max-width: var(--wide-max);
+    margin-inline: auto;
+  }
+
+  @media (min-width: 768px) {
+    .work-page {
+      padding-left: calc(2 * var(--grid-pitch, 0px));
+    }
+  }
+
   .page-header {
-    margin-bottom: var(--space-12);
-    max-width: 680px;
+    margin-bottom: var(--space-10);
   }
 
   .page-title {
@@ -37,16 +114,141 @@ const projects = (await getCollection('projects', ({ data }) => !data.draft)).so
     margin-bottom: var(--space-3);
   }
 
-  .projects-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-8);
+  /* Vertical timeline, in the style of an application status tracker: a rail
+     down the left, a node per role on the company name, and that role's
+     case studies beneath in one column. The current role gets an open
+     "in progress" node; past roles are filled.
+
+     From 768px the content (company, role, cards) starts on column 5, on a
+     drawn page-grid line, via the page-grid script's --grid-pitch (a fixed
+     indent without JS). The rail always keeps the same distance from the
+     content — a node's width plus --rail-gap — rather than snapping to a
+     column, so the nodes stay close to the text they mark. */
+  .timeline {
+    --node-size: 22px;
+    --rail-gap: var(--space-8);
+    --timeline-indent: calc(var(--node-size) + var(--rail-gap));
+    /* Rail's left edge; the node centre sits on the rail (2px wide). */
+    --rail-x: calc(var(--timeline-indent) - var(--node-size) / 2 - var(--rail-gap) - 1px);
+
+    position: relative;
+    list-style: none;
+    padding: 0 0 0 var(--timeline-indent);
+    margin: 0;
   }
 
   @media (min-width: 768px) {
-    .projects-grid {
-      grid-template-columns: repeat(2, 1fr);
+    .timeline {
+      /* Two columns + gutters in (--rail-x follows it). */
+      --timeline-indent: calc(2 * var(--grid-pitch, calc((var(--node-size) + var(--rail-gap)) / 2)));
+    }
+  }
+
+  /* The rail starts at the first node's centre (half the company line box). */
+  .timeline::before {
+    content: '';
+    position: absolute;
+    top: calc(var(--font-size-3xl) * var(--line-height-tight) / 2);
+    bottom: 0;
+    left: var(--rail-x);
+    width: 2px;
+    background-color: var(--color-border);
+  }
+
+  .timeline-group + .timeline-group {
+    margin-top: var(--space-16);
+  }
+
+  .group-header {
+    margin-bottom: var(--space-8);
+  }
+
+  .group-company {
+    position: relative;
+    font-size: var(--font-size-3xl);
+    margin-bottom: var(--space-2);
+  }
+
+  .group-company::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: calc(-1 * var(--timeline-indent) + var(--rail-x) + 1px);
+    width: var(--node-size);
+    height: var(--node-size);
+    border-radius: 50%;
+    /* A small target: text-coloured ring, a gap, then a solid centre. The
+       page-coloured box-shadow cuts the rail away around the node. */
+    border: 2px solid var(--color-text);
+    background-color: var(--color-bg);
+    background-image: radial-gradient(circle, var(--color-text) 0 5px, transparent 5.5px);
+    box-shadow: 0 0 0 4px var(--color-bg);
+    transform: translate(-50%, -50%);
+  }
+
+  /* Current role: an extra halo ring outside the cut-out. */
+  .is-current .group-company::before {
+    box-shadow:
+      0 0 0 4px var(--color-bg),
+      0 0 0 5px var(--color-text-muted);
+  }
+
+  .group-role {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text);
+    margin-bottom: var(--space-1);
+  }
+
+  /* Matches the case-study kicker (.cs-labelled-label). */
+  .group-meta {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-text-muted);
+    margin-bottom: 0;
+  }
+
+  .group-scope {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    max-width: 640px;
+    margin-top: var(--space-3);
+    margin-bottom: 0;
+  }
+
+  .group-achievements {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-width: 640px;
+    margin: var(--space-4) 0 0;
+    padding-left: var(--space-5);
+    /* Nested inside the timeline <ol>, so it'd default to hollow circles. */
+    list-style-type: disc;
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-normal);
+    color: var(--color-text-secondary);
+  }
+
+  .group-achievements li::marker {
+    color: var(--color-text-muted);
+  }
+
+  .group-entries {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  @media (max-width: 639.98px) {
+    .timeline {
+      --rail-gap: var(--space-5);
+    }
+
+    .timeline-group + .timeline-group {
+      margin-top: var(--space-12);
     }
   }
 </style>
-

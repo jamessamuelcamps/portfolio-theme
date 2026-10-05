@@ -20,8 +20,8 @@ import { site } from '../config';
         A one-paragraph introduction: who you are, roughly how long you've been doing this, and the kind of work you focus on. Currently based wherever you are, open to whatever you're open to, and building whatever else is worth a mention — like <a href="#" target="_blank" rel="noopener noreferrer">a side project</a>.
       </p>
 
-      <section class="about-row">
-        <div class="about-row-band">
+      <section class="about-row" data-snap>
+        <div class="about-row-band hairline">
           <span class="about-row-num">01 —</span>
         </div>
         <div class="about-row-head">
@@ -44,8 +44,8 @@ import { site } from '../config';
         </div>
       </section>
 
-      <section class="about-row">
-        <div class="about-row-band">
+      <section class="about-row" data-snap>
+        <div class="about-row-band hairline">
           <span class="about-row-num">02 —</span>
         </div>
         <div class="about-row-head">
@@ -69,8 +69,8 @@ import { site } from '../config';
         </div>
       </section>
 
-      <section class="about-row">
-        <div class="about-row-band">
+      <section class="about-row" data-snap>
+        <div class="about-row-band hairline">
           <span class="about-row-num">03 —</span>
         </div>
         <div class="about-row-head">
@@ -102,7 +102,7 @@ import { site } from '../config';
 
 <style>
   .about-header {
-    max-width: 1200px;
+    max-width: var(--wide-max);
     margin: 0 auto var(--space-16);
   }
 
@@ -116,7 +116,7 @@ import { site } from '../config';
     grid-template-columns: repeat(12, 1fr);
     column-gap: var(--gutter);
     row-gap: 0;
-    max-width: 1200px;
+    max-width: var(--wide-max);
     margin-inline: auto;
   }
 
@@ -155,12 +155,12 @@ import { site } from '../config';
   }
 
   /* Number band — its own full-width row above the two columns, with a
-     stroke beneath. Mirrors .cs-section-band on the case studies. */
+     stroke beneath (.hairline, global.css). Mirrors .cs-section-band on the
+     case studies. */
   .about-row-band {
     grid-column: 1 / -1;
     margin-bottom: var(--space-6);
     padding-bottom: var(--space-3);
-    border-bottom: 1px solid var(--color-border);
   }
 
   .about-row-head {
@@ -220,13 +220,15 @@ import { site } from '../config';
       font-size: var(--font-size-3xl);
     }
 
+    /* Matches the case-study sections: label 1–4, body 5–12, so both start
+       on a drawn page-grid line. */
     .about-row-head {
-      grid-column: 1 / 4;
+      grid-column: 1 / 5;
       margin-bottom: 0;
     }
 
     .about-row-body {
-      grid-column: 4 / 11;
+      grid-column: 5 / 13;
     }
   }
 </style>

@@ -134,12 +134,16 @@ import { site } from '../config';
     /* Marker sweep: a text-colour highlight grows from the start of the label
        (screen-bottom, after the 180° rotation) to the end on hover, glyphs
        flipping to the page colour — the inverted highlight from the hero quote
-       and card titles, revealed like a marker stroke. */
+       and card titles, revealed like a marker stroke. Directional like
+       .marker-link: --sweep-from is in the span's own rotated frame, so 0%
+       is screen-bottom. */
     background-image: linear-gradient(var(--color-text), var(--color-text));
     background-repeat: no-repeat;
-    background-position: 50% 0;
+    background-position: 50% var(--sweep-from, 0%);
     background-size: 100% 0%;
-    transition: background-size var(--transition-base), color var(--transition-base);
+    transition:
+      background-size var(--motion-base) var(--ease-precise),
+      color var(--motion-base) var(--ease-precise);
   }
 
   /* Also overrides the global `a:hover` underline on the anchor itself. */

@@ -2,6 +2,8 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import '@fontsource-variable/dm-sans';
+import '@fontsource/dm-mono/latin-400.css';
+import '@fontsource/dm-mono/latin-500.css';
 import '../styles/global.css';
 import { site } from '../config';
 
@@ -42,6 +44,90 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         var colors = { light: '#ffffff', dark: '#000000' };
         document.getElementById('theme-color').setAttribute('content', colors[theme] || colors.light);
       })();
+
+      // Page transitions — tags the view transition with types for global.css.
+      // Must be a classic inline script: pagereveal fires before first
+      // render, ahead of any module script.
+      //   'back'        — traversal to an earlier entry (free for CSS to key off)
+      //   'title-morph' — /work → a case study: the card title and H1 share a
+      //                   name, so the wipe waits for the title to land first
+      //   'leave-study' — a case study → anywhere: the old page fades out as
+      //                   one while the new one fades in, nothing staggered
+      // Rules that draw in (global.css): hide them up front, before first
+      // paint, so they don't flash drawn and then reset.
+      if (
+        'IntersectionObserver' in window &&
+        !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      ) {
+        document.documentElement.classList.add('draw-ready');
+      }
+
+      // Lets on-load effects wait until any page transition has finished.
+      // Browsers without pagereveal get null (no waiting) rather than a
+      // promise that never settles.
+      window.__pageRevealed = 'onpagereveal' in window
+        ? new Promise(function (resolve) {
+            window.addEventListener('pagereveal', function (e) {
+              resolve(e.viewTransition ? e.viewTransition.finished : null);
+            }, { once: true });
+          })
+        : null;
+
+      window.addEventListener('pagereveal', function (e) {
+        var activation = window.navigation && navigation.activation;
+        if (!e.viewTransition || !e.viewTransition.types || !activation || !activation.from) return;
+        var types = e.viewTransition.types;
+
+        if (
+          activation.navigationType === 'traverse' &&
+          activation.entry.index < activation.from.index
+        ) {
+          types.add('back');
+        }
+
+        function path(entry) {
+          try { return new URL(entry.url).pathname.replace(/\/$/, ''); } catch (err) { return ''; }
+        }
+        var from = path(activation.from);
+        var to = path(activation.entry);
+        if (from === '/work' && isStudy(to)) {
+          types.add('title-morph');
+        } else if (isStudy(from)) {
+          types.add('leave-study');
+          if (to === '/work') {
+            // Every card title on /work is named, but only one has a partner
+            // on the study, so the rest would pop in ahead of the fade.
+            // Unname them for this transition only — the new state is
+            // captured after pagereveal — and restore them once it's done,
+            // so the card → study morph still works from here.
+            var restore = unnameTitles();
+            e.viewTransition.finished.finally(restore);
+          }
+        }
+      });
+
+      // Leaving a case study the page goes as one, title included: unname
+      // its H1 before the old state is captured so it fades with the rest
+      // rather than vanishing on its own. Renamed if the page comes back
+      // from the back/forward cache, so the morph into it still works.
+      window.addEventListener('pageswap', function (e) {
+        if (!e.viewTransition || !isStudy(location.pathname.replace(/\/$/, ''))) return;
+        var restore = unnameTitles();
+        window.addEventListener('pageshow', restore, { once: true });
+      });
+
+      function isStudy(p) { return /^\/work\/[^/]+$/.test(p); }
+
+      // Clears the title view-transition names; returns a function that
+      // puts them back.
+      function unnameTitles() {
+        var titles = Array.prototype.slice.call(document.querySelectorAll('.vt-title'));
+        var names = titles.map(function (el) { return el.style.viewTransitionName; });
+        titles.forEach(function (el) { el.style.viewTransitionName = 'none'; });
+        return function () {
+          titles.forEach(function (el, i) { el.style.viewTransitionName = names[i]; });
+        };
+      }
     </script>
     <link rel="canonical" href={canonicalURL} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
@@ -65,11 +151,204 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta property="twitter:description" content={description} />
   </head>
   <body class:list={{ 'is-full-bleed': fullBleed }}>
+    {/* Dotted background grid — lines laid out by the script below (global.css). */}
+    <div class="page-grid" aria-hidden="true"></div>
+
     <Header />
     <main id="main-content" class:list={{ 'full-bleed': fullBleed }}>
       <slot />
     </main>
     {!fullBleed && <Footer />}
+
+    <script is:inline>
+      // --- Page grid --------------------------------------------------------------
+      // A dotted lattice of square cells behind every page, locked to the layout
+      // grid: its pitch is one column + one gutter (12 across the --wide-max
+      // measure, 4 below 640px), lines on the gutter centres, so content columns
+      // sit inside cells; GRID_STEP draws every Nth line for bigger cells. Rows
+      // share the cell size, counted from the top of the document.
+      //
+      // Every line is its own element placed on whole device pixels, with dots a
+      // whole number of device pixels long — so each renders identically at any
+      // display scaling (a repeating gradient would land lines on fractional
+      // pixels and draw some of them thicker).
+      //
+      // [data-snap] sections then move to the nearest row (every SNAP_STEP):
+      // their .hairline rule if they have one (so the rule sits exactly on a
+      // row), else their top edge. Up by trimming their own top margin (never
+      // by more than half of it), otherwise down by growing it (padding if a
+      // margin would collapse away).
+      //
+      // Inline + classic so it runs before first paint (no visible jump); re-runs
+      // when web fonts load, on a theme switch, and on resize.
+      (function () {
+        var grid = document.querySelector('.page-grid');
+        if (!grid) return;
+        var narrow = window.matchMedia('(max-width: 639.98px)');
+        // Draw (and snap sections to) every Nth line of the layout grid: 1 =
+        // a cell per column, 2 = a cell per two columns. Counted from the
+        // measure's left edge, so with an even step both measure edges stay drawn.
+        var GRID_STEP = 2;
+        // Snap sections to every Nth row of the layout grid. 1 keeps section
+        // spacing tight (half the rules then land on undrawn rows between the
+        // drawn ones); GRID_STEP puts every rule on a drawn row, at the cost of
+        // much wider variation in the gaps.
+        var SNAP_STEP = 1;
+
+        function metrics() {
+          var style = getComputedStyle(grid);
+          var dpr = window.devicePixelRatio || 1;
+          var gutter = parseFloat(style.paddingLeft); // padding-inline: var(--gutter), resolved to px
+          var wideMax = parseFloat(style.getPropertyValue('--wide-max'));
+          var width = document.documentElement.clientWidth;
+          var cols = narrow.matches ? 4 : 12;
+          var measure = Math.min(wideMax, width - 2 * gutter);
+          var dot = Math.max(1, Math.floor(dpr));
+          return {
+            dpr: dpr,
+            width: width,
+            gutter: gutter,
+            pitch: (measure + gutter) / cols,
+            cell: ((measure + gutter) / cols) * GRID_STEP,
+            snap: ((measure + gutter) / cols) * SNAP_STEP,
+            origin: (width - measure) / 2 - gutter / 2,
+            dot: dot / dpr,
+            period: Math.max(2 * dot, Math.round(3 * dpr)) / dpr,
+          };
+        }
+
+        function snapPx(value, dpr) {
+          return Math.round(value * dpr) / dpr;
+        }
+
+        // The y a section snaps by. For a rule: its bottom edge less one dot,
+        // i.e. where the row line's top must be for the two (equal weight —
+        // a 1px border and a dot both floor to whole device pixels) to coincide.
+        // No rule: the top of its content, so a padding fallback counts too.
+        function anchorY(section, m) {
+          var rule = section.querySelector('.hairline');
+          var rect = (rule || section).getBoundingClientRect();
+          var y = rule ? rect.bottom - m.dot : rect.top + (parseFloat(section.style.paddingTop) || 0);
+          return y + window.scrollY;
+        }
+
+        // Set the top margin until the anchor lands on `target`. A margin that
+        // collapses with a neighbour's (or through its parent's) moves the
+        // section by less than it adds, so grow it by the miss and re-measure.
+        function marginTo(section, m, target, start) {
+          var margin = start;
+          for (var i = 0; i < 4; i++) {
+            var miss = target - anchorY(section, m);
+            if (Math.abs(miss) < 0.5) return true;
+            margin += miss;
+            section.style.marginTop = margin + 'px';
+          }
+          if (Math.abs(target - anchorY(section, m)) < 0.5) return true;
+          section.style.marginTop = '';
+          return false;
+        }
+
+        function snapSections(m) {
+          var sections = document.querySelectorAll('[data-snap]');
+          sections.forEach(function (section) {
+            section.style.marginTop = '';
+            section.style.paddingTop = '';
+          });
+          sections.forEach(function (section) {
+            var y = anchorY(section, m);
+            var below = snapPx(Math.ceil((y - 0.01) / m.snap) * m.snap, m.dpr);
+            var above = snapPx(Math.floor((y + 0.01) / m.snap) * m.snap, m.dpr);
+            var margin = parseFloat(getComputedStyle(section).marginTop) || 0;
+
+            if (y - above < below - y && y - above <= margin / 2) {
+              // A collapsing margin may not get it there — then go down.
+              if (marginTo(section, m, above, margin)) return;
+            }
+            if (below - anchorY(section, m) <= 0.01) return;
+            // Down via the margin too, so whatever's drawn from the section's
+            // container (e.g. the Work timeline's rail) moves with it; padding
+            // only if the margin can't get it there.
+            if (marginTo(section, m, below, margin)) return;
+            section.style.paddingTop = below - anchorY(section, m) + 'px';
+          });
+        }
+
+        function drawLines(m) {
+          grid.style.setProperty('--grid-dot', m.dot + 'px');
+          grid.style.setProperty('--grid-dot-period', m.period + 'px');
+          var height = document.body.scrollHeight;
+          var html = '';
+          var first = Math.ceil(-m.origin / m.cell);
+          var last = Math.floor((m.width - m.origin) / m.cell);
+          for (var k = first; k <= last; k++) {
+            html += '<span class="page-grid-line page-grid-line--v" style="left:' +
+              snapPx(m.origin + k * m.cell, m.dpr) + 'px"></span>';
+          }
+          for (var n = 0; n * m.cell <= height; n++) {
+            html += '<span class="page-grid-line page-grid-line--h" style="top:' +
+              snapPx(n * m.cell, m.dpr) + 'px"></span>';
+          }
+          grid.innerHTML = html;
+        }
+
+        var lastWidth = 0;
+        // Full-width content (.container: header, footer, homepage) insets to
+        // the outermost cells that fit on screen — half a gutter inside the
+        // first line from each edge, as measured content sits in its cells.
+        // Never more than the room outside the measure, so content held to
+        // --wide-max inside a .container is unaffected.
+        //
+        // Also publishes the grid's units for layout CSS: --grid-pitch (one
+        // column + one gutter) and --grid-col (one column).
+        function setGridVars(m) {
+          var root = document.documentElement.style;
+          var firstLine = ((m.origin % m.pitch) + m.pitch) % m.pitch;
+          // From the line as drawn (snapped to a device pixel), not its ideal x.
+          var inset = snapPx(firstLine, m.dpr) + m.gutter / 2;
+          root.setProperty('--grid-inset', inset + 'px');
+          root.setProperty('--grid-pitch', m.pitch + 'px');
+          root.setProperty('--grid-col', m.pitch - m.gutter + 'px');
+        }
+
+        function layout() {
+          var m = metrics();
+          setGridVars(m);
+          if (m.width !== lastWidth || layout.force) snapSections(m);
+          lastWidth = m.width;
+          layout.force = false;
+          drawLines(m);
+        }
+
+        var queued = false;
+        function schedule(force) {
+          if (force) layout.force = true;
+          if (queued) return;
+          queued = true;
+          requestAnimationFrame(function () {
+            queued = false;
+            layout();
+          });
+        }
+
+        layout();
+        // Type metrics change section heights: re-snap once fonts land (incl.
+        // fonts first used later) and on any theme switch.
+        if (document.fonts) {
+          document.fonts.ready.then(function () { schedule(true); });
+          document.fonts.addEventListener('loadingdone', function () { schedule(true); });
+        }
+        new MutationObserver(function () { schedule(true); }).observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ['data-theme'],
+        });
+        window.addEventListener('load', function () { schedule(true); });
+        window.addEventListener('resize', function () { schedule(false); });
+        // Page height changes (images, late content) only need more/fewer rows.
+        if ('ResizeObserver' in window) {
+          new ResizeObserver(function () { schedule(false); }).observe(document.body);
+        }
+      })();
+    </script>
 
     <script>
       // Assemble mailto: links client-side so the address is never in the static HTML.
@@ -80,6 +359,251 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         const address = `${user}@${domain}`;
         el.setAttribute('href', `mailto:${address}`);
         el.textContent = el.dataset.emailLabel || address;
+      });
+    </script>
+
+    <script>
+      // Crop marks: wrap every case-study image (and the before/after
+      // slider, which is one image to the eye) in a .cs-crop box carrying
+      // print trim marks — styles in global.css. Card and journey icons
+      // aren't images in this sense, so they're left alone. Runs before the
+      // rule observer below picks the boxes up.
+      const CROP_TARGETS = [
+        '.case-study-hero-image',
+        '.case-study :is(.cs-figure, .cs-image-grid, .cs-compare-item) img',
+        '.case-study .cs-compare-viewport',
+      ].join(', ');
+      const CROP_MARKS =
+        '<span class="crop-marks" aria-hidden="true">' +
+        ['tl', 'tr', 'bl', 'br'].map((c) => `<span class="crop-mark crop-mark--${c}"></span>`).join('') +
+        '</span>';
+
+      document.querySelectorAll(CROP_TARGETS).forEach((el) => {
+        const box = document.createElement('span');
+        box.className = 'cs-crop';
+        el.before(box);
+        box.append(el);
+        box.insertAdjacentHTML('beforeend', CROP_MARKS);
+      });
+
+      // Rules that draw in: mark each hairline/divider (and crop-marked
+      // image) drawn as it enters the lower part of the viewport, once.
+      // Waits for any page transition to finish so the structure draws
+      // after the content has arrived.
+      const RULE_SELECTOR = '.hairline, .cs-divider, .prose hr, .cs-crop';
+
+      if (document.documentElement.classList.contains('draw-ready')) {
+        const revealed = (window as Window & { __pageRevealed?: Promise<unknown> | null })
+          .__pageRevealed;
+        Promise.resolve(revealed).then(() => {
+          const observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('is-drawn');
+                observer.unobserve(entry.target);
+              });
+            },
+            { rootMargin: '0px 0px -12% 0px' }
+          );
+          document.querySelectorAll(RULE_SELECTOR).forEach((el) => observer.observe(el));
+        });
+      }
+    </script>
+
+    <script>
+      // Stats that count up: a stat value ("83%", "£24m", "1,200+") counts
+      // from zero to its figure as it enters view, once, keeping its prefix,
+      // suffix, decimals and thousands separators. Expo-out, so it races up
+      // and lands precisely.
+      // Values without a number just appear. Same gate as the rules.
+      const NUMBER = /^(\D*?)(\d[\d,]*(?:\.\d+)?)(.*)$/s;
+
+      const countUp = (el: HTMLElement) => {
+        const final = el.textContent ?? '';
+        const match = el.children.length ? null : final.match(NUMBER);
+        if (!match) {
+          el.classList.add('is-counted');
+          return;
+        }
+
+        const [, prefix, figure, suffix] = match;
+        const target = parseFloat(figure.replace(/,/g, ''));
+        const decimals = figure.split('.')[1]?.length ?? 0;
+        const grouped = figure.includes(',');
+        const format = (n: number) =>
+          n.toLocaleString('en-GB', {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals,
+            useGrouping: grouped,
+          });
+
+        const duration = 1100;
+        const ease = (p: number) => (p >= 1 ? 1 : 1 - Math.pow(2, -10 * p));
+
+        el.classList.add('is-counting');
+        const start = performance.now();
+        const frame = (now: number) => {
+          const p = Math.min(1, (now - start) / duration);
+          if (p >= 1) {
+            el.textContent = final;
+            el.classList.replace('is-counting', 'is-counted');
+            return;
+          }
+          el.textContent = prefix + format(target * ease(p)) + suffix;
+          requestAnimationFrame(frame);
+        };
+        requestAnimationFrame(frame);
+      };
+
+      if (document.documentElement.classList.contains('draw-ready')) {
+        const revealed = (window as Window & { __pageRevealed?: Promise<unknown> | null })
+          .__pageRevealed;
+        Promise.resolve(revealed).then(() => {
+          const observer = new IntersectionObserver((entries) => {
+            entries
+              .filter((entry) => entry.isIntersecting)
+              .forEach((entry, i) => {
+                observer.unobserve(entry.target);
+                setTimeout(() => countUp(entry.target as HTMLElement), i * 90);
+              });
+          });
+          document.querySelectorAll('.stat-value').forEach((el) => observer.observe(el));
+        });
+      }
+    </script>
+
+    <script>
+      // Directional marker sweep: the highlight grows in from whichever side
+      // the pointer enters and, once it's full, wipes out through the side
+      // the pointer leaves — a stroke passing through rather than retracting.
+      // Drives --sweep-from (the background-position anchor; see .marker-link
+      // in global.css). The anchor only moves while the highlight is empty
+      // or full, where the jump is invisible; mid-sweep it's left alone so
+      // the stroke just reverses. Keyboard focus sweeps start→end and out.
+      document.querySelectorAll<HTMLElement>('.marker-link, .hero-mark').forEach((trigger) => {
+        // The hero's vertical label paints its highlight on the inner span.
+        const target = trigger.matches('.hero-mark')
+          ? (trigger.firstElementChild as HTMLElement | null)
+          : trigger;
+        if (!target) return;
+        const vertical = getComputedStyle(target).writingMode.startsWith('vertical');
+
+        // Fill along the sweep axis, 0–100.
+        const fill = () => {
+          const [w, h] = getComputedStyle(target).backgroundSize.split(' ').map(parseFloat);
+          return vertical ? h : w;
+        };
+
+        // Nearer end of the target to the pointer, in the target's own frame
+        // (the vertical label is rotated 180°, so its start is screen-bottom).
+        const sideAt = (e: PointerEvent) => {
+          const r = target.getBoundingClientRect();
+          const nearStart = vertical
+            ? e.clientY > r.top + r.height / 2
+            : e.clientX < r.left + r.width / 2;
+          return nearStart ? '0%' : '100%';
+        };
+
+        const anchor = (side: string) => target.style.setProperty('--sweep-from', side);
+
+        trigger.addEventListener('pointerenter', (e) => {
+          if (fill() <= 1) anchor(sideAt(e));
+        });
+        trigger.addEventListener('pointerleave', (e) => {
+          if (fill() >= 99) anchor(sideAt(e));
+        });
+        trigger.addEventListener('focus', () => {
+          if (fill() <= 1) anchor('0%');
+        });
+        trigger.addEventListener('blur', () => {
+          if (!trigger.matches(':hover') && fill() >= 99) anchor('100%');
+        });
+      });
+    </script>
+
+    <script>
+      // Card dot spotlight: the dots under the pointer darken, with a soft
+      // falloff, and the spot eases after the pointer, leaving a wake of
+      // darkened dots that fades and narrows behind it. The darker field is
+      // a second copy of the dots (.cs-card::before) revealed by a mask built
+      // here: the spot plus a soft blob dropped every eighth of its radius
+      // along its path. The spot scales with the card's diagonal so it sweeps
+      // across a wide /work card just as it does a small case-study card.
+      // Mouse only; reduced motion pins the spot to the pointer with no
+      // easing and no wake.
+      const SPOT_SCALE = 0.56; // spot radius as a share of the card's diagonal
+      const SPOT_MIN = 160; // px — never smaller than this
+      const TRAIL_LIFE = 1000; // ms for a blob to fade out
+      const MAX_TRAIL = 24;
+      const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      const blob = (x: number, y: number, r: number, a: number) =>
+        `radial-gradient(circle ${r}px at ${x}px ${y}px, ` +
+        `rgb(0 0 0 / ${a}), rgb(0 0 0 / ${a * 0.45}) 45%, transparent)`;
+
+      document.querySelectorAll<HTMLElement>('.cs-card').forEach((card) => {
+        let target = { x: 0, y: 0 };
+        let pos = { x: 0, y: 0 };
+        let strength = 0; // spot opacity, eases in on enter / out on leave
+        let inside = false;
+        let running = false;
+        let lastDrop = { x: 0, y: 0 };
+        let trail: { x: number; y: number; born: number }[] = [];
+        let spot = SPOT_MIN;
+
+        const local = (e: PointerEvent) => {
+          const r = card.getBoundingClientRect();
+          spot = Math.max(SPOT_MIN, SPOT_SCALE * Math.hypot(r.width, r.height));
+          return { x: e.clientX - r.left, y: e.clientY - r.top };
+        };
+
+        const frame = (now: number) => {
+          const k = still ? 1 : 0.22;
+          pos.x += (target.x - pos.x) * k;
+          pos.y += (target.y - pos.y) * k;
+          strength += ((inside ? 1 : 0) - strength) * (still ? 1 : 0.12);
+
+          if (!still && Math.hypot(pos.x - lastDrop.x, pos.y - lastDrop.y) >= spot / 8) {
+            lastDrop = { ...pos };
+            trail.push({ ...pos, born: now });
+            if (trail.length > MAX_TRAIL) trail.shift();
+          }
+          trail = trail.filter((b) => now - b.born < TRAIL_LIFE);
+
+          const layers = trail.map((b) => {
+            const p = (now - b.born) / TRAIL_LIFE;
+            return blob(b.x, b.y, spot * (0.9 - 0.4 * p), 0.85 * (1 - p));
+          });
+          layers.push(blob(pos.x, pos.y, spot, strength));
+          card.style.setProperty('--dot-spot', layers.join(', '));
+
+          if (inside || strength > 0.01 || trail.length) {
+            requestAnimationFrame(frame);
+          } else {
+            running = false;
+            card.style.removeProperty('--dot-spot');
+          }
+        };
+
+        const follow = (e: PointerEvent) => {
+          if (e.pointerType !== 'mouse') return;
+          target = local(e);
+          if (!inside && strength < 0.01) {
+            pos = { ...target };
+            lastDrop = { ...target };
+          }
+          inside = true;
+          if (running) return;
+          running = true;
+          requestAnimationFrame(frame);
+        };
+
+        card.addEventListener('pointerenter', follow);
+        card.addEventListener('pointermove', follow);
+        card.addEventListener('pointerleave', () => {
+          inside = false;
+        });
       });
     </script>
   </body>

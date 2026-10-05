@@ -20,6 +20,13 @@ const projects = defineCollection({
     tags: z.array(z.string()).default([]),
     order: z.number().default(999),
     draft: z.boolean().default(false),
+    // Work-page timeline summary. startDate orders studies within an
+    // employer (newest first); summary falls back to description; outcome
+    // stands in for highlights when a study has no hard numbers.
+    startDate: z.coerce.date().optional(),
+    summary: z.string().optional(),
+    highlights: z.array(z.object({ value: z.string(), label: z.string() })).max(3).default([]),
+    outcome: z.string().optional(),
   }),
 });
 

@@ -102,6 +102,7 @@ const initials = site.name
     light: '#ffffff',
     dark: '#000000',
   };
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const options = document.querySelectorAll<HTMLButtonElement>('[data-theme-option]');
 
   function currentTheme() {
@@ -130,6 +131,23 @@ const initials = site.name
     syncTheme();
   }
 
+  // Light ↔ dark: the new theme wipes down the page from the header (where
+  // the toggle lives) as a same-document view transition. html.theme-wiping
+  // folds the header and titles into the root snapshot for the switch, so
+  // the whole sheet changes as one (styles in global.css). Instant without
+  // view transitions or under reduced motion.
+  function wipeToTheme(next: string) {
+    if (reduceMotion.matches || !document.startViewTransition) {
+      setTheme(next);
+      return;
+    }
+
+    const root = document.documentElement;
+    root.classList.add('theme-wiping');
+    const transition = document.startViewTransition(() => setTheme(next));
+    transition.finished.finally(() => root.classList.remove('theme-wiping'));
+  }
+
   syncTheme();
 
   options.forEach((option) => {
@@ -137,9 +155,19 @@ const initials = site.name
       const next = option.getAttribute('data-theme-option');
       if (!next || !THEMES.includes(next)) return;
       if (next === currentTheme()) return;
-      setTheme(next);
+      wipeToTheme(next);
     });
   });
+
+  // --- Header height ---------------------------------------------------------
+  // The header is sticky; publish its height as --header-height so in-page
+  // jumps (the case-study index) can land clear of it.
+  const siteHeader = document.querySelector<HTMLElement>('.site-header');
+  if (siteHeader) {
+    new ResizeObserver(() => {
+      document.documentElement.style.setProperty('--header-height', `${siteHeader.offsetHeight}px`);
+    }).observe(siteHeader);
+  }
 
   // --- Mobile menu overlay ---------------------------------------------------
   const overlay = document.getElementById('menu-overlay');

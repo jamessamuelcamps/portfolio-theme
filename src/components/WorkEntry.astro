@@ -1,0 +1,176 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+// Hugeicons "Route01": a path from start to end, i.e. problem → result.
+import caseStudyIcon from '../assets/icons/case-study.svg';
+import Card from './Card.astro';
+import StatGrid from './StatGrid.astro';
+import StatTile from './StatTile.astro';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+}
+
+const { project } = Astro.props;
+const { title, description, summary, highlights, outcome } = project.data;
+const href = `/work/${project.id}`;
+
+// Titles are authored as "Feature • Client"; the client is already the
+// employer heading above, so the entry shows only the feature.
+const displayTitle = title.split('•')[0].trim();
+---
+
+<article class="work-entry">
+  <Card>
+    <div class="work-entry-content">
+      <div class="work-entry-kicker">
+        <div class="cs-card-icon"><Image src={caseStudyIcon} alt="" /></div>
+        <span class="work-entry-kicker-label">Featured project</span>
+      </div>
+      <h3 class="work-entry-title"><a href={href} class="marker-link"><span class="vt-title" style={`view-transition-name: title-${project.id}`}>{displayTitle}</span><span class="work-entry-arrow" aria-hidden="true"> →</span></a></h3>
+      <p class="work-entry-summary"><span class="work-entry-hl">{summary ?? description}</span></p>
+
+      {highlights.length > 0 ? (
+        <StatGrid columns={3}>
+          {highlights.map(({ value, label }) => <StatTile value={value}><span class="work-entry-hl">{label}</span></StatTile>)}
+        </StatGrid>
+      ) : outcome && (
+        <p class="work-entry-outcome"><span class="work-entry-outcome-label">Outcome</span> <span class="work-entry-hl">{outcome}</span></p>
+      )}
+    </div>
+  </Card>
+</article>
+
+<style>
+  /* Single column: title → summary → results, read straight down from the
+     role node on the Work timeline. Text only; the case study has the visuals. */
+  .work-entry-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+
+  /* Legibility over the Card's dot field, as in case-study cards: each text
+     run sits on a page-coloured highlight that hugs the words. Inline runs
+     fragment per line (box-decoration-break: clone); block runs (title,
+     stat figure, kicker) shrink to fit; stat labels can wrap, so they take
+     the inline treatment. The matched -/+ 0.3em keeps text flush
+     with the content edge while the highlight bleeds a little either side. */
+  .work-entry-hl {
+    background-color: var(--color-bg);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    padding: 0.12em 0.3em;
+    margin-left: -0.3em;
+  }
+
+  .work-entry-title,
+  .work-entry-kicker-label,
+  .work-entry-outcome-label,
+  .work-entry-content :global(.stat-value) {
+    width: fit-content;
+    max-width: calc(100% + 0.3em);
+    background-color: var(--color-bg);
+    padding: 0.12em 0.3em;
+    margin-left: -0.3em;
+  }
+
+  /* Icon disc (shared .cs-card-icon rules in global.css) beside a kicker
+     label, standing in for Card's own icon slot so the two share a row. */
+  .work-entry-kicker {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-1);
+  }
+
+  .work-entry-kicker-label {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-text-muted);
+  }
+
+  /* Whole card is the click target: the title link (the entry's only link)
+     is stretched over the card, so hovering anywhere runs its marker
+     highlight and keyboard/AT users still meet a single, named link. */
+  .work-entry :global(.cs-card) {
+    position: relative;
+  }
+
+  .work-entry-title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  /* Plain semibold title, a step below the company name, so the role stays
+     the dominant heading; hover uses the shared marker highlight. */
+  .work-entry-title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-snug);
+    margin-bottom: 0;
+  }
+
+  .work-entry-summary {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+    color: var(--color-text);
+    margin-bottom: 0;
+  }
+
+  /* Compact stats: StatGrid/StatTile are sized for case-study sections, so
+     tighten the margin, padding and figure size for a summary row. A single
+     column on mobile (three narrow columns squeeze the labels), then a row
+     of three from 640px, so the third highlight never orphans. */
+  .work-entry-content :global(.stat-grid) {
+    width: 100%;
+    margin: var(--space-1) 0 0;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  @media (min-width: 640px) {
+    .work-entry-content :global(.stat-grid) {
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-4);
+    }
+  }
+
+  .work-entry-content :global(.stat-tile) {
+    padding: 0;
+  }
+
+  .work-entry-content :global(.stat-value) {
+    font-size: var(--font-size-2xl);
+    margin-bottom: 0;
+  }
+
+  .work-entry-content :global(.stat-label) {
+    font-size: var(--font-size-xs);
+  }
+
+  .work-entry-outcome {
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-normal);
+    color: var(--color-text);
+    padding-left: var(--space-4);
+    border-left: 2px solid var(--color-border-strong);
+    margin: var(--space-1) 0 0;
+  }
+
+  /* Matches the case-study kicker (.cs-labelled-label). */
+  .work-entry-outcome-label {
+    display: block;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-1);
+  }
+</style>
