@@ -1,5 +1,7 @@
 ---
 import BaseLayout from './BaseLayout.astro';
+import Section from '../components/Section.astro';
+import { slug } from '../utils/slug';
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import { site } from '../config';
@@ -14,6 +16,16 @@ const { title, description, client, heroImage, heroImageAlt, heroLayout, draft }
 // Titles are authored as "Feature • Client"; the header shows the client in
 // the eyebrow and the feature on its own.
 const displayTitle = title.split('•')[0].trim();
+
+// Intro index: the study's numbered <Section>s, read from its MDX source in
+// order, each linking to the section's id (slug of its title, see
+// Section.astro). Unnumbered sections (Credits) stay out.
+const index = [...(project.body ?? '').matchAll(/<Section\b([^>]*)>/g)]
+  .map(([, attrs]) => ({
+    number: attrs.match(/\bnumber="([^"]+)"/)?.[1],
+    title: attrs.match(/\btitle="([^"]+)"/)?.[1],
+  }))
+  .filter((s): s is { number: string; title: string } => Boolean(s.number && s.title));
 ---
 
 <BaseLayout title={`${title} · ${site.name}`} description={description} noindex={draft}>
@@ -21,7 +33,8 @@ const displayTitle = title.split('•')[0].trim();
     <div class="container">
       <header class="case-study-header">
         {client && <span class="case-study-eyebrow">{client}</span>}
-        <h1 class="case-study-title">{displayTitle}</h1>
+        {/* Pairs with the Work card title for the page-transition morph. */}
+        <h1 class="case-study-title"><span class="vt-title" style={`view-transition-name: title-${project.id}`}>{displayTitle}</span></h1>
         <p class="case-study-lead">{description}</p>
       </header>
     </div>
@@ -40,6 +53,18 @@ const displayTitle = title.split('•')[0].trim();
 
     <div class="container">
       <div class="prose cs-body">
+        {index.length > 1 && (
+          <Section number="00" title="Contents">
+            <ol class="cs-index">
+              {index.map(({ number, title }) => (
+                <li>
+                  <span class="cs-index-number">{number} —</span>
+                  <a href={`#${slug(title)}`} class="cs-index-link marker-link">{title}</a>
+                </li>
+              ))}
+            </ol>
+          </Section>
+        )}
         <slot />
       </div>
     </div>

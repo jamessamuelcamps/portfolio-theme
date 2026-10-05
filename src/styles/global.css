@@ -15,6 +15,7 @@
   --color-border-strong: var(--black);
   --color-surface: #f7f7f7;
   --color-dot: #d4d4d4;
+  --color-dot-active: #ff6f61; /* coral — the card dot sweep */
 
   /* Radii — flat everywhere except pill controls (toggle, availability badge) */
   --radius-full: 999px;
@@ -71,9 +72,30 @@
   /* Rhythm between case-study sections (promoted from about.astro) */
   --section-gap: calc(var(--space-16) + var(--space-8));
 
-  /* Transitions — color/border/background only, never transform */
+  /* Transitions — color/border/background only, never transform on content.
+     (Exception: view-transition pseudo-elements, which animate page snapshots
+     with clip-path/transform — see "Page transitions" below.) */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Motion — durations + easings. Smooth and exact is the house feel. */
+  --motion-instant: 80ms;
+  --motion-fast: 150ms;
+  --motion-base: 250ms;
+  --motion-slow: 450ms;
+  --motion-page: 650ms;
+  --motion-beat: 120ms;     /* pause between sequenced moves */
+
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-precise: cubic-bezier(0.16, 1, 0.3, 1);   /* expo-out: fast start, exact landing */
+  --ease-wipe: cubic-bezier(0.76, 0, 0.24, 1);     /* quart in-out: eases off rest, settles in */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-slow: 0ms;
+    --motion-page: 0ms;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -97,6 +119,282 @@ html[data-theme="dark"] {
 }
 
 /* ==========================================================================
+   Page transitions — cross-document view transitions (no ClientRouter; the
+   site stays plain MPA). Browsers without support just navigate.
+
+   - root: the new page fades in over the old one.
+   - site-header: held still, so the chrome doesn't change with the content.
+   - title-<slug>: the Work card title morphs into the case-study H1 (names
+     set inline in WorkEntry.astro / ProjectLayout.astro). Work → study only;
+     going back, BaseLayout unnames the card titles and the page just fades.
+
+   Reduced motion: no @view-transition opt-in at all, so navigation is an
+   instant swap exactly as before.
+   ========================================================================== */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+}
+
+.site-header { view-transition-name: site-header; }
+
+::view-transition-old(root) {
+  animation: none;
+}
+
+::view-transition-new(root) {
+  animation: fade-in var(--motion-slow) var(--ease-standard) both;
+}
+
+/* Card → case study, in sequence: the old page fades out as the title
+   travels (header held), a beat on a clean page, then the new content comes
+   in around the landed title. `both` fill keeps the new page hidden through
+   its delay; the backdrop is what shows once the old page has gone. */
+html:active-view-transition-type(title-morph)::view-transition {
+  background-color: var(--color-bg);
+}
+
+html:active-view-transition-type(title-morph)::view-transition-old(root) {
+  animation: fade-out var(--motion-slow) var(--ease-standard) both;
+}
+
+html:active-view-transition-type(title-morph)::view-transition-new(root) {
+  animation-delay: calc(var(--motion-page) + var(--motion-beat));
+}
+
+/* Leaving a case study: no sequence — the whole old page (its title
+   unnamed in BaseLayout, so it's part of root) fades out while the new one
+   fades in, together. */
+html:active-view-transition-type(leave-study)::view-transition-old(root) {
+  animation: fade-out var(--motion-slow) var(--ease-standard) both;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+
+@keyframes fade-out {
+  to { opacity: 0; }
+}
+
+/* Header: no crossfade, no movement — only the new page's header is shown,
+   from the first frame. The old snapshot is hidden rather than left under
+   it: the header isn't always the same box (the full-bleed homepage has no
+   scrollbar, other pages do), so the old one would be stretched to the new
+   box and ghost out of alignment until the transition ended. */
+::view-transition-group(site-header),
+::view-transition-new(site-header) {
+  animation: none;
+}
+
+::view-transition-old(site-header) {
+  animation: none;
+  opacity: 0;
+}
+
+/* Title morph: moves/scales on a quart in-out curve. */
+::view-transition-group(*) {
+  animation-duration: var(--motion-page);
+  animation-timing-function: var(--ease-wipe);
+}
+
+/* The named box hugs the title text alone (no arrow, highlight padding or
+   block width) on both pages, so the two boxes share an aspect ratio and the
+   morph is a pure scale. Inline-block: a named element can't fragment across
+   lines. */
+.vt-title {
+  display: inline-block;
+  view-transition-class: case-title;
+}
+
+/* No crossfade: the destination title's own snapshot is the only image, scaled
+   from the source title's box up (or down) to its own — one piece of text
+   growing into place, not two swapping mid-flight. */
+::view-transition-old(*.case-title) {
+  animation: none;
+  opacity: 0;
+}
+
+::view-transition-new(*.case-title) {
+  animation: none;
+}
+
+/* ==========================================================================
+   Rules that draw in — section hairlines and dividers draw left → right
+   when they scroll into view (once).
+
+   Every rule on these elements is the same thing: a pseudo-element carrying
+   a 1px --color-border top border, whose width grows 0 → 100%. It has to
+   be a border: browsers snap a border's *width* to whole device pixels, so
+   it renders identically wherever it sits and at every frame of the draw.
+   Avoided on purpose (each renders some rules 2 device px thick on 125%/150%
+   display scaling, depending on position, or mid-animation):
+   - a 1px-tall fill or gradient — its top and bottom edges snap separately
+   - a scaleX transform — composited on its own layer, snaps back at the end
+   Width on an absolutely positioned, childless box only lays out that box.
+
+   html.draw-ready is set in BaseLayout's <head> script, only when motion is
+   allowed and IntersectionObserver exists — so without JS, or under reduced
+   motion, rules are simply static. BaseLayout's observer adds .is-drawn.
+   ========================================================================== */
+.hairline,
+.cs-divider,
+.prose hr {
+  position: relative;
+}
+
+.hairline::after,
+.cs-divider::after,
+.prose hr::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  border-top: 1px solid var(--color-border);
+  transition: width var(--motion-page) var(--ease-wipe);
+}
+
+html.draw-ready :is(.hairline, .cs-divider, .prose hr):not(.is-drawn)::after {
+  width: 0;
+}
+
+/* Crop marks — print trim marks off each corner of every case-study image
+   (BaseLayout's crop-marks script wraps each in a .cs-crop box and adds the
+   marks). The image stands in for the bleed: the marks line up with a trim
+   line --crop-inset inside its edges, and sit outside it, starting a
+   --crop-gap clear of the edge. Each corner is a zero-size anchor with two
+   ticks: ::before horizontal, out to the side; ::after vertical, out above/
+   below. Borders, not fills, so each tick lands on one device-pixel row/
+   column. They draw outward with the rules — .cs-crop is in RULE_SELECTOR.
+   Gap + length stay inside the page gutter, and inside half an image-grid
+   gap so neighbouring images' marks don't collide. */
+/* Mark sizes live on the case study, not the box, so slug-line captions
+   (see Figure) can register to the same trim line. */
+.case-study {
+  --crop-len: 8px;
+  --crop-gap: 4px;
+  --crop-inset: 4px;
+}
+
+@media (min-width: 640px) {
+  .case-study {
+    --crop-len: 12px;
+    --crop-gap: 6px;
+    --crop-inset: 6px;
+  }
+}
+
+.case-study .cs-image-grid {
+  --crop-len: 5px;
+  --crop-gap: 3px;
+  --crop-inset: 4px;
+}
+
+.cs-crop {
+  display: block;
+  position: relative;
+  align-self: start; /* hug the image in a grid row, don't stretch to it */
+}
+
+.crop-mark {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.crop-mark::before,
+.crop-mark::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 0 solid var(--color-text-muted);
+  transition:
+    width var(--motion-page) var(--ease-wipe) var(--motion-beat),
+    height var(--motion-page) var(--ease-wipe) var(--motion-beat);
+}
+
+.crop-mark::before { width: var(--crop-len); }
+.crop-mark::after { height: var(--crop-len); }
+
+.crop-mark--tl { top: 0; left: 0; }
+.crop-mark--tr { top: 0; right: 0; }
+.crop-mark--bl { bottom: 0; left: 0; }
+.crop-mark--br { bottom: 0; right: 0; }
+
+/* Horizontal ticks: on the top/bottom trim line, pointing away left/right. */
+.crop-mark--tl::before { top: var(--crop-inset); right: var(--crop-gap); border-top-width: 1px; }
+.crop-mark--tr::before { top: var(--crop-inset); left: var(--crop-gap); border-top-width: 1px; }
+.crop-mark--bl::before { bottom: var(--crop-inset); right: var(--crop-gap); border-bottom-width: 1px; }
+.crop-mark--br::before { bottom: var(--crop-inset); left: var(--crop-gap); border-bottom-width: 1px; }
+
+/* Vertical ticks: on the left/right trim line, pointing away up/down. */
+.crop-mark--tl::after { left: var(--crop-inset); bottom: var(--crop-gap); border-left-width: 1px; }
+.crop-mark--tr::after { right: var(--crop-inset); bottom: var(--crop-gap); border-right-width: 1px; }
+.crop-mark--bl::after { left: var(--crop-inset); top: var(--crop-gap); border-left-width: 1px; }
+.crop-mark--br::after { right: var(--crop-inset); top: var(--crop-gap); border-right-width: 1px; }
+
+html.draw-ready .cs-crop:not(.is-drawn) .crop-mark::before { width: 0; }
+html.draw-ready .cs-crop:not(.is-drawn) .crop-mark::after { height: 0; }
+
+/* Stats that count up from zero as they enter view (BaseLayout's count-up
+   script). Held invisible until they start, so the final figure never
+   flashes up before resetting to zero. Same draw-ready gate as the rules. */
+html.draw-ready .stat-value:not(.is-counting, .is-counted) {
+  color: transparent;
+}
+
+/* ==========================================================================
+   Page grid — a faint dotted lattice of square cells behind every page,
+   locked to the layout grid (cell = one column + one gutter; lines on the
+   gutter centres, so content columns sit inside cells). Lines are laid out
+   on whole device pixels by BaseLayout's page-grid script, which also snaps
+   [data-snap] sections onto the rows. Behind the content: anything with its
+   own fill covers it. Without JS there's simply no grid.
+   ========================================================================== */
+body {
+  position: relative; /* containing block for .page-grid: the full page */
+}
+
+.page-grid {
+  --grid-line: color-mix(in srgb, var(--color-border) 85%, var(--color-text));
+  position: absolute;
+  inset: 0;
+  z-index: -1; /* above the root background */
+  overflow: clip;
+  pointer-events: none;
+  /* Read by the script (resolved to px), not used for layout — the lines
+     are absolutely positioned against the padding edge. */
+  padding-inline: var(--gutter);
+}
+
+.page-grid-line {
+  position: absolute;
+}
+
+.page-grid-line--v {
+  top: 0;
+  bottom: 0;
+  width: var(--grid-dot);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--grid-line) 0 var(--grid-dot),
+    transparent var(--grid-dot) var(--grid-dot-period)
+  );
+}
+
+.page-grid-line--h {
+  left: 0;
+  right: 0;
+  height: var(--grid-dot);
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--grid-line) 0 var(--grid-dot),
+    transparent var(--grid-dot) var(--grid-dot-period)
+  );
+}
+
+/* ==========================================================================
    Modern CSS Reset
    ========================================================================== */
 *, *::before, *::after {
@@ -115,6 +413,13 @@ html {
   -moz-osx-font-smoothing: grayscale;
   tab-size: 2;
   transition: background-color var(--transition-base), color var(--transition-base);
+  /* Always show the scrollbar (an empty track where the page doesn't
+     scroll, e.g. the full-bleed homepage) so every page shares one width,
+     and with it the same page grid, header/footer inset and centred measure.
+     (scrollbar-gutter: stable would leave a blank strip instead, but
+     Chromium doesn't reserve the root gutter on a page that doesn't scroll.)
+     Also stops the homepage's body overflow propagating to the viewport. */
+  overflow-y: scroll;
 }
 
 body {
@@ -177,14 +482,21 @@ a:hover {
    text from start to end and the glyphs flip to the page colour, like a marker
    stroke. Same inverted highlight as the hero quote and case-study card titles.
    The highlight hugs the text exactly (no bleed) so it stays symmetric even
-   when the link is right-aligned against a tight gutter. */
+   when the link is right-aligned against a tight gutter.
+   Directional: --sweep-from (0% = start edge, 100% = end edge) anchors the
+   stroke. The marker-sweep script in BaseLayout points it at the side the
+   pointer enters, then flips it to the exit side once the highlight is full,
+   so the stroke wipes in from one side and out through the other. Without
+   JS it falls back to start→end, retracting. */
 .marker-link {
   display: inline-block;
   background-image: linear-gradient(var(--color-text), var(--color-text));
   background-repeat: no-repeat;
-  background-position: 0 50%;
+  background-position: var(--sweep-from, 0%) 50%;
   background-size: 0% 100%;
-  transition: background-size var(--transition-base), color var(--transition-base);
+  transition:
+    background-size var(--motion-base) var(--ease-precise),
+    color var(--motion-base) var(--ease-precise);
 }
 
 .marker-link:hover,
@@ -202,12 +514,19 @@ code, pre {
 /* ==========================================================================
    Layout Helpers
    ========================================================================== */
+/* .container runs full width — the header, footer and homepage hero use it
+   as-is, inset into the outermost grid cells; pages on the grid hold their
+   content to the --wide-max measure inside it (case-study sections, About).
+   .container-prose sits on the centre 8 columns (3–10) from 768px — the
+   same width as a case-study body. */
 .container {
   width: 100%;
   margin-left: auto;
   margin-right: auto;
-  padding-left: var(--gutter);
-  padding-right: var(--gutter);
+  /* --grid-inset (page-grid script) snaps the full-width edges into the
+     outermost grid cells; the plain gutter without JS. */
+  padding-left: var(--grid-inset, var(--gutter));
+  padding-right: var(--grid-inset, var(--gutter));
 }
 
 #main-content.full-bleed .container {
@@ -225,6 +544,16 @@ code, pre {
   padding-right: var(--gutter);
 }
 
+@media (min-width: 768px) {
+  .container-prose {
+    /* 8 of 12 columns (+ its own gutter padding); % is the page width. */
+    max-width: calc(
+      (min(var(--wide-max), 100% - 2 * var(--gutter)) + var(--gutter)) * 8 / 12
+      + var(--gutter)
+    );
+  }
+}
+
 .grid-12 {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
@@ -236,9 +565,10 @@ code, pre {
 
    The case study body ( .cs-body ) is a full-width block inside .container.
    Its direct children are centred: raw markdown (un-migrated studies) at
-   --prose-max, and <Section> blocks at --wide-max. Each <Section> is a
-   two-column grid — a hanging label column ( .cs-section-head ) and a prose
-   column ( .cs-section-body ) — mirroring .about-row on the About page.
+   --prose-max, and <Section> blocks at --wide-max. From 768px each <Section>
+   sits on the 12-column grid — a hanging label column ( .cs-section-head,
+   columns 1–4 ) and a prose column ( .cs-section-body, columns 5–12 ) —
+   mirroring .about-row on the About page.
 
    Media inside a section body breaks out of the prose column with negative
    inline margins, sized off --cs-body-inset (how far the prose column is
@@ -246,7 +576,6 @@ code, pre {
    ========================================================================== */
 .case-study {
   overflow-x: clip;
-  --cs-head-width: 15rem;
 }
 
 /* Direct children of the body wrapper are centred to a measure */
@@ -275,12 +604,11 @@ code, pre {
 }
 
 /* Number / eyebrow band — its own full-width row above the two columns,
-   so the title top-aligns with the body copy. (Provisional bottom stroke.) */
+   so the title top-aligns with the body copy. Bottom stroke is .hairline. */
 .cs-section-band {
   grid-column: 1 / -1;
   margin-bottom: var(--space-6);
   padding-bottom: var(--space-3);
-  border-bottom: 1px solid var(--color-border);
 }
 
 .cs-section-eyebrow {
@@ -328,13 +656,29 @@ code, pre {
 }
 
 @media (min-width: 768px) {
+  /* On the site's 12-column grid (the page grid): label spans columns 1–4,
+     body 5–12 — both start on a drawn grid line (the page grid draws every
+     other column). Real grid tracks, so both edges land exactly on column
+     edges at every width. */
   .cs-section {
-    --cs-body-inset: calc(var(--cs-head-width) + var(--gutter));
-    grid-template-columns: var(--cs-head-width) minmax(0, 1fr);
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    /* How far the body column is inset from the section's left edge (4
+       columns + 4 gutters), and the section's full width (12 columns + 11
+       gutters) — both expressed from the body column's own width (8 columns
+       + 7 gutters), since they're resolved as % inside it (.bleed-wide). */
+    --cs-col: calc((100% - 7 * var(--gutter)) / 8);
+    --cs-body-inset: calc(4 * var(--cs-col) + 4 * var(--gutter));
+    --cs-section-width: calc(12 * var(--cs-col) + 11 * var(--gutter));
   }
 
   .cs-section-head {
+    grid-column: 1 / 5;
     margin-bottom: 0;
+  }
+
+  .case-study .cs-section-body {
+    grid-column: 5 / 13;
+    max-width: none;
   }
 }
 
@@ -344,6 +688,12 @@ code, pre {
   width: min(var(--wide-max), calc(100vw - 2 * var(--gutter)));
   max-width: none;
   margin-inline: calc(-1 * var(--cs-body-inset)) 0;
+}
+
+@media (min-width: 768px) {
+  .case-study .cs-section-body > .bleed-wide {
+    width: var(--cs-section-width);
+  }
 }
 
 /* Fallback for a wide element used loose in .cs-body (not in a Section) */
@@ -512,7 +862,7 @@ code, pre {
 
 .prose hr {
   border: none;
-  border-top: 1px solid var(--color-border);
+  height: 1px; /* the rule itself is ::after — see "Rules that draw in" */
   margin: 2.5rem 0;
 }
 
@@ -796,6 +1146,64 @@ ul.statement-list {
   margin: 0;
 }
 
+/* --- Intro index ------------------------------------------------------ */
+/* The study's numbered sections as a printed contents list (ProjectLayout),
+   in the first Section's body column: mono number, then the section title
+   as a marker-link. Clicking scrolls (smoothly, motion allowing) to the
+   section, which lands a little below the sticky header (--header-height,
+   published by Header.astro). */
+.case-study .cs-index {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.case-study .cs-index li {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--space-3);
+  margin: 0;
+  padding-block: var(--space-1);
+}
+
+.case-study .cs-index-number {
+  font-family: "DM Mono", var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.case-study .cs-index-link {
+  justify-self: start;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+/* .prose a:hover (and the colour above) out-specify .marker-link:hover, so
+   restate its flip to the page colour. */
+.case-study .cs-index-link:is(:hover, :focus-visible) {
+  color: var(--color-bg);
+}
+
+.case-study .cs-section {
+  scroll-margin-top: calc(var(--header-height, 0px) + var(--space-6));
+}
+
+/* The first section (the index) clears the hero by a section gap, like the
+   gaps between sections, so it reads as one of the run rather than the
+   hero's caption. (The page grid then snaps it to the nearest row — a
+   smaller margin just gets trimmed back up to the row under the hero.) */
+.case-study .cs-body > .cs-section:first-child {
+  margin-top: var(--section-gap);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html:has(.cs-index) {
+    scroll-behavior: smooth;
+  }
+}
+
 /* --- Figure --------------------------------------------------------- */
 .case-study .cs-figure {
   margin-block: var(--space-10);
@@ -810,12 +1218,34 @@ ul.statement-list {
   width: 100%;
 }
 
+/* Captions as a printer's slug line: small mono text set outside the trim,
+   led by a registration target. The target is centred on the image's trim
+   line (--crop-inset, see Crop marks), so its crosshair lines up with the
+   crop tick above it; the caption clears the bottom marks. 11px target with
+   1px lines on its middle row/column, so the crosshair hits whole pixels. */
 .case-study .cs-figure-caption {
-  display: block;
-  margin-top: var(--space-3);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-top: calc(var(--crop-gap) + var(--crop-len) + var(--space-2));
+  margin-bottom: 0;
+  padding-left: calc(var(--crop-inset) - 5px);
+  font-family: "DM Mono", var(--font-mono);
   font-size: var(--font-size-xs);
+  line-height: 1.5;
   color: var(--color-text-muted);
-  text-align: center;
+  text-align: left;
+}
+
+.case-study .cs-figure-caption::before {
+  content: "";
+  flex: none;
+  width: 11px;
+  height: 11px;
+  margin-top: calc((1.5em - 11px) / 2);
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11'%3E%3Ccircle cx='5.5' cy='5.5' r='3.5' fill='none' stroke='%23000'/%3E%3Crect x='5' width='1' height='11'/%3E%3Crect y='5' width='11' height='1'/%3E%3C/svg%3E") center / 11px 11px no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11'%3E%3Ccircle cx='5.5' cy='5.5' r='3.5' fill='none' stroke='%23000'/%3E%3Crect x='5' width='1' height='11'/%3E%3Crect y='5' width='11' height='1'/%3E%3C/svg%3E") center / 11px 11px no-repeat;
 }
 
 /* --- ImageGrid ---------------------------------------------------- */
@@ -835,7 +1265,8 @@ ul.statement-list {
   width: 100%;
 }
 
-.case-study .cs-image-grid > .cs-figure-caption {
+.case-study .cs-image-grid > .cs-figure-caption,
+.case-study .cs-compare--split > .cs-figure-caption {
   grid-column: 1 / -1;
 }
 
@@ -1068,13 +1499,31 @@ ul.statement-list {
   background-image: radial-gradient(var(--color-dot) 0.75px, transparent 0.75px);
   background-size: 6px 6px;
   background-position: center;
+  position: relative;
+  isolation: isolate;
+}
+
+/* Dot spotlight: the same dot field in the active colour, behind the card's
+   content, shown only through the pointer-driven mask set by BaseLayout
+   (--dot-spot). Hidden when no mask is set. */
+.cs-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(var(--color-dot-active) 0.75px, transparent 0.75px);
+  background-size: 6px 6px;
+  background-position: center;
+  -webkit-mask-image: var(--dot-spot, linear-gradient(transparent, transparent));
+  mask-image: var(--dot-spot, linear-gradient(transparent, transparent));
 }
 
 /* Icon sits on a solid disc so it reads cleanly over the card's dot field.
    The disc lives on the container; the filter that recolours the grey source
    SVG is on the <img> alone — a filter applied to the disc element would
    recolour the disc too. */
-.case-study .cs-card-icon {
+:is(.case-study, .work-entry) .cs-card-icon {
   width: 40px;
   height: 40px;
   display: flex;
@@ -1082,14 +1531,22 @@ ul.statement-list {
   justify-content: center;
   border-radius: 50%;
   background: var(--color-text);
+  transition: background-color calc(var(--motion-slow) * 2) var(--ease-precise);
 }
 
-.case-study .cs-card-icon > p {
+/* The disc takes the dot sweep's colour while the pointer is on the card. */
+@media (hover: hover) {
+  .cs-card:hover .cs-card-icon {
+    background: var(--color-dot-active);
+  }
+}
+
+:is(.case-study, .work-entry) .cs-card-icon > p {
   margin: 0;
   display: contents;
 }
 
-.case-study .cs-card-icon img {
+:is(.case-study, .work-entry) .cs-card-icon img {
   width: 22px;
   height: 22px;
   border: none;
@@ -1099,7 +1556,7 @@ ul.statement-list {
   filter: brightness(0) invert(1);
 }
 
-html[data-theme="dark"] .case-study .cs-card-icon img {
+html[data-theme="dark"] :is(.case-study, .work-entry) .cs-card-icon img {
   filter: brightness(0);
 }
 
@@ -1139,6 +1596,37 @@ html[data-theme="dark"] .case-study .cs-card-icon img {
   background-color: var(--color-bg);
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
+  padding: 0.12em 0.3em;
+  margin-left: -0.3em;
+}
+
+/* Inline paragraphs would run together on one line, so a body with several
+   stacks them: each becomes a shrink-to-fit block carrying its own highlight. */
+.case-study .cs-card-body:has(> p + p) {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.case-study .cs-card-body:has(> p + p) > p {
+  display: block;
+  margin-block: 0;
+  max-width: calc(100% + 0.3em);
+}
+
+/* List items hold bare text (no <p>), so each item carries its own
+   highlight, sized to its content. Markers sit inside so they share it. */
+.case-study .cs-card-body ul,
+.case-study .cs-card-body ol {
+  padding-left: 0;
+}
+
+.case-study .cs-card-body li {
+  list-style-position: inside;
+  width: fit-content;
+  max-width: 100%;
+  background-color: var(--color-bg);
   padding: 0.12em 0.3em;
   margin-left: -0.3em;
 }
@@ -1274,6 +1762,6 @@ html[data-theme="dark"] .case-study .cs-journey-stage-icon img {
 /* --- SectionDivider ------------------------------------- */
 .case-study .cs-divider {
   border: none;
-  border-top: 1px solid var(--color-border);
+  height: 1px; /* the rule itself is ::after — see "Rules that draw in" */
   margin-block: var(--section-gap);
 }

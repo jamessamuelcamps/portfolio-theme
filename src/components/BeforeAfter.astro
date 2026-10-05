@@ -6,6 +6,8 @@ interface Props {
   width?: 'prose' | 'wide';
   /** 'slider' (default) overlays the pair with a draggable divider; 'split' shows them side by side. */
   mode?: 'slider' | 'split';
+  /** Slug-line caption under the pair */
+  caption?: string;
 }
 
 const {
@@ -13,6 +15,7 @@ const {
   afterLabel = 'After',
   width = 'wide',
   mode = 'slider',
+  caption,
 } = Astro.props;
 const widthClass = width === 'wide' ? 'bleed-wide' : null;
 ---
@@ -27,6 +30,7 @@ const widthClass = width === 'wide' ? 'bleed-wide' : null;
       <figcaption class="cs-compare-label">{afterLabel}</figcaption>
       <slot name="after" />
     </figure>
+    {caption && <p class="cs-figure-caption">{caption}</p>}
   </div>
 ) : (
   <div class:list={['cs-compare cs-compare--slider', widthClass]} data-compare>
@@ -56,6 +60,7 @@ const widthClass = width === 'wide' ? 'bleed-wide' : null;
         </span>
       </div>
     </div>
+    {caption && <p class="cs-figure-caption">{caption}</p>}
   </div>
 )}
 

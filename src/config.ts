@@ -21,7 +21,7 @@ export const site = {
     { label: 'GitHub', href: 'https://github.com/you' },
   ],
   nav: [
-    { href: '/work', label: 'Projects' },
+    { href: '/work', label: 'Work' },
     { href: '/about', label: 'About' },
     { href: '/writing', label: 'Writing' },
   ],
@@ -31,6 +31,26 @@ export const site = {
     quote: 'A short, sharp line that sets the tone for the whole site.',
     cite: '— Someone worth quoting',
   },
+  /**
+   * Work page timeline, newest first (array order is display order).
+   * `company` must match each case study's `client`. Dates are 'YYYY-MM';
+   * `end: null` = Present. Roles with no case studies are skipped.
+   * `achievements` (optional) is for role-level wins the case studies don't
+   * already cover; keep it to two or three.
+   */
+  experience: [
+    {
+      company: 'Example Co',
+      role: 'Senior Product Designer',
+      start: '2024-01',
+      end: null,
+      scope: 'One line on the remit: the product area, the team, who you reported to.',
+      achievements: [
+        'A role-level win the case studies don’t already cover, with a number if you have one.',
+        'Another, e.g. hiring, mentoring, or a process you introduced.',
+      ],
+    },
+  ] as { company: string; role: string; start: string; end: string | null; scope: string; achievements?: string[] }[],
   /**
    * A small credit link on the homepage, pointing back at wherever you got
    * this theme. Set to `null` to hide it.

@@ -16,16 +16,20 @@ const { value } = Astro.props;
     padding: var(--space-4) 0;
   }
 
+  /* Stats set in DM Mono, reading as data. 500 is DM Mono's heaviest cut.
+     Fixed-width digits also keep the count-up steady. */
   .stat-value {
+    font-family: "DM Mono", var(--font-mono);
     font-size: var(--font-size-4xl);
-    font-weight: var(--font-weight-bold);
+    font-weight: var(--font-weight-medium);
     line-height: var(--line-height-tight);
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
     color: var(--color-text);
     margin-bottom: var(--space-2);
   }
 
   .stat-label {
+    font-family: "DM Mono", var(--font-mono);
     font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
     line-height: var(--line-height-normal);

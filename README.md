@@ -10,19 +10,24 @@ every step below tells you exactly what to type and where.
 ## What you get
 
 - A one-page homepage: a big pull-quote, a short bio, your socials
-- A **Projects** section for case studies — with a big kit of ready-made
+- A **Work** page laid out as a timeline of your roles, each with its case
+  studies — and a big kit of ready-made
   content blocks (stat grids, quotes, before/after image sliders, image
   grids, icon-and-text "journey" steps, bordered cards) so you can lay out a
   case study without writing any code
 - An **About** page and a **Writing** section for articles/notes
 - Light and dark mode, switchable in the header, remembered on return visits
+- Quiet, print-inspired motion: a dotted layout grid behind every page, rules
+  that draw in as you scroll, numbers that count up, crop marks on images,
+  page transitions, and a dot-grid sweep when you hover a card. The movement
+  is toned down or switched off for visitors who turn on reduced motion
 - One file to edit for your name, role, socials and homepage copy
 
-Look at **Projects → Component Showcase** once the site is running — it's a
+Look at **Work → Component Showcase** once the site is running — it's a
 single page that shows every content block this theme has, in order, with
 the markup you'd copy to use it. Keep it, delete it, or use it purely as a
 reference; it's hidden from search engines either way you leave it (set
-`draft: true` in its frontmatter to also hide it from your Projects list).
+`draft: true` in its frontmatter to also hide it from your Work page).
 
 ---
 
@@ -94,6 +99,28 @@ export const site = {
 Save the file and check your browser — the header, footer and homepage
 should already show your details.
 
+### Your work history
+
+The Work page is a timeline of your roles, newest first, with each role's
+case studies listed under it. The roles live in `experience` in the same
+`src/config.ts` file:
+
+```ts
+  experience: [
+    {
+      company: 'Example Co',
+      role: 'Senior Product Designer',
+      start: '2024-01',            // 'YYYY-MM'
+      end: null,                   // null = Present
+      scope: 'One line on the remit.',
+      achievements: ['Optional role-level wins, two or three at most.'],
+    },
+  ],
+```
+
+A case study appears under the role whose `company` matches the study's
+`client` (see below). Roles with no case studies are skipped.
+
 ### Your favicon (the little icon in the browser tab)
 
 Replace the three files in `public/` — `favicon.svg`, `favicon.png` and
@@ -131,13 +158,18 @@ To start a new one:
    | `title` | Shown as the page title. Convention here is `"Feature • Client"`. |
    | `description` | A one-line summary, shown under the title and used for link previews. |
    | `publishDate` | Controls sort order alongside `order` below. |
-   | `client`, `role`, `timeline` | Small credit line details (all optional). |
+   | `client` | The company it was for. Must match a `company` in `experience` in `src/config.ts`, or the study won't appear on `/work`. |
+   | `role`, `timeline` | Small credit line details (optional). |
    | `heroImage` | Path to a hero image in your project's folder, e.g. `"./my-first-project/hero.jpg"`. Optional. |
    | `heroImageAlt` | Alt text for that image (accessibility + SEO). |
    | `heroLayout` | `"inset"` (narrower) or `"wide"` (fills the section). |
    | `tags` | A list shown as small badges, e.g. `["Mobile", "Fintech"]`. |
-   | `order` | Lower numbers show first on the Projects page. |
-   | `draft` | Set to `true` to hide a study from the Projects list and search engines while you're still writing it. |
+   | `startDate` | When the project started. Orders studies within a role, newest first. Optional. |
+   | `summary` | A sentence or two for the study's card on `/work`. Falls back to `description`. |
+   | `highlights` | Up to three headline numbers for the card, each a `value` and a `label` (see `component-showcase.mdx`). They count up as the card scrolls into view. |
+   | `outcome` | A one-line result shown instead of `highlights`, for studies without hard numbers. |
+   | `order` | Tie-breaker for studies without a `startDate`; lower shows first. |
+   | `draft` | Set to `true` to hide a study from `/work` and search engines while you're still writing it. |
 
 3. Delete everything below the second `---` and write your case study,
    pulling in whichever components you need — copy the examples straight out
@@ -147,14 +179,13 @@ To start a new one:
    import Section from '../../components/Section.astro';
    import Lead from '../../components/Lead.astro';
 
+   <Section number="01" title="The problem">
+
    <Lead>
 
-   One or two sentences summarising the project — this sits at the top of
-   the page in a larger, lighter style.
+   One or two sentences summarising the project, in a larger style.
 
    </Lead>
-
-   <Section number="01" title="The problem">
 
    Ordinary paragraphs and images can go directly here too — you don't have
    to use a component for everything.
@@ -162,13 +193,16 @@ To start a new one:
    </Section>
    ```
 
+   Number your sections (`number="01"`, `"02"`…): when a study has two or
+   more, a "Contents" list linking to each one appears at the top of the page.
+
 4. Drop your images into the project's folder and reference them with a
    relative path, e.g. `![Alt text](./my-first-project/screenshot.png)`.
    Astro automatically resizes and optimises them for you — just use normal
    `.jpg`/`.png`/`.svg` files, no extra steps needed.
 
-Save the file — a new card appears on `/work` automatically, no other setup
-required.
+Save the file — a new card appears on `/work`, under its role, with no other
+setup required.
 
 ## 5. Add a writing post
 

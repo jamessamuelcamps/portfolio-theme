@@ -8,13 +8,16 @@ interface Props {
   number?: string;
 }
 
+import { slug } from '../utils/slug';
+
 const { title, eyebrow, number } = Astro.props;
 const kicker = number ? `${number} —` : eyebrow;
 ---
 
-<section class="cs-section">
+{/* id: the case study's intro index links here (ProjectLayout). */}
+<section class="cs-section" id={slug(title)} data-snap>
   {kicker && (
-    <div class="cs-section-band">
+    <div class="cs-section-band hairline">
       <span class="cs-section-eyebrow">{kicker}</span>
     </div>
   )}

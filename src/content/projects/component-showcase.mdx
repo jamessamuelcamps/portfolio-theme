@@ -2,7 +2,7 @@
 title: "Component Showcase • Reference"
 description: "Every case-study component in one place — copy this page's markup as a starting point for your own studies."
 publishDate: 2026-01-01
-client: "Reference"
+client: "Example Co"
 role: "Design"
 timeline: "Reference"
 heroImage: "./component-showcase/hero.svg"
@@ -10,6 +10,15 @@ heroImageAlt: "Placeholder hero image"
 heroLayout: "wide"
 tags: ["Reference", "Components", "Style Guide"]
 order: 1
+startDate: 2026-01-01
+summary: "A one- or two-sentence summary for the Work page: the problem, what you did, and what changed."
+highlights:
+  - value: "42%"
+    label: "rise in the metric that mattered"
+  - value: "3×"
+    label: "more of something good"
+  - value: "5"
+    label: "fewer days to an outcome"
 draft: false
 ---
 import Section from '../../components/Section.astro';
@@ -28,6 +37,8 @@ import CardGrid from '../../components/CardGrid.astro';
 import Card from '../../components/Card.astro';
 import Credits from '../../components/Credits.astro';
 
+<Section number="01" title="Context">
+
 <Lead>
 
 This page renders every case-study component in its real context — inside
@@ -37,8 +48,6 @@ Open `src/content/projects/component-showcase.mdx` in your editor and copy
 whichever blocks you need.
 
 </Lead>
-
-<Section number="01" title="Context">
 
 <LabelledBlock label="The Brief">
 
@@ -63,7 +72,7 @@ Streamlined the core experience to reduce cognitive load and error rates.
 
 </Section>
 
-<Section eyebrow="Research" title="Discovery">
+<Section number="02" title="Discovery">
 
 ### A subsection heading (H3)
 
@@ -90,7 +99,7 @@ A `.statement-list` for pulled points:
 
 </Section>
 
-<Section eyebrow="Metrics" title="Stats">
+<Section number="03" title="Stats">
 
 #### Single stat
 
@@ -120,7 +129,7 @@ A `.statement-list` for pulled points:
 
 </Section>
 
-<Section eyebrow="Voice" title="Quotes">
+<Section number="04" title="Quotes">
 
 <PullQuote>
 
@@ -152,7 +161,7 @@ visually it didn't inspire enough confidence.
 
 </Section>
 
-<Section eyebrow="Design" title="Imagery">
+<Section number="05" title="Imagery">
 
 <Figure caption="A prose-width figure — inline with the text column." width="prose">
 
@@ -212,7 +221,7 @@ visually it didn't inspire enough confidence.
 
 </Section>
 
-<Section eyebrow="Process" title="Journey">
+<Section number="06" title="Journey">
 
 Icon → title → subtitle stages, no background, sitting in the prose column.
 
