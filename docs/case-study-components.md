@@ -163,13 +163,11 @@ Outcome metrics. `columns` is optional — omit for the current responsive
 ```
 
 ### `Figure` / `ImageGrid` / `BeforeAfter`
-`Figure` — one image, optional caption, `width` tier. `ImageGrid` — images
-in a grid (`cols` 1–4; `cols={1}` is a single stacked column, pair with
-`width="prose"`). `BeforeAfter` — a labelled pair. Defaults to
-`mode="slider"`: the two images are overlaid with a draggable divider
-(pointer drag or keyboard — it's a range input under the hood), so the pair
-needs **identical dimensions**. Pass `mode="split"` for the old side-by-side
-layout, which tolerates mismatched sizes.
+`Figure` — one image, optional caption, `width` tier. `ImageGrid` — images in a grid (`cols` 1–4; `cols={1}` is a single stacked column). Imagery runs full width — leave `width` at its `"wide"` default; a short run of screens reads better as `cols={2}` than as a prose-width stack.
+`BeforeAfter` — a labelled pair. Defaults to `mode="slider"`: the two images are overlaid
+with a draggable divider (pointer drag or keyboard — it's a range input under the hood), so
+the pair needs **identical dimensions**. Pass `mode="split"` for the old side-by-side layout,
+which tolerates mismatched sizes.
 ```mdx
 <Figure caption="Competitor screens, for comparison" width="wide">
 
@@ -203,6 +201,23 @@ layout, which tolerates mismatched sizes.
 Named slots that carry a markdown image (`before`/`after` here, `icon` on
 `Stage` / `Card`) need the **same blank-line delimiting** inside the
 `<Fragment>` as any other slot.
+
+### `ProtoStage` — animated UI demos
+A demo of an interface, built in code, that loops while it's on screen and
+stands in for a screenshot. Each demo is its own component in
+`src/components/protos/` — copy `ExampleToggle.astro` to start. Inside
+`<ProtoStage>`, the element marked `data-proto-screen` is the demo; the
+`timeline` sets `data-*` attributes on it at set times (ms) and the demo's
+CSS reacts to them. `tap: '<selector>'` shows a press ring on an element,
+`swipe` drags one. Author at a fixed design size (`width`/`height`) and the
+stage scales it to fit. Optional `chapters` add jump-to controls; `sync`
+puts demos in a grid on one clock so they finish together. Under reduced
+motion a demo rests on a still frame (`rest`, or each chapter's `key`).
+```mdx
+import ExampleToggle from '../../components/protos/ExampleToggle.astro';
+
+<ExampleToggle caption="Turning on the weekly summary" />
+```
 
 ### `Journey` / `Stage`
 Multi-column block, no background, prose width — each `<Stage>` is an icon →

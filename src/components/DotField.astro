@@ -1,0 +1,362 @@
+---
+/**
+ * The homepage's dot field: a fixed grid of ink dots behind everything,
+ * always on. Hovering (or focusing) a main nav item gathers every dot on
+ * the screen into a slowly turning 3D point cloud — Work a cube, About a
+ * sphere, Writing a triangular pyramid — and leaving lets them settle back
+ * into the grid. Copy over the field sits on page-colour highlights (see
+ * "Dot field highlights" in global.css) so the dots never cut through text.
+ *
+ * Drawn to a canvas, every dot each frame while anything moves; the loop
+ * sleeps whenever nothing is in motion. Reduced motion keeps the grid and
+ * skips the intro and the shapes.
+ */
+---
+
+<canvas class="dot-field" aria-hidden="true"></canvas>
+
+<script>
+  const GAP = 12; // px between dots
+  const DOT = 1; // px dot size at rest
+  const MORPH = 1600; // ms for a dot's trip between grid and shape
+  const STAGGER = 0.5; // share of the trip spent staggering dot starts
+  // A slow tumble: each axis turns at its own unrelated rate, so the shape
+  // never settles into a visible loop. rad/s.
+  const SPIN = { x: 0.07, y: 0.12, z: 0.035 };
+  const TILT = 0.42; // rad, starting lean towards the viewer
+  const INTRO = 1400; // ms for the top-to-bottom reveal on load
+
+  type Point = { x: number; y: number; z: number };
+  type Dot = {
+    hx: number; hy: number; // home on the grid
+    fx: number; fy: number; fw: number; fz: number; // where the current trip started
+    x: number; y: number; w: number; z: number; // drawn this frame (w: 0 grid → 1 shape)
+    delay: number; // 0–1 share of the stagger
+    target: number; // index into the shape's points
+  };
+
+  const canvas = document.querySelector<HTMLCanvasElement>('.dot-field');
+  const ctx = canvas?.getContext('2d');
+  const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // --- Shapes -----------------------------------------------------------------
+  // Unit-sized point clouds of exactly `n` points, one per dot. The faceted
+  // shapes size their face lattice to fit within `n`, never over: thinning
+  // a lattice that's too big would punch regular holes in its faces. The
+  // few dots left over are spread along the edges, firming up the outline.
+
+  const withEdges = (pts: Point[], n: number, edges: [Point, Point][]) => {
+    const spare = n - pts.length;
+    const per = Math.ceil(spare / edges.length);
+    for (let i = 0; i < spare; i++) {
+      const [a, b] = edges[i % edges.length];
+      const t = (Math.floor(i / edges.length) + 0.5) / per;
+      pts.push({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t, z: a.z + (b.z - a.z) * t });
+    }
+    return pts;
+  };
+
+  const sphere = (n: number) =>
+    Array.from({ length: n }, (_, i) => {
+      const y = 1 - (2 * (i + 0.5)) / n;
+      const r = Math.sqrt(1 - y * y);
+      const a = i * Math.PI * (3 - Math.sqrt(5));
+      return { x: Math.cos(a) * r * 0.9, y: y * 0.9, z: Math.sin(a) * r * 0.9 };
+    });
+
+  const cube = (n: number) => {
+    const k = Math.max(2, Math.floor(Math.sqrt(n / 6)));
+    const s = 0.5;
+    const pts: Point[] = [];
+    for (let i = 0; i < k; i++) {
+      for (let j = 0; j < k; j++) {
+        const a = (i / (k - 1)) * 2 - 1;
+        const b = (j / (k - 1)) * 2 - 1;
+        pts.push(
+          { x: a * s, y: b * s, z: s }, { x: a * s, y: b * s, z: -s },
+          { x: a * s, y: s, z: b * s }, { x: a * s, y: -s, z: b * s },
+          { x: s, y: a * s, z: b * s }, { x: -s, y: a * s, z: b * s },
+        );
+      }
+    }
+    // The 12 edges: pairs of corners that differ along one axis.
+    const corners = [-s, s].flatMap((x) => [-s, s].flatMap((y) => [-s, s].map((z) => ({ x, y, z }))));
+    const edges: [Point, Point][] = [];
+    corners.forEach((a, i) =>
+      corners.slice(i + 1).forEach((b) => {
+        if ((a.x !== b.x ? 1 : 0) + (a.y !== b.y ? 1 : 0) + (a.z !== b.z ? 1 : 0) === 1) edges.push([a, b]);
+      }),
+    );
+    return withEdges(pts, n, edges);
+  };
+
+  // A regular triangular pyramid standing on its base (screen y points
+  // down, so the apex is at -y). Each face is a triangular lattice.
+  const pyramid = (n: number) => {
+    const R = 0.85;
+    const base = (R * Math.sqrt(8)) / 3;
+    const v = [
+      { x: 0, y: -R, z: 0 },
+      ...[0, 1, 2].map((i) => {
+        const a = (i * 2 * Math.PI) / 3;
+        return { x: Math.cos(a) * base, y: R / 3, z: Math.sin(a) * base };
+      }),
+    ];
+    const faces = [[0, 1, 2], [0, 2, 3], [0, 3, 1], [1, 2, 3]];
+    // Each face of k rows holds (k + 1)(k + 2) / 2 points; take the largest
+    // k whose four faces fit.
+    let k = Math.max(2, Math.floor(Math.sqrt(n / 2)));
+    while (k > 2 && 2 * (k + 1) * (k + 2) > n) k--;
+    const pts: Point[] = [];
+    for (const [ia, ib, ic] of faces) {
+      const [A, B, C] = [v[ia], v[ib], v[ic]];
+      for (let i = 0; i <= k; i++) {
+        for (let j = 0; j <= k - i; j++) {
+          const u = i / k, w = j / k;
+          pts.push({
+            x: A.x + (B.x - A.x) * u + (C.x - A.x) * w,
+            y: A.y + (B.y - A.y) * u + (C.y - A.y) * w,
+            z: A.z + (B.z - A.z) * u + (C.z - A.z) * w,
+          });
+        }
+      }
+    }
+    const edges: [Point, Point][] = [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3], [3, 1]].map(([a, b]) => [v[a], v[b]]);
+    return withEdges(pts, n, edges);
+  };
+
+  const SHAPES: Record<string, (n: number) => Point[]> = {
+    '/work': cube,
+    '/about': sphere,
+    '/writing': pyramid,
+  };
+
+  if (canvas && ctx) {
+    let dpr = 1;
+    let width = 0;
+    let height = 0;
+    let movers: Dot[] = [];
+    let centre = { x: 0, y: 0, r: 0 };
+    let shapes: Record<string, Point[]> = {};
+    let ink = '#000';
+    let alpha = 0.2;
+    let density = 1;
+
+    let shape: string | null = null; // the shape the movers are heading for
+    let tripStart = 0;
+    let spin = 0; // seconds of turning so far
+    let lastFrame = 0;
+    let introStart = still ? -Infinity : performance.now();
+    let running = false;
+
+    const readTheme = () => {
+      const styles = getComputedStyle(document.documentElement);
+      ink = styles.getPropertyValue('--field-ink').trim() || '#000';
+      alpha = parseFloat(styles.getPropertyValue('--field-alpha')) || 0.2;
+    };
+
+    // Grid, movers and shapes all follow the viewport, so a resize rebuilds
+    // them and drops any shape in progress.
+    const layout = () => {
+      dpr = window.devicePixelRatio || 1;
+      // The canvas box, not innerWidth: a classic scrollbar narrows it, and a
+      // backing store sized to the window would be squashed to fit and blur.
+      const box = canvas.getBoundingClientRect();
+      width = box.width;
+      height = box.height;
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+
+      // Shape sits right of the quote on wide screens, centred otherwise.
+      const wide = width >= 1024;
+      centre = {
+        x: wide ? width * 0.7 : width / 2,
+        y: height / 2,
+        r: Math.min(wide ? width * 0.25 : width * 0.42, height * 0.38),
+      };
+
+      // Centre the grid in the viewport so it's symmetrical at any width.
+      const ox = ((width % GAP) + GAP) / 2;
+      const oy = ((height % GAP) + GAP) / 2;
+      // Every dot on screen takes part. Each one sets off on a wave out from
+      // the focal point, nearest first, with a little jitter so the wave
+      // doesn't read as rings.
+      movers = [];
+      const reach = Math.hypot(Math.max(centre.x, width - centre.x), Math.max(centre.y, height - centre.y));
+      for (let y = oy; y < height; y += GAP) {
+        for (let x = ox; x < width; x += GAP) {
+          const out = Math.hypot(x - centre.x, y - centre.y) / reach;
+          movers.push({
+            hx: x, hy: y, fx: x, fy: y, fw: 0, fz: 0, x, y, w: 0, z: 0,
+            delay: Math.min(1, out * 0.75 + Math.random() * 0.25), target: 0,
+          });
+        }
+      }
+      // With every dot in the cloud it's far denser than the grid, so the
+      // shading is scaled back to keep it from clotting into a solid mass.
+      density = Math.min(1, Math.sqrt(2500 / movers.length));
+
+      // Pair each mover with a shape point at a similar angle round the
+      // centre, so the dots fan out along short paths instead of criss-crossing.
+      const angle = (x: number, y: number) => Math.atan2(y - centre.y, x - centre.x);
+      movers.sort((a, b) => angle(a.hx, a.hy) - angle(b.hx, b.hy));
+      shapes = {};
+      for (const [href, make] of Object.entries(SHAPES)) {
+        const pts = make(movers.length);
+        const order = pts
+          .map((p, i) => ({ i, a: Math.atan2(p.y, p.x) }))
+          .sort((a, b) => a.a - b.a)
+          .map((p) => p.i);
+        shapes[href] = order.map((i) => pts[i]);
+      }
+      movers.forEach((d, i) => (d.target = i));
+
+      shape = null;
+      kick();
+    };
+
+    const square = (c: CanvasRenderingContext2D, x: number, y: number, size: number) => {
+      const s = size * dpr;
+      c.fillRect(Math.round(x * dpr - s / 2), Math.round(y * dpr - s / 2), Math.round(s), Math.round(s));
+    };
+
+    // Where a shape point lands on screen this frame.
+    // Turned about y, then x, then z (the angles are set once per frame).
+    let cy = 1, sy = 0, cx = 1, sx = 0, cz = 1, sz = 0;
+    const project = (p: Point) => {
+      const x1 = p.x * cy + p.z * sy;
+      const z1 = -p.x * sy + p.z * cy;
+      const y2 = p.y * cx - z1 * sx;
+      const z2 = p.y * sx + z1 * cx;
+      const x3 = x1 * cz - y2 * sz;
+      const y3 = x1 * sz + y2 * cz;
+      const persp = 3.2 / (3.2 + z2);
+      return { x: centre.x + x3 * centre.r * persp, y: centre.y + y3 * centre.r * persp, z: z2 };
+    };
+
+    const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+    const frame = (now: number) => {
+      const dt = lastFrame ? Math.min(now - lastFrame, 50) : 16;
+      lastFrame = now;
+      const pts = shape ? shapes[shape] : null;
+      const trip = (now - tripStart) / MORPH;
+      if (pts || movers.some((d) => d.w > 0)) spin += dt / 1000;
+      cy = Math.cos(SPIN.y * spin);
+      sy = Math.sin(SPIN.y * spin);
+      cx = Math.cos(TILT + SPIN.x * spin);
+      sx = Math.sin(TILT + SPIN.x * spin);
+      cz = Math.cos(SPIN.z * spin);
+      sz = Math.sin(SPIN.z * spin);
+
+      let moving = false;
+      for (const d of movers) {
+        const t = Math.min(1, Math.max(0, (trip - d.delay * STAGGER) / (1 - STAGGER)));
+        const e = ease(t);
+        if (t < 1) moving = true;
+        let tx = d.hx, ty = d.hy, tw = 0, tz = 0;
+        if (pts) {
+          const p = project(pts[d.target]);
+          tx = p.x; ty = p.y; tw = 1; tz = p.z;
+        }
+        d.x = d.fx + (tx - d.fx) * e;
+        d.y = d.fy + (ty - d.fy) * e;
+        d.w = d.fw + (tw - d.fw) * e;
+        d.z = d.fz + (tz - d.fz) * e;
+      }
+
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Intro: the field fills in from the top on a soft edge.
+      const reveal = (now - introStart) / INTRO;
+      const introducing = reveal < 1;
+      if (introducing) {
+        const edge = ease(Math.max(0, reveal)) * (height + 200);
+        const g = ctx.createLinearGradient(0, (edge - 200) * dpr, 0, edge * dpr);
+        g.addColorStop(0, '#000');
+        g.addColorStop(1, 'transparent');
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = ink;
+        for (const d of movers) square(ctx, d.x, d.y, DOT);
+        ctx.globalCompositeOperation = 'destination-in';
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.globalCompositeOperation = 'source-over';
+      } else {
+        // Depth shading: in the shape, near dots darken and grow, far ones
+        // fade, so the cloud reads as solid and turning.
+        ctx.fillStyle = ink;
+        for (const d of movers) {
+          const near = (1 - d.z) / 2; // z runs roughly -1 (near) … 1 (far)
+          ctx.globalAlpha = alpha + d.w * ((0.05 + 0.65 * near) * density - alpha);
+          square(ctx, d.x, d.y, DOT + d.w * 1.2 * near * density);
+        }
+      }
+      ctx.globalAlpha = 1;
+
+      if (introducing || moving || pts) {
+        requestAnimationFrame(frame);
+      } else {
+        running = false;
+        lastFrame = 0;
+      }
+    };
+
+    const kick = () => {
+      if (running) return;
+      running = true;
+      requestAnimationFrame(frame);
+    };
+
+    // Start a new trip from wherever each dot is now, so switching shapes
+    // mid-flight carries on smoothly instead of snapping.
+    const head = (next: string | null) => {
+      if (next === shape) return;
+      for (const d of movers) {
+        d.fx = d.x; d.fy = d.y; d.fw = d.w; d.fz = d.z;
+      }
+      shape = next;
+      tripStart = performance.now();
+      kick();
+    };
+
+    readTheme();
+    layout();
+
+    let resizeTimer = 0;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(layout, 150);
+    });
+
+    // Theme switches restyle the ink.
+    new MutationObserver(() => {
+      readTheme();
+      kick();
+    }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+    if (!still) {
+      document.querySelectorAll<HTMLAnchorElement>('.nav-link').forEach((link) => {
+        const href = new URL(link.href).pathname.replace(/\/$/, '');
+        if (!SHAPES[href]) return;
+        link.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && head(href));
+        link.addEventListener('pointerleave', () => head(null));
+        link.addEventListener('focus', () => link.matches(':focus-visible') && head(href));
+        link.addEventListener('blur', () => head(null));
+      });
+    }
+  }
+</script>
+
+<style>
+  .dot-field {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+  }
+</style>

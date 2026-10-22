@@ -1,0 +1,179 @@
+---
+/**
+ * The oversized display quote that leads the homepage and About page, dealt
+ * from the pool in src/content/testimonials.md. `spin` adds a "Roll another
+ * quote" pill above it that deals the next one.
+ *
+ * The first quote is server-rendered as the no-JS fallback; an inline script
+ * straight after it swaps in the next from the deck before first paint. The
+ * deck is a shuffle of every quote, so none repeats until all have been
+ * shown, and neighbours never share an author or a theme.
+ */
+import { testimonials } from '../utils/testimonials';
+
+interface Props {
+  spin?: boolean;
+}
+
+const { spin = false } = Astro.props;
+const [first] = testimonials;
+// Escape `<` so a quote can never close the JSON <script> early.
+const poolJson = JSON.stringify(testimonials).replace(/</g, '\\u003c');
+---
+
+{spin && (
+  <button type="button" class="quote-spin" data-quote-spin hidden>
+    Roll another quote
+  </button>
+)}
+<div class="display-quote-block" data-quote-block aria-live="polite">
+  <h1 class="display-quote" data-length={first.length} style={`--quote-chars: ${first.quote.length}`}>
+    <span>“{first.quote}”</span>
+  </h1>
+  <p class="display-quote-cite"><span>{first.cite}</span></p>
+  <script is:inline type="application/json" data-quote-pool set:html={poolJson} />
+</div>
+
+<script is:inline>
+  (() => {
+    const block = document.currentScript.previousElementSibling;
+    const pool = JSON.parse(block.querySelector('[data-quote-pool]').textContent);
+    const h1 = block.querySelector('.display-quote');
+    const cite = block.querySelector('.display-quote-cite');
+    const button = block.previousElementSibling?.matches('[data-quote-spin]')
+      ? block.previousElementSibling
+      : null;
+
+    // The deck lives in sessionStorage, so moving between the homepage and
+    // About carries on through the same shuffle instead of starting afresh.
+    const KEY = 'quote-deck';
+    const signature = pool.map((q) => q.quote.length).join('.');
+    let deck = [];
+    let last = -1;
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(KEY));
+      if (saved?.signature === signature) ({ deck, last } = saved);
+    } catch {}
+
+    const clash = (a, b) => b && (a.author === b.author || a.theme === b.theme);
+
+    // Shuffle every quote into a deck where no two neighbours share an author
+    // or a theme, starting with one that doesn't clash with the last shown.
+    // Each step picks at random from the quotes that fit; the odd attempt
+    // that paints itself into a corner is just retried.
+    function shuffle() {
+      for (let attempt = 0; attempt < 50; attempt++) {
+        const left = pool.map((_, i) => i);
+        const next = [];
+        let prev = pool[last];
+        while (left.length) {
+          const fits = left.filter((i) => !clash(pool[i], prev));
+          if (!fits.length) break;
+          const pick = fits[Math.floor(Math.random() * fits.length)];
+          next.push(pick);
+          left.splice(left.indexOf(pick), 1);
+          prev = pool[pick];
+        }
+        if (!left.length) return next;
+      }
+      // Pool too lopsided to satisfy: fall back to a plain shuffle.
+      const next = pool.map((_, i) => i);
+      for (let i = next.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [next[i], next[j]] = [next[j], next[i]];
+      }
+      return next;
+    }
+
+    function deal() {
+      if (!deck.length) deck = shuffle();
+      last = deck.shift();
+      try {
+        sessionStorage.setItem(KEY, JSON.stringify({ signature, deck, last }));
+      } catch {}
+      const q = pool[last];
+      h1.dataset.length = q.length;
+      h1.style.setProperty('--quote-chars', q.quote.length);
+      h1.firstElementChild.textContent = `“${q.quote}”`;
+      cite.firstElementChild.textContent = q.cite;
+    }
+
+    if (pool.length < 2) return;
+    deal();
+
+    if (!button) return;
+    button.hidden = false;
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let busy = false;
+
+    button.addEventListener('click', async () => {
+      if (busy) return;
+      if (reduceMotion.matches) return deal();
+      busy = true;
+      const styles = getComputedStyle(document.documentElement);
+      const easeOut = 'ease-in';
+      const easeIn = styles.getPropertyValue('--ease-precise');
+      // The pill gives under the press and springs back, so the click feels
+      // physical before anything else moves.
+      button.animate(
+        { transform: ['scale(1)', 'scale(0.9)', 'scale(1.06)', 'scale(1)'], offset: [0, 0.25, 0.6, 1] },
+        { duration: 320, easing: 'ease-out' },
+      );
+      try {
+        // Out: the quote wipes away left-to-right; in: the next one is drawn
+        // on from the left, like the marker sweep.
+        await block.animate(
+          { clipPath: ['inset(0 0 0 0)', 'inset(0 0 0 100%)'] },
+          { duration: 200, easing: easeOut.trim() || 'ease-in', fill: 'forwards' },
+        ).finished;
+        deal();
+        await block.animate(
+          { clipPath: ['inset(0 100% 0 0)', 'inset(0 0 0 0)'] },
+          { duration: 450, easing: easeIn.trim() || 'ease-out', fill: 'forwards' },
+        ).finished;
+      } finally {
+        block.getAnimations().forEach((a) => a.cancel());
+        busy = false;
+      }
+    });
+  })();
+</script>
+
+<style>
+  /* Pill reads like the old availability badge; on hover it flips to the
+     inverted highlight the quote itself uses. */
+  .quote-spin {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    padding: var(--space-2) var(--space-4);
+    border: none;
+    border-radius: var(--radius-full);
+    background-color: var(--color-surface);
+    font: inherit;
+    font-size: var(--font-size-xs);
+    color: var(--color-text);
+    margin-bottom: var(--space-8);
+    cursor: pointer;
+    transition:
+      background-color var(--motion-base) var(--ease-precise),
+      color var(--motion-base) var(--ease-precise);
+  }
+
+  .quote-spin[hidden] {
+    display: none;
+  }
+
+  .quote-spin:hover,
+  .quote-spin:focus-visible {
+    background-color: var(--color-text);
+    color: var(--color-bg);
+  }
+
+  @media (max-width: 639.98px) {
+    .quote-spin {
+      margin-bottom: var(--space-6);
+    }
+  }
+</style>

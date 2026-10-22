@@ -15,7 +15,11 @@
   --color-border-strong: var(--black);
   --color-surface: #f7f7f7;
   --color-dot: #d4d4d4;
-  --color-dot-active: #ff6f61; /* coral — the card dot sweep */
+  --color-dot-active: var(--color-text); /* the dot sweep — ink, so the grey dots darken */
+  /* Homepage dot field (DotField.astro): ink dots at this opacity, darkening
+     towards full ink as they gather into a shape. */
+  --field-ink: var(--color-text);
+  --field-alpha: 0.4;
 
   /* Radii — flat everywhere except pill controls (toggle, availability badge) */
   --radius-full: 999px;
@@ -116,6 +120,35 @@ html[data-theme="dark"] {
   --color-border-strong: var(--white);
   --color-surface: #1a1a1a;
   --color-dot: #404040;
+  --field-alpha: 0.4;
+}
+
+/* ==========================================================================
+   Theme wipe
+   ========================================================================== */
+/* Light ↔ dark wipe (Header.astro's wipeToTheme): a same-document view
+   transition where the new theme is revealed top → bottom with a straight
+   edge, over the old one held still. While html.theme-wiping is set, the
+   header and titles drop their transition names so they're part of the one
+   sheet rather than crossfading on their own (titles' names are inline,
+   hence !important). Beats the page-transition root rules below on
+   specificity. */
+html.theme-wiping .site-header,
+html.theme-wiping .vt-title {
+  view-transition-name: none !important;
+}
+
+html.theme-wiping::view-transition-old(root) {
+  animation: none;
+}
+
+html.theme-wiping::view-transition-new(root) {
+  animation: theme-wipe var(--motion-page) var(--ease-wipe) both;
+}
+
+@keyframes theme-wipe {
+  from { clip-path: inset(0 0 100% 0); }
+  to { clip-path: inset(0); }
 }
 
 /* ==========================================================================
@@ -345,53 +378,22 @@ html.draw-ready .stat-value:not(.is-counting, .is-counted) {
 }
 
 /* ==========================================================================
-   Page grid — a faint dotted lattice of square cells behind every page,
-   locked to the layout grid (cell = one column + one gutter; lines on the
-   gutter centres, so content columns sit inside cells). Lines are laid out
-   on whole device pixels by BaseLayout's page-grid script, which also snaps
-   [data-snap] sections onto the rows. Behind the content: anything with its
-   own fill covers it. Without JS there's simply no grid.
+   Page grid — an undrawn layout grid (pitch = one column + one gutter). An
+   empty box BaseLayout's page-grid script measures to publish the grid's
+   units (--grid-inset, --grid-pitch, --grid-col) and snap [data-snap]
+   sections onto its rows. Nothing is drawn.
    ========================================================================== */
 body {
   position: relative; /* containing block for .page-grid: the full page */
 }
 
 .page-grid {
-  --grid-line: color-mix(in srgb, var(--color-border) 85%, var(--color-text));
   position: absolute;
   inset: 0;
-  z-index: -1; /* above the root background */
-  overflow: clip;
+  z-index: -1;
   pointer-events: none;
-  /* Read by the script (resolved to px), not used for layout — the lines
-     are absolutely positioned against the padding edge. */
+  /* Read by the script (resolved to px), not used for layout. */
   padding-inline: var(--gutter);
-}
-
-.page-grid-line {
-  position: absolute;
-}
-
-.page-grid-line--v {
-  top: 0;
-  bottom: 0;
-  width: var(--grid-dot);
-  background-image: repeating-linear-gradient(
-    to bottom,
-    var(--grid-line) 0 var(--grid-dot),
-    transparent var(--grid-dot) var(--grid-dot-period)
-  );
-}
-
-.page-grid-line--h {
-  left: 0;
-  right: 0;
-  height: var(--grid-dot);
-  background-image: repeating-linear-gradient(
-    to right,
-    var(--grid-line) 0 var(--grid-dot),
-    transparent var(--grid-dot) var(--grid-dot-period)
-  );
 }
 
 /* ==========================================================================
@@ -657,8 +659,7 @@ code, pre {
 
 @media (min-width: 768px) {
   /* On the site's 12-column grid (the page grid): label spans columns 1–4,
-     body 5–12 — both start on a drawn grid line (the page grid draws every
-     other column). Real grid tracks, so both edges land exactly on column
+     body 5–12. Real grid tracks, so both edges land exactly on column
      edges at every width. */
   .cs-section {
     grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -871,11 +872,16 @@ code, pre {
    About page. Wrap each line-fragment in its own <span>: per-line inverted
    highlight (text-colour background, page-colour glyphs), the same treatment
    as the case-study card title. Pair with .display-quote-cite for the
-   attribution line.
+   attribution line, whose <span> takes the same highlight.
 
    Scale: 3xl quote / base cite on mobile, flush to the gutter; 4xl / xl from
    640px with the highlight's left bleed restored; 7xl display size from 768px.
    ========================================================================== */
+/* Size container for the fluid display size (cqw) — see below. */
+.display-quote-block {
+  container-type: inline-size;
+}
+
 .display-quote {
   font-size: var(--font-size-3xl);
   /* Looser than line-height-tight so the stacked highlight fragments
@@ -885,7 +891,8 @@ code, pre {
   margin-bottom: var(--space-8);
 }
 
-.display-quote span {
+.display-quote span,
+.display-quote-cite span {
   display: inline;
   background-color: var(--color-text);
   color: var(--color-bg);
@@ -908,9 +915,18 @@ code, pre {
     font-size: var(--font-size-4xl);
   }
 
-  .display-quote span {
-    padding-left: 0.3em;
+  /* Left bleed: every line's highlight gets the padding (it's cloned per
+     fragment), and the whole heading shifts left to cancel it. A negative
+     margin on the span itself only reaches the first line in Firefox, which
+     indents the lines below it. */
+  .display-quote,
+  .display-quote-cite {
     margin-left: -0.3em;
+  }
+
+  .display-quote span,
+  .display-quote-cite span {
+    padding-left: 0.3em;
   }
 
   .display-quote-cite {
@@ -918,9 +934,44 @@ code, pre {
   }
 }
 
+/* Size tiers (below 768px) — quotes come from a random pool
+   (DisplayQuote.astro) and run from a line to a paragraph, so longer ones step
+   down. data-length is set from the character count in
+   src/utils/testimonials.ts. */
+.display-quote:is([data-length="medium"], [data-length="long"]) {
+  font-size: var(--font-size-2xl);
+}
+
+@media (min-width: 640px) {
+  .display-quote[data-length="medium"] { font-size: var(--font-size-3xl); }
+  .display-quote[data-length="long"] { font-size: var(--font-size-2xl); }
+}
+
+/* From 768px the size is fluid rather than tiered, so any quote fits the
+   single-screen homepage hero: the smaller of
+     - width: sized so the quote wraps to about --quote-lines lines of the
+       block (--quote-chars is the character count, set by
+       DisplayQuote.astro; cqw is the .display-quote-block's width)
+     - height: that many lines (at 1.6 line-height) fit what the hero leaves
+       after the header, bio row, pill and cite (~555px of the viewport)
+   held between 2xl and the 7xl display size. Long quotes take a fourth line
+   rather than shrinking further. */
 @media (min-width: 768px) {
-  .display-quote {
-    font-size: var(--font-size-7xl);
+  .display-quote,
+  .display-quote:is([data-length="medium"], [data-length="long"]) {
+    --quote-lines: 3;
+    font-size: clamp(
+      var(--font-size-2xl),
+      min(
+        187cqw * var(--quote-lines) / var(--quote-chars, 100),
+        (100dvh - 555px) / (1.6 * var(--quote-lines))
+      ),
+      var(--font-size-7xl)
+    );
+  }
+
+  .display-quote[data-length="long"] {
+    --quote-lines: 4;
   }
 }
 
@@ -1205,8 +1256,21 @@ ul.statement-list {
 }
 
 /* --- Figure --------------------------------------------------------- */
+/* Space above and below every image block (Figure, ImageGrid, BeforeAfter).
+   They all run the full section width, so they get more air than text
+   blocks to let the copy between them breathe. */
+.case-study {
+  --cs-media-space: var(--space-12);
+}
+
+@media (min-width: 768px) {
+  .case-study {
+    --cs-media-space: var(--space-20);
+  }
+}
+
 .case-study .cs-figure {
-  margin-block: var(--space-10);
+  margin-block: var(--cs-media-space);
 }
 
 .case-study .cs-figure > p {
@@ -1222,14 +1286,14 @@ ul.statement-list {
    led by a registration target. The target is centred on the image's trim
    line (--crop-inset, see Crop marks), so its crosshair lines up with the
    crop tick above it; the caption clears the bottom marks. 11px target with
-   1px lines on its middle row/column, so the crosshair hits whole pixels. */
-.case-study .cs-figure-caption {
+   1px lines on its middle row/column, so the crosshair hits whole pixels.
+   .tag-slug borrows the same slug line for a writing post's tags. */
+.case-study .cs-figure-caption,
+.tag-slug {
   display: flex;
   align-items: flex-start;
   gap: var(--space-2);
-  margin-top: calc(var(--crop-gap) + var(--crop-len) + var(--space-2));
   margin-bottom: 0;
-  padding-left: calc(var(--crop-inset) - 5px);
   font-family: "DM Mono", var(--font-mono);
   font-size: var(--font-size-xs);
   line-height: 1.5;
@@ -1237,7 +1301,17 @@ ul.statement-list {
   text-align: left;
 }
 
-.case-study .cs-figure-caption::before {
+.case-study .cs-figure-caption {
+  margin-top: calc(var(--crop-gap) + var(--crop-len) + var(--space-2));
+  padding-left: calc(var(--crop-inset) - 5px);
+}
+
+.tag-slug {
+  margin-top: 0;
+}
+
+.case-study .cs-figure-caption::before,
+.tag-slug::before {
   content: "";
   flex: none;
   width: 11px;
@@ -1250,7 +1324,7 @@ ul.statement-list {
 
 /* --- ImageGrid ---------------------------------------------------- */
 .case-study .cs-image-grid {
-  margin-block: var(--space-10);
+  margin-block: var(--cs-media-space);
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--space-4);
@@ -1270,6 +1344,11 @@ ul.statement-list {
   grid-column: 1 / -1;
 }
 
+/* An animated demo standing in for one of the grid's images. */
+.case-study .cs-image-grid > .cs-proto {
+  margin-block: 0;
+}
+
 @media (min-width: 640px) {
   .case-study .cs-image-grid--2,
   .case-study .cs-image-grid--3,
@@ -1285,7 +1364,7 @@ ul.statement-list {
 
 /* --- BeforeAfter ------------------------------------------------ */
 .case-study .cs-compare {
-  margin-block: var(--space-10);
+  margin-block: var(--cs-media-space);
 }
 
 /* Split mode — the original side-by-side pair */
@@ -1519,6 +1598,37 @@ ul.statement-list {
   mask-image: var(--dot-spot, linear-gradient(transparent, transparent));
 }
 
+/* Dot field highlights (homepage): every run of copy and every link over
+   the always-on dot field (DotField.astro) sits on a highlight of the page
+   colour, so no dot ever cuts through a letter. The same per-line, word-
+   hugging treatment as the case-study cards; the matched -/+ margin and
+   padding keep text where it was while the highlight bleeds a few px past
+   it. Links keep their marker sweep: it paints over this background. (The
+   display quote and its cite already sit on their own inverted highlight.) */
+body:has(.dot-field) .hero-bio p > span {
+  background-color: var(--color-bg);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  /* 0.15em top and bottom makes each line's highlight a hair taller than the
+     line box, so the lines meet with no strip of dots between them. */
+  padding: 0.15em 0.3em;
+  margin-left: -0.3em;
+}
+
+body:has(.dot-field) :is(.marker-link, .brand-name, .brand-title, .brand-short) {
+  background-color: var(--color-bg);
+  padding-inline: 0.3em;
+  margin-inline: -0.3em;
+}
+
+body:has(.dot-field) :is(.brand-full > *, .theme-switch) {
+  width: fit-content;
+}
+
+body:has(.dot-field) .theme-switch {
+  background-color: var(--color-bg);
+}
+
 /* Icon sits on a solid disc so it reads cleanly over the card's dot field.
    The disc lives on the container; the filter that recolours the grey source
    SVG is on the <img> alone — a filter applied to the disc element would
@@ -1531,14 +1641,6 @@ ul.statement-list {
   justify-content: center;
   border-radius: 50%;
   background: var(--color-text);
-  transition: background-color calc(var(--motion-slow) * 2) var(--ease-precise);
-}
-
-/* The disc takes the dot sweep's colour while the pointer is on the card. */
-@media (hover: hover) {
-  .cs-card:hover .cs-card-icon {
-    background: var(--color-dot-active);
-  }
 }
 
 :is(.case-study, .work-entry) .cs-card-icon > p {

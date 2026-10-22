@@ -10,7 +10,7 @@ interface Props {
 const { post } = Astro.props;
 const { title, description, publishDate, tags } = post.data;
 
-const formattedDate = new Intl.DateTimeFormat('en-US', {
+const formattedDate = new Intl.DateTimeFormat('en-GB', {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
@@ -32,11 +32,7 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
         <h1 class="article-title">{title}</h1>
         {description && <p class="article-lead">{description}</p>}
         {tags && tags.length > 0 && (
-          <div class="badges-group">
-            {tags.map((tag) => (
-              <span class="badge">{tag}</span>
-            ))}
-          </div>
+          <p class="tag-slug">Tags: {tags.join(' / ')}</p>
         )}
       </header>
 

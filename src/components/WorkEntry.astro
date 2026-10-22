@@ -1,8 +1,5 @@
 ---
-import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
-// Hugeicons "Route01": a path from start to end, i.e. problem → result.
-import caseStudyIcon from '../assets/icons/case-study.svg';
 import Card from './Card.astro';
 import StatGrid from './StatGrid.astro';
 import StatTile from './StatTile.astro';
@@ -23,12 +20,12 @@ const displayTitle = title.split('•')[0].trim();
 <article class="work-entry">
   <Card>
     <div class="work-entry-content">
-      <div class="work-entry-kicker">
-        <div class="cs-card-icon"><Image src={caseStudyIcon} alt="" /></div>
-        <span class="work-entry-kicker-label">Featured project</span>
-      </div>
+      <p class="work-entry-kicker-label">Case study</p>
       <h3 class="work-entry-title"><a href={href} class="marker-link"><span class="vt-title" style={`view-transition-name: title-${project.id}`}>{displayTitle}</span><span class="work-entry-arrow" aria-hidden="true"> →</span></a></h3>
       <p class="work-entry-summary"><span class="work-entry-hl">{summary ?? description}</span></p>
+      {/* One-line version for compact layouts (the Work carousel swaps it
+          in for the summary); hidden otherwise. */}
+      <p class="work-entry-description"><span class="work-entry-hl">{description}</span></p>
 
       {highlights.length > 0 ? (
         <StatGrid columns={3}>
@@ -77,16 +74,9 @@ const displayTitle = title.split('•')[0].trim();
     margin-left: -0.3em;
   }
 
-  /* Icon disc (shared .cs-card-icon rules in global.css) beside a kicker
-     label, standing in for Card's own icon slot so the two share a row. */
-  .work-entry-kicker {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    margin-bottom: var(--space-1);
-  }
-
+  /* "Case study": says the card opens one. */
   .work-entry-kicker-label {
+    margin-bottom: 0;
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-medium);
     text-transform: uppercase;
@@ -116,11 +106,16 @@ const displayTitle = title.split('•')[0].trim();
     margin-bottom: 0;
   }
 
-  .work-entry-summary {
+  .work-entry-summary,
+  .work-entry-description {
     font-size: var(--font-size-base);
     line-height: var(--line-height-normal);
     color: var(--color-text);
     margin-bottom: 0;
+  }
+
+  .work-entry-description {
+    display: none;
   }
 
   /* Compact stats: StatGrid/StatTile are sized for case-study sections, so
