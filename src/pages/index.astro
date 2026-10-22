@@ -1,31 +1,32 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SocialLinks from '../components/SocialLinks.astro';
+import DisplayQuote from '../components/DisplayQuote.astro';
+import DotField from '../components/DotField.astro';
 import { site } from '../config';
 ---
 
 <BaseLayout fullBleed>
+  {/* Dot field behind the page; nav hover gathers it into shapes. */}
+  <DotField />
+
   <div class="container">
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="hero-main">
-        <p class="availability-pill">{site.hero.availability}</p>
-        <h1 class="display-quote">
-          <span>“{site.hero.quote}”</span>
-        </h1>
-        <p class="display-quote-cite">{site.hero.cite}</p>
+        <DisplayQuote spin />
       </div>
 
       <div class="hero-bottom">
         <div class="hero-bio">
           <p>
-            A couple of short paragraphs introducing you and what you do — this
+            <span>A couple of short paragraphs introducing you and what you do — this
             is the first thing a visitor reads after the headline quote above,
-            so keep it plain-spoken and specific to your own work.
+            so keep it plain-spoken and specific to your own work.</span>
           </p>
           <p>
-            Mention a project you're building, a specialism, or anything else
-            worth a link here. Edit this copy directly in <code>src/pages/index.astro</code>.
+            <span>Mention a project you’re building, a specialism, or anything else
+            worth a link here. Edit this copy directly in <code>src/pages/index.astro</code>.</span>
           </p>
         </div>
 
@@ -56,18 +57,6 @@ import { site } from '../config';
     padding: var(--space-8) 0 var(--space-12);
   }
 
-  .availability-pill {
-    display: inline-flex;
-    align-self: flex-start;
-    align-items: center;
-    padding: var(--space-2) var(--space-4);
-    border-radius: var(--radius-full);
-    background-color: var(--color-surface);
-    font-size: var(--font-size-xs);
-    color: var(--color-text);
-    margin-bottom: var(--space-8);
-  }
-
   .hero-main {
     flex: 1;
     min-height: 0;
@@ -77,8 +66,8 @@ import { site } from '../config';
     max-width: 1144px;
   }
 
-  /* Display quote + cite type live in global.css (.display-quote /
-     .display-quote-cite) so the homepage and About page stay in sync. */
+  /* Display quote, cite and spin pill: DisplayQuote.astro (shared with the
+     About page) + .display-quote in global.css. */
 
   .hero-bottom {
     display: flex;
@@ -131,6 +120,7 @@ import { site } from '../config';
     font-size: var(--font-size-sm);
     color: var(--color-text);
     padding: 0.15em 0.3em;
+    background-color: var(--color-bg); /* keeps the label clear of the dot field */
     /* Marker sweep: a text-colour highlight grows from the start of the label
        (screen-bottom, after the 180° rotation) to the end on hover, glyphs
        flipping to the page colour — the inverted highlight from the hero quote
@@ -175,10 +165,6 @@ import { site } from '../config';
 
     .hero-main {
       justify-content: flex-start;
-    }
-
-    .availability-pill {
-      margin-bottom: var(--space-6);
     }
 
     /* Social links live in the menu overlay on mobile */

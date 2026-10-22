@@ -9,19 +9,20 @@ every step below tells you exactly what to type and where.
 
 ## What you get
 
-- A one-page homepage: a big pull-quote, a short bio, your socials
-- A **Work** page laid out as a timeline of your roles, each with its case
-  studies — and a big kit of ready-made
+- A one-page homepage: a big display quote dealt at random from a pool of
+  testimonials (with a button to roll another), a short bio, your socials,
+  over a field of dots that gathers into 3D shapes when you hover the nav
+- A **Work** page that scrolls sideways through your roles, each with its
+  case studies — and a big kit of ready-made
   content blocks (stat grids, quotes, before/after image sliders, image
-  grids, icon-and-text "journey" steps, bordered cards) so you can lay out a
-  case study without writing any code
+  grids, icon-and-text "journey" steps, bordered cards, animated UI demos) so
+  you can lay out a case study without writing much code
 - An **About** page and a **Writing** section for articles/notes
 - Light and dark mode, switchable in the header, remembered on return visits
-- Quiet, print-inspired motion: a dotted layout grid behind every page, rules
-  that draw in as you scroll, numbers that count up, crop marks on images,
+- Quiet, print-inspired motion: rules that draw in as you scroll, numbers that count up, crop marks on images,
   page transitions, and a dot-grid sweep when you hover a card. The movement
   is toned down or switched off for visitors who turn on reduced motion
-- One file to edit for your name, role, socials and homepage copy
+- One file to edit for your name, role, socials and work history
 
 Look at **Work → Component Showcase** once the site is running — it's a
 single page that shows every content block this theme has, in order, with
@@ -87,17 +88,26 @@ export const site = {
     { label: 'LinkedIn', href: 'https://linkedin.com/in/you' },
     { label: 'GitHub', href: 'https://github.com/you' },
   ],
-  hero: {
-    availability: 'Available for new work. Let’s talk →',
-    quote: 'A short, sharp line that sets the tone for the whole site.',
-    cite: '— Someone worth quoting',
-  },
   // ...
 };
 ```
 
 Save the file and check your browser — the header, footer and homepage
 should already show your details.
+
+### Your quotes
+
+The big quote on the homepage and About page is picked at random from
+**`src/content/testimonials.md`**. Add one numbered line per quote under a
+`## Theme` heading, in this shape:
+
+```
+1. "What they said about working with you." — Their name, Their role
+```
+
+Quotes are shuffled so none repeats until every one has been shown, and two
+in a row never share a person or a theme. Longer quotes get smaller type so
+they still fit on one screen.
 
 ### Your work history
 
@@ -119,7 +129,9 @@ case studies listed under it. The roles live in `experience` in the same
 ```
 
 A case study appears under the role whose `company` matches the study's
-`client` (see below). Roles with no case studies are skipped.
+`client` (see below). Roles with no case studies or achievements are
+skipped. `earlierWork`, just below `experience`, is one line under the
+timeline for older work that doesn't need its own role (`null` hides it).
 
 ### Your favicon (the little icon in the browser tab)
 
@@ -127,6 +139,12 @@ Replace the three files in `public/` — `favicon.svg`, `favicon.png` and
 `favicon.ico` — with your own. They can be different images if you like, but
 keeping them all the same icon at different sizes is simplest. Any online
 "favicon generator" can produce all three from one image.
+
+### Your share image
+
+`public/og-image.png` is the picture shown when someone shares a link to
+your site (on LinkedIn, Slack, iMessage and so on). Replace it with your own
+1200 × 630 image.
 
 ### The About page
 

@@ -10,6 +10,8 @@ import { site } from '../config';
 interface Props {
   title?: string;
   description?: string;
+  /** Social share image, from public/ (1200×630). */
+  image?: string;
   fullBleed?: boolean;
   noindex?: boolean;
 }
@@ -17,11 +19,13 @@ interface Props {
 const {
   title = `${site.name} · ${site.role}`,
   description = site.description,
+  image = '/og-image.png',
   fullBleed = false,
   noindex = false,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImageURL = new URL(image, Astro.site);
 ---
 
 <!doctype html>
@@ -29,6 +33,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- iOS links numbers it takes for phone numbers, which wipes them out
+         of the demos' SVG text. -->
+    <meta name="format-detection" content="telephone=no" />
     <link id="favicon" rel="icon" type="image/png" href="/favicon.png" />
     <meta id="theme-color" name="theme-color" content="#ffffff" />
     <script is:inline>
@@ -141,17 +148,24 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonicalURL} />
+    <meta property="og:site_name" content={`${site.name} | ${site.role}`} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageURL} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${site.name} · ${site.role}`} />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content={canonicalURL} />
     <meta property="twitter:title" content={title} />
     <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={ogImageURL} />
+    <meta property="twitter:image:alt" content={`${site.name} · ${site.role}`} />
   </head>
   <body class:list={{ 'is-full-bleed': fullBleed }}>
-    {/* Dotted background grid — lines laid out by the script below (global.css). */}
+    {/* Undrawn layout grid — measured by the script below (global.css). */}
     <div class="page-grid" aria-hidden="true"></div>
 
     <Header />
@@ -162,20 +176,15 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
     <script is:inline>
       // --- Page grid --------------------------------------------------------------
-      // A dotted lattice of square cells behind every page, locked to the layout
-      // grid: its pitch is one column + one gutter (12 across the --wide-max
-      // measure, 4 below 640px), lines on the gutter centres, so content columns
-      // sit inside cells; GRID_STEP draws every Nth line for bigger cells. Rows
-      // share the cell size, counted from the top of the document.
+      // An undrawn layout grid: its pitch is one column + one gutter (12 across
+      // the --wide-max measure, 4 below 640px), lines on the gutter centres.
+      // Rows share the pitch, counted from the top of the document. Nothing is
+      // drawn — it only publishes the grid's units for layout CSS and sets the
+      // page's vertical rhythm.
       //
-      // Every line is its own element placed on whole device pixels, with dots a
-      // whole number of device pixels long — so each renders identically at any
-      // display scaling (a repeating gradient would land lines on fractional
-      // pixels and draw some of them thicker).
-      //
-      // [data-snap] sections then move to the nearest row (every SNAP_STEP):
-      // their .hairline rule if they have one (so the rule sits exactly on a
-      // row), else their top edge. Up by trimming their own top margin (never
+      // [data-snap] sections move to the nearest row (every SNAP_STEP): their
+      // .hairline rule if they have one (so the rule sits exactly on a row),
+      // else their top edge. Up by trimming their own top margin (never
       // by more than half of it), otherwise down by growing it (padding if a
       // margin would collapse away).
       //
@@ -185,14 +194,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         var grid = document.querySelector('.page-grid');
         if (!grid) return;
         var narrow = window.matchMedia('(max-width: 639.98px)');
-        // Draw (and snap sections to) every Nth line of the layout grid: 1 =
-        // a cell per column, 2 = a cell per two columns. Counted from the
-        // measure's left edge, so with an even step both measure edges stay drawn.
-        var GRID_STEP = 2;
         // Snap sections to every Nth row of the layout grid. 1 keeps section
-        // spacing tight (half the rules then land on undrawn rows between the
-        // drawn ones); GRID_STEP puts every rule on a drawn row, at the cost of
-        // much wider variation in the gaps.
+        // spacing tight; larger steps vary the gaps much more widely.
         var SNAP_STEP = 1;
 
         function metrics() {
@@ -209,11 +212,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
             width: width,
             gutter: gutter,
             pitch: (measure + gutter) / cols,
-            cell: ((measure + gutter) / cols) * GRID_STEP,
             snap: ((measure + gutter) / cols) * SNAP_STEP,
             origin: (width - measure) / 2 - gutter / 2,
             dot: dot / dpr,
-            period: Math.max(2 * dot, Math.round(3 * dpr)) / dpr,
           };
         }
 
@@ -221,9 +222,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
           return Math.round(value * dpr) / dpr;
         }
 
-        // The y a section snaps by. For a rule: its bottom edge less one dot,
-        // i.e. where the row line's top must be for the two (equal weight —
-        // a 1px border and a dot both floor to whole device pixels) to coincide.
+        // The y a section snaps by. For a rule: its bottom edge less ~1px (whole
+        // device pixels), where the old drawn row line sat, so the spacing is
+        // unchanged.
         // No rule: the top of its content, so a padding fallback counts too.
         function anchorY(section, m) {
           var rule = section.querySelector('.hairline');
@@ -273,24 +274,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
           });
         }
 
-        function drawLines(m) {
-          grid.style.setProperty('--grid-dot', m.dot + 'px');
-          grid.style.setProperty('--grid-dot-period', m.period + 'px');
-          var height = document.body.scrollHeight;
-          var html = '';
-          var first = Math.ceil(-m.origin / m.cell);
-          var last = Math.floor((m.width - m.origin) / m.cell);
-          for (var k = first; k <= last; k++) {
-            html += '<span class="page-grid-line page-grid-line--v" style="left:' +
-              snapPx(m.origin + k * m.cell, m.dpr) + 'px"></span>';
-          }
-          for (var n = 0; n * m.cell <= height; n++) {
-            html += '<span class="page-grid-line page-grid-line--h" style="top:' +
-              snapPx(n * m.cell, m.dpr) + 'px"></span>';
-          }
-          grid.innerHTML = html;
-        }
-
         var lastWidth = 0;
         // Full-width content (.container: header, footer, homepage) insets to
         // the outermost cells that fit on screen — half a gutter inside the
@@ -303,7 +286,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         function setGridVars(m) {
           var root = document.documentElement.style;
           var firstLine = ((m.origin % m.pitch) + m.pitch) % m.pitch;
-          // From the line as drawn (snapped to a device pixel), not its ideal x.
+          // From the line snapped to a device pixel, not its ideal x.
           var inset = snapPx(firstLine, m.dpr) + m.gutter / 2;
           root.setProperty('--grid-inset', inset + 'px');
           root.setProperty('--grid-pitch', m.pitch + 'px');
@@ -316,7 +299,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
           if (m.width !== lastWidth || layout.force) snapSections(m);
           lastWidth = m.width;
           layout.force = false;
-          drawLines(m);
         }
 
         var queued = false;
@@ -343,10 +325,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         });
         window.addEventListener('load', function () { schedule(true); });
         window.addEventListener('resize', function () { schedule(false); });
-        // Page height changes (images, late content) only need more/fewer rows.
-        if ('ResizeObserver' in window) {
-          new ResizeObserver(function () { schedule(false); }).observe(document.body);
-        }
       })();
     </script>
 
@@ -364,14 +342,17 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
     <script>
       // Crop marks: wrap every case-study image (and the before/after
-      // slider, which is one image to the eye) in a .cs-crop box carrying
-      // print trim marks — styles in global.css. Card and journey icons
+      // slider, animated UI demos and design system specimens, each one
+      // image to the eye) in a
+      // .cs-crop box carrying print trim marks — styles in global.css. Card and journey icons
       // aren't images in this sense, so they're left alone. Runs before the
       // rule observer below picks the boxes up.
       const CROP_TARGETS = [
         '.case-study-hero-image',
         '.case-study :is(.cs-figure, .cs-image-grid, .cs-compare-item) img',
         '.case-study .cs-compare-viewport',
+        '.case-study .cs-proto-stage',
+        '.case-study .cs-specimen',
       ].join(', ');
       const CROP_MARKS =
         '<span class="crop-marks" aria-hidden="true">' +
@@ -456,10 +437,18 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         requestAnimationFrame(frame);
       };
 
-      if (document.documentElement.classList.contains('draw-ready')) {
-        const revealed = (window as Window & { __pageRevealed?: Promise<unknown> | null })
-          .__pageRevealed;
-        Promise.resolve(revealed).then(() => {
+      // Pages that reveal stats themselves (the Work page counts a role's
+      // stats as that role takes focus) mark them [data-count-deferred] and
+      // call window.__countUp, which is null when counting is off.
+      const countWindow = window as Window & {
+        __pageRevealed?: Promise<unknown> | null;
+        __countUp?: ((el: HTMLElement) => void) | null;
+      };
+      const counting = document.documentElement.classList.contains('draw-ready');
+      countWindow.__countUp = counting ? countUp : null;
+
+      if (counting) {
+        Promise.resolve(countWindow.__pageRevealed).then(() => {
           const observer = new IntersectionObserver((entries) => {
             entries
               .filter((entry) => entry.isIntersecting)
@@ -468,7 +457,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
                 setTimeout(() => countUp(entry.target as HTMLElement), i * 90);
               });
           });
-          document.querySelectorAll('.stat-value').forEach((el) => observer.observe(el));
+          document
+            .querySelectorAll('.stat-value:not([data-count-deferred] .stat-value)')
+            .forEach((el) => observer.observe(el));
         });
       }
     </script>
@@ -523,16 +514,17 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     </script>
 
     <script>
-      // Card dot spotlight: the dots under the pointer darken, with a soft
-      // falloff, and the spot eases after the pointer, leaving a wake of
-      // darkened dots that fades and narrows behind it. The darker field is
-      // a second copy of the dots (.cs-card::before) revealed by a mask built
-      // here: the spot plus a soft blob dropped every eighth of its radius
-      // along its path. The spot scales with the card's diagonal so it sweeps
-      // across a wide /work card just as it does a small case-study card.
-      // Mouse only; reduced motion pins the spot to the pointer with no
-      // easing and no wake.
-      const SPOT_SCALE = 0.56; // spot radius as a share of the card's diagonal
+      // Dot spotlight: the dots under the pointer take the active colour, with
+      // a soft falloff, and the spot eases after the pointer, leaving a wake
+      // that fades and narrows behind it. The coloured field is a second copy
+      // of the dots (.cs-card::before) revealed
+      // by a mask built here: the spot plus a soft blob dropped every eighth
+      // of its radius along its path. On cards the spot scales with the
+      // card's diagonal so it sweeps across a wide /work card just as it does
+      // a small case-study card. Mouse only;
+      // reduced motion pins the spot to the pointer with no easing and no
+      // wake.
+      const SPOT_SCALE = 0.56; // card spot radius as a share of its diagonal
       const SPOT_MIN = 160; // px — never smaller than this
       const TRAIL_LIFE = 1000; // ms for a blob to fade out
       const MAX_TRAIL = 24;
@@ -542,7 +534,13 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         `radial-gradient(circle ${r}px at ${x}px ${y}px, ` +
         `rgb(0 0 0 / ${a}), rgb(0 0 0 / ${a * 0.45}) 45%, transparent)`;
 
-      document.querySelectorAll<HTMLElement>('.cs-card').forEach((card) => {
+      // `field` carries the mask; `surface` takes the pointer events;
+      // `radius` reads the field's box and returns the spot size.
+      const spotlight = (
+        field: HTMLElement,
+        surface: HTMLElement,
+        radius: (r: DOMRect) => number,
+      ) => {
         let target = { x: 0, y: 0 };
         let pos = { x: 0, y: 0 };
         let strength = 0; // spot opacity, eases in on enter / out on leave
@@ -553,8 +551,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         let spot = SPOT_MIN;
 
         const local = (e: PointerEvent) => {
-          const r = card.getBoundingClientRect();
-          spot = Math.max(SPOT_MIN, SPOT_SCALE * Math.hypot(r.width, r.height));
+          const r = field.getBoundingClientRect();
+          spot = radius(r);
           return { x: e.clientX - r.left, y: e.clientY - r.top };
         };
 
@@ -576,13 +574,13 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
             return blob(b.x, b.y, spot * (0.9 - 0.4 * p), 0.85 * (1 - p));
           });
           layers.push(blob(pos.x, pos.y, spot, strength));
-          card.style.setProperty('--dot-spot', layers.join(', '));
+          field.style.setProperty('--dot-spot', layers.join(', '));
 
           if (inside || strength > 0.01 || trail.length) {
             requestAnimationFrame(frame);
           } else {
             running = false;
-            card.style.removeProperty('--dot-spot');
+            field.style.removeProperty('--dot-spot');
           }
         };
 
@@ -599,11 +597,17 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
           requestAnimationFrame(frame);
         };
 
-        card.addEventListener('pointerenter', follow);
-        card.addEventListener('pointermove', follow);
-        card.addEventListener('pointerleave', () => {
+        const leave = () => {
           inside = false;
-        });
+        };
+
+        surface.addEventListener('pointerenter', follow);
+        surface.addEventListener('pointermove', follow);
+        surface.addEventListener('pointerleave', leave);
+      };
+
+      document.querySelectorAll<HTMLElement>('.cs-card').forEach((card) => {
+        spotlight(card, card, (r) => Math.max(SPOT_MIN, SPOT_SCALE * Math.hypot(r.width, r.height)));
       });
     </script>
   </body>

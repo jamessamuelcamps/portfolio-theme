@@ -1,0 +1,166 @@
+---
+/**
+ * Example animated demo — copy this file to start your own.
+ *
+ * A demo is plain markup and CSS inside <ProtoStage>. The timeline sets
+ * data-* attributes on the element marked data-proto-screen at given times
+ * (ms), and the CSS below reacts to them; transitions do the motion. A `tap`
+ * shows a press ring on the element matching its selector. The stage scales
+ * the demo from its design size (width × height) to fit the figure, loops it
+ * while it's in view, and fades it out and in at the end of each loop.
+ */
+import ProtoStage from '../ProtoStage.astro';
+import type { ProtoEntry } from './types';
+
+interface Props {
+  caption?: string;
+}
+
+const { caption } = Astro.props;
+
+const timeline: ProtoEntry[] = [
+  { at: 0, set: { alerts: 'off', saved: 'no' } },
+  // Turn alerts on…
+  { at: 1200, tap: '[data-tap="alerts"]' },
+  { at: 1300, set: { alerts: 'on' } },
+  // …and the change is saved
+  { at: 2000, set: { saved: 'yes' } },
+];
+---
+
+<ProtoStage
+  width={900}
+  height={420}
+  timeline={timeline}
+  duration={5000}
+  caption={caption}
+  label="A settings card. The Weekly summary switch is tapped on, and a confirmation saying the change was saved slides up."
+>
+  <div class="ex" data-proto-screen>
+    <div class="ex-card" data-proto-fade>
+      <p class="ex-title">Notifications</p>
+      <div class="ex-row">
+        <div>
+          <p class="ex-label">Weekly summary</p>
+          <p class="ex-hint">A digest of activity every Monday</p>
+        </div>
+        <span class="ex-switch" data-tap="alerts"><span class="ex-knob"></span></span>
+      </div>
+      <div class="ex-row">
+        <div>
+          <p class="ex-label">Product updates</p>
+          <p class="ex-hint">New features and announcements</p>
+        </div>
+        <span class="ex-switch is-on"><span class="ex-knob"></span></span>
+      </div>
+      <p class="ex-toast">Saved</p>
+    </div>
+  </div>
+</ProtoStage>
+
+<style>
+  .ex {
+    position: relative;
+    width: 900px;
+    height: 420px;
+    display: grid;
+    place-items: center;
+    background: #eef0f3;
+    font-family: system-ui, sans-serif;
+    color: #111;
+  }
+
+  /* The demo is a picture of another product: pin its type and colours so
+     the site's own (and its dark mode) don't reach in. */
+  .ex p {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    line-height: 1.4;
+    color: #111;
+  }
+
+  .ex-card {
+    position: relative;
+    width: 520px;
+    padding: 32px;
+    border-radius: 20px;
+    background: #fff;
+  }
+
+  .ex-title {
+    margin-bottom: 16px !important;
+    font-size: 22px;
+    font-weight: 600;
+  }
+
+  .ex-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-top: 1px solid #e3e5ea;
+  }
+
+  .ex-label {
+    font-size: 17px;
+    font-weight: 500;
+  }
+
+  .ex .ex-hint {
+    font-size: 14px;
+    color: #6b7280;
+  }
+
+  .ex-switch {
+    position: relative;
+    width: 52px;
+    height: 32px;
+    border-radius: 16px;
+    background: #d1d5db;
+    transition: background-color 250ms ease;
+  }
+
+  .ex-knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+    transition: transform 250ms var(--ease-precise);
+  }
+
+  /* State from the timeline: data-alerts="on" flips the first switch. */
+  .ex-switch.is-on,
+  .ex[data-alerts="on"] .ex-switch[data-tap="alerts"] {
+    background: #111;
+  }
+
+  .ex-switch.is-on .ex-knob,
+  .ex[data-alerts="on"] .ex-switch[data-tap="alerts"] .ex-knob {
+    transform: translateX(20px);
+  }
+
+  .ex .ex-toast {
+    position: absolute;
+    right: 32px;
+    bottom: -56px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: #111;
+    color: #fff;
+    font-size: 14px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity 250ms ease,
+      transform 400ms var(--ease-precise);
+  }
+
+  .ex[data-saved="yes"] .ex-toast {
+    opacity: 1;
+    transform: none;
+  }
+</style>

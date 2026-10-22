@@ -6,7 +6,7 @@ import { site } from '../../config';
 
 const projects = await getCollection('projects', ({ data }) => !data.draft);
 
-// 'YYYY-MM' → 'Apr 2025'; tenure as whole months between start and end.
+// 'YYYY-MM' → 'Apr 2025'; tenure in whole months, start to end inclusive.
 const toMonths = (ym: string) => {
   const [y, m] = ym.split('-').map(Number);
   return y * 12 + (m - 1);
@@ -15,7 +15,8 @@ const formatMonth = (ym: string) =>
   new Date(`${ym}-01T00:00:00Z`).toLocaleDateString('en-GB', { month: 'short', year: 'numeric', timeZone: 'UTC' });
 const now = new Date();
 const formatTenure = (start: string, end: string | null) => {
-  const total = (end ? toMonths(end) : now.getFullYear() * 12 + now.getMonth()) - toMonths(start);
+  // Both the first and last months count, as on LinkedIn (Jan–Dec is 1 yr).
+  const total = (end ? toMonths(end) : now.getFullYear() * 12 + now.getMonth()) - toMonths(start) + 1;
   const years = Math.floor(total / 12);
   const months = total % 12;
   return [
@@ -37,7 +38,7 @@ const groups = site.experience
           : a.data.order - b.data.order
       ),
   }))
-  .filter((group) => group.projects.length > 0);
+  .filter((group) => group.projects.length > 0 || (group.achievements?.length ?? 0) > 0);
 
 if (import.meta.env.DEV) {
   const companies = new Set(site.experience.map((job) => job.company));
@@ -51,25 +52,31 @@ if (import.meta.env.DEV) {
 
 <BaseLayout
   title={`Work · ${site.name}`}
-  description={`Case studies by ${site.name}: the problem, what changed, and the results.`}
+  description={`Selected design leadership case studies by ${site.name}: the problem, what changed, and the results.`}
 >
-  <div class="container">
-    <div class="work-page">
+  <div class="work-view">
+    <div class="container">
       <header class="page-header">
         <h1 class="page-title">Work</h1>
       </header>
+    </div>
 
-      <ol class="timeline">
-        {groups.map((group) => (
-          <li class:list={['timeline-group', { 'is-current': group.end === null }]} data-snap>
-            <header class="group-header">
-              <h2 class="group-company">{group.company}</h2>
-              <p class="group-role">{group.role}</p>
+    {/* One slide per role. From 1024px (with the height for it) it's a
+        horizontal carousel: the role in focus centred and sharp, its
+        neighbours tilted, shrunk and blurred either side, and a timeline
+        along the bottom. Below that, or without JS, a plain list. */}
+    <ol class="work-track" aria-label="Roles, newest first" data-count-deferred>
+      {groups.map((group) => (
+        <li class:list={['work-slide', { 'is-current': group.end === null }]}>
+          <div class:list={['slide-inner', { 'is-bare': group.projects.length === 0 }]}>
+            <header class="slide-role">
               <p class="group-meta">
                 {formatMonth(group.start)} – {group.end ? formatMonth(group.end) : 'Present'}
                 <span aria-hidden="true"> · </span>
                 {formatTenure(group.start, group.end)}
               </p>
+              <h2 class="group-company">{group.company}</h2>
+              <p class="group-role">{group.role}</p>
               {group.scope && <p class="group-scope">{group.scope}</p>}
               {group.achievements && group.achievements.length > 0 && (
                 <ul class="group-achievements">
@@ -78,34 +85,56 @@ if (import.meta.env.DEV) {
               )}
             </header>
 
-            <div class="group-entries">
-              {group.projects.map((project) => (
-                <WorkEntry project={project} />
-              ))}
-            </div>
+            {group.projects.length > 0 && (
+              <div class="slide-tiles">
+                {group.projects.map((project, i) => (
+                  <div class="group-tile" style={`--i: ${i}`}>
+                    <WorkEntry project={project} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </li>
+      ))}
+    </ol>
+
+    <nav class="work-rail container" aria-label="Timeline">
+      <ol class="rail-list" style={`--count: ${groups.length}`}>
+        {groups.map((group, i) => (
+          <li>
+            <button type="button" class:list={['rail-stop', { 'is-current': group.end === null }]} data-go={i}>
+              <span class="rail-node" aria-hidden="true"></span>
+              <span class="rail-company">{group.company}</span>
+              <span class="rail-years">
+                {group.start.slice(0, 4)}{group.end ? (group.end.slice(0, 4) === group.start.slice(0, 4) ? '' : `–${group.end.slice(2, 4)}`) : '–now'}
+              </span>
+            </button>
           </li>
         ))}
       </ol>
-    </div>
+    </nav>
+
+    {site.earlierWork && (
+      <div class="container">
+        <p class="work-earlier">{site.earlierWork}</p>
+      </div>
+    )}
   </div>
+
+  {/* Before first paint, so the carousel lays out (and its tiles start
+      hidden) without flashing the list first. Same query as the script. */}
+  <script is:inline>
+    if (window.matchMedia('(min-width: 1024px) and (min-height: 700px)').matches) {
+      document.querySelector('.work-view').classList.add('is-carousel');
+    }
+  </script>
 </BaseLayout>
 
 <style>
-  /* On the page grid: held to the --wide-max measure like a case study,
-     then from 768px the page starts on column 3, so it spans columns 3–12
-     and the timeline's content (indented two more columns) spans 5–12. */
-  .work-page {
+  .page-header {
     max-width: var(--wide-max);
     margin-inline: auto;
-  }
-
-  @media (min-width: 768px) {
-    .work-page {
-      padding-left: calc(2 * var(--grid-pitch, 0px));
-    }
-  }
-
-  .page-header {
     margin-bottom: var(--space-10);
   }
 
@@ -114,90 +143,36 @@ if (import.meta.env.DEV) {
     margin-bottom: var(--space-3);
   }
 
-  /* Vertical timeline, in the style of an application status tracker: a rail
-     down the left, a node per role on the company name, and that role's
-     case studies beneath in one column. The current role gets an open
-     "in progress" node; past roles are filled.
-
-     From 768px the content (company, role, cards) starts on column 5, on a
-     drawn page-grid line, via the page-grid script's --grid-pitch (a fixed
-     indent without JS). The rail always keeps the same distance from the
-     content — a node's width plus --rail-gap — rather than snapping to a
-     column, so the nodes stay close to the text they mark. */
-  .timeline {
-    --node-size: 22px;
-    --rail-gap: var(--space-8);
-    --timeline-indent: calc(var(--node-size) + var(--rail-gap));
-    /* Rail's left edge; the node centre sits on the rail (2px wide). */
-    --rail-x: calc(var(--timeline-indent) - var(--node-size) / 2 - var(--rail-gap) - 1px);
-
-    position: relative;
+  /* --- The list (narrow screens, no JS) ---------------------------------- */
+  .work-track {
     list-style: none;
-    padding: 0 0 0 var(--timeline-indent);
-    margin: 0;
+    margin: 0 auto;
+    padding: 0 var(--grid-inset, var(--gutter));
+    max-width: calc(var(--wide-max) + 2 * var(--grid-inset, var(--gutter)));
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
   }
 
-  @media (min-width: 768px) {
-    .timeline {
-      /* Two columns + gutters in (--rail-x follows it). */
-      --timeline-indent: calc(2 * var(--grid-pitch, calc((var(--node-size) + var(--rail-gap)) / 2)));
-    }
+  .slide-inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
   }
 
-  /* The rail starts at the first node's centre (half the company line box). */
-  .timeline::before {
-    content: '';
-    position: absolute;
-    top: calc(var(--font-size-3xl) * var(--line-height-tight) / 2);
-    bottom: 0;
-    left: var(--rail-x);
-    width: 2px;
-    background-color: var(--color-border);
+  .slide-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
+    gap: var(--space-6);
   }
 
-  .timeline-group + .timeline-group {
-    margin-top: var(--space-16);
+  .group-tile :global(.work-entry),
+  .group-tile :global(.cs-card) {
+    height: 100%;
   }
 
-  .group-header {
-    margin-bottom: var(--space-8);
-  }
-
-  .group-company {
-    position: relative;
-    font-size: var(--font-size-3xl);
-    margin-bottom: var(--space-2);
-  }
-
-  .group-company::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: calc(-1 * var(--timeline-indent) + var(--rail-x) + 1px);
-    width: var(--node-size);
-    height: var(--node-size);
-    border-radius: 50%;
-    /* A small target: text-coloured ring, a gap, then a solid centre. The
-       page-coloured box-shadow cuts the rail away around the node. */
-    border: 2px solid var(--color-text);
-    background-color: var(--color-bg);
-    background-image: radial-gradient(circle, var(--color-text) 0 5px, transparent 5.5px);
-    box-shadow: 0 0 0 4px var(--color-bg);
-    transform: translate(-50%, -50%);
-  }
-
-  /* Current role: an extra halo ring outside the cut-out. */
-  .is-current .group-company::before {
-    box-shadow:
-      0 0 0 4px var(--color-bg),
-      0 0 0 5px var(--color-text-muted);
-  }
-
-  .group-role {
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-medium);
-    color: var(--color-text);
-    margin-bottom: var(--space-1);
+  .work-rail {
+    display: none;
   }
 
   /* Matches the case-study kicker (.cs-labelled-label). */
@@ -207,6 +182,18 @@ if (import.meta.env.DEV) {
     text-transform: uppercase;
     letter-spacing: var(--tracking-wide);
     color: var(--color-text-muted);
+    margin-bottom: var(--space-2);
+  }
+
+  .group-company {
+    font-size: var(--font-size-3xl);
+    margin-bottom: var(--space-2);
+  }
+
+  .group-role {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text);
     margin-bottom: 0;
   }
 
@@ -225,7 +212,7 @@ if (import.meta.env.DEV) {
     max-width: 640px;
     margin: var(--space-4) 0 0;
     padding-left: var(--space-5);
-    /* Nested inside the timeline <ol>, so it'd default to hollow circles. */
+    /* Nested inside the track's <ol>, so it'd default to hollow circles. */
     list-style-type: disc;
     font-size: var(--font-size-sm);
     line-height: var(--line-height-normal);
@@ -236,19 +223,576 @@ if (import.meta.env.DEV) {
     color: var(--color-text-muted);
   }
 
-  .group-entries {
+
+  /* --- The carousel ------------------------------------------------------ */
+  /* Fills the screen under the header: title, track, timeline. */
+  .is-carousel {
     display: flex;
     flex-direction: column;
-    gap: var(--space-10);
+    height: calc(100svh - var(--header-height, 143px) - var(--space-8));
   }
 
-  @media (max-width: 639.98px) {
-    .timeline {
-      --rail-gap: var(--space-5);
-    }
+  .is-carousel .page-header {
+    margin-bottom: 0;
+  }
 
-    .timeline-group + .timeline-group {
-      margin-top: var(--space-12);
+  .is-carousel .page-title {
+    margin-bottom: 0;
+  }
+
+  /* Slides centre in the track (the inline padding lets the first and last
+     reach the middle); the script drives each one's --d, its signed
+     distance from centre in slides, and --ad, the size of it. */
+  .is-carousel .work-track {
+    /* In vw, not %: a flex item's % would resolve against the track's
+       content box, which this width's own padding sets. */
+    --slide-w: min(1000px, 100vw - 2 * var(--gutter) - 360px);
+
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    max-width: none;
+    /* No auto margins from the list layout: they'd stop it stretching to
+       the page width and size it to its whole run of slides instead. */
+    margin: 0;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-6);
+    padding: 0 calc((100% - var(--slide-w)) / 2);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .is-carousel .work-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .is-carousel .work-track.is-dragging {
+    cursor: grabbing;
+    user-select: none;
+  }
+
+  .is-carousel .work-slide {
+    --d: 0;
+    --ad: 0;
+
+    flex: 0 0 var(--slide-w);
+    scroll-snap-align: center;
+  }
+
+  /* On the inner box, not the slide: browsers snap to the transformed box,
+     which would pull the centred slide off centre. */
+  .is-carousel .work-slide .slide-inner {
+    transform:
+      perspective(1800px)
+      translateX(calc(var(--d) * -4%))
+      rotateY(calc(var(--d) * 16deg))
+      scale(calc(1 - var(--ad) * 0.14));
+    filter: blur(calc(var(--ad) * 5px));
+    opacity: calc(1 - var(--ad) * 0.6);
+    will-change: transform, filter;
+  }
+
+  /* Settled in the centre: no transform or layer at all, so the text
+     renders as crisply as anywhere else on the site. */
+  .is-carousel .work-slide.is-centred .slide-inner {
+    transform: none;
+    filter: none;
+    will-change: auto;
+  }
+
+  .is-carousel .work-slide:not(.is-active) {
+    cursor: pointer;
+  }
+
+  /* Off centre, a click lands on the slide (the script brings it in)
+     rather than on a card behind the blur. */
+  .is-carousel .work-slide:not(.is-active) .slide-tiles {
+    pointer-events: none;
+  }
+
+  .is-carousel .slide-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: var(--space-10);
+    align-items: center;
+  }
+
+  .is-carousel .slide-tiles {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  /* Compact cards: the one-line description in place of the summary. */
+  .is-carousel .slide-tiles :global(.cs-card) {
+    padding: var(--space-4) var(--space-6);
+  }
+
+  .is-carousel .slide-tiles :global(.work-entry-content) {
+    gap: var(--space-2);
+  }
+
+  .is-carousel .slide-tiles :global(.stat-value) {
+    font-size: var(--font-size-xl);
+  }
+
+  .is-carousel .slide-tiles :global(.work-entry-summary) {
+    display: none;
+  }
+
+  .is-carousel .slide-tiles :global(.work-entry-description) {
+    display: block;
+    font-size: var(--font-size-sm);
+  }
+
+  /* A role without case studies: just the role, centred in its slide
+     rather than leaving the tiles' half empty. */
+  .is-carousel .slide-inner.is-bare {
+    grid-template-columns: minmax(0, 560px);
+    justify-content: center;
+  }
+
+  /* Tiles rise into place one after another as their role takes focus,
+     and sink back as it leaves. Off focus they stay faintly visible, so a
+     neighbour peeking in at the edge still shows something. */
+  .is-carousel .group-tile {
+    opacity: 0.35;
+    transform: translateY(var(--space-6));
+    transition:
+      opacity var(--motion-page) var(--ease-precise),
+      transform var(--motion-page) var(--ease-precise);
+  }
+
+  .is-carousel.is-ready .is-active .group-tile {
+    opacity: 1;
+    transform: none;
+    transition-delay: calc(var(--motion-beat) * (var(--i) + 1));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .is-carousel .group-tile {
+      opacity: 1;
+      transform: none;
     }
+  }
+
+  /* --- Timeline ---------------------------------------------------------- */
+  /* A stop per role on a rail, the rail filling as you move through. The
+     role in focus gets the solid node and its pulse. */
+  .is-carousel .work-rail {
+    display: block;
+    width: 100%;
+    padding-block: var(--space-4) var(--space-2);
+  }
+
+  .rail-list {
+    --node-size: 14px;
+
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(var(--count), minmax(0, 1fr));
+    max-width: min(var(--wide-max), 900px);
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* The rail runs first stop to last; ::after is the filled part. */
+  .rail-list::before,
+  .rail-list::after {
+    content: '';
+    position: absolute;
+    top: calc(var(--space-1) + var(--node-size) / 2 - 1px);
+    left: calc(50% / var(--count));
+    height: 2px;
+    background-color: var(--color-border);
+  }
+
+  .rail-list::before {
+    right: calc(50% / var(--count));
+  }
+
+  .rail-list::after {
+    width: calc((100% - 100% / var(--count)) * var(--progress, 0));
+    background-color: var(--color-text);
+  }
+
+  .rail-stop {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    width: 100%;
+    padding: var(--space-1);
+    border: 0;
+    background: none;
+    font: inherit;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: color var(--motion-base) var(--ease-standard);
+  }
+
+  .rail-stop:hover,
+  .rail-stop.is-active {
+    color: var(--color-text);
+  }
+
+  .rail-node {
+    position: relative;
+    z-index: 1;
+    width: var(--node-size);
+    height: var(--node-size);
+    margin-bottom: var(--space-2);
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    background-color: var(--color-bg);
+    /* The page-coloured ring cuts the rail away around the node. */
+    box-shadow: 0 0 0 4px var(--color-bg);
+    transition:
+      background-color var(--motion-base) var(--ease-standard),
+      transform var(--motion-base) var(--ease-precise);
+  }
+
+  .rail-stop.is-active .rail-node {
+    background-color: var(--color-text);
+    transform: scale(1.15);
+  }
+
+  /* Current role: an extra halo ring outside the cut-out. */
+  .rail-stop.is-current .rail-node {
+    box-shadow:
+      0 0 0 4px var(--color-bg),
+      0 0 0 5px var(--color-text-muted);
+  }
+
+  /* The pulse: a ring that leaves the node and fades as it widens. */
+  .rail-node::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    border: 1px solid var(--color-text);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .is-ready .rail-stop.is-active .rail-node::after {
+      animation: node-pulse 2.4s var(--ease-precise) infinite;
+    }
+  }
+
+  @keyframes node-pulse {
+    0% {
+      opacity: 0.7;
+      transform: scale(1);
+    }
+    70%,
+    100% {
+      opacity: 0;
+      transform: scale(2.8);
+    }
+  }
+
+  .rail-company {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .rail-years {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  /* Earlier work without a role of its own: one quiet line after the list,
+     or under the timeline in the carousel. */
+  .work-earlier {
+    max-width: var(--wide-max);
+    margin: var(--space-16) auto 0;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+  }
+
+  .is-carousel .work-earlier {
+    margin-top: 0;
+    padding-bottom: 0;
+    font-size: var(--font-size-xs);
+    text-align: center;
   }
 </style>
+
+<script>
+  // The carousel. The track is a native horizontal scroller (snapping,
+  // touch and trackpad swipes, arrow keys come free); on top of that:
+  //   - each frame, every slide's distance from centre → --d / --ad, which
+  //     tilt, shrink and blur it (CSS), and the nearest is .is-active
+  //   - a vertical wheel moves the track 1:1, then settles on a slide — the
+  //     next one if it moved even a little, so one notch is one role
+  //   - mouse drag, clicks on side slides, the timeline and ←/→ move it
+  //   - the role in focus is remembered for the trip back from a study
+  // .is-ready waits out any page transition so the first role's tiles
+  // animate in where they can be seen.
+  const QUERY = '(min-width: 1024px) and (min-height: 700px)';
+  const STORE = 'work-slide';
+
+  const view = document.querySelector<HTMLElement>('.work-view');
+  const track = view?.querySelector<HTMLElement>('.work-track');
+
+  if (view && track) {
+    const win = window as Window & {
+      __pageRevealed?: Promise<unknown> | null;
+      __countUp?: ((el: HTMLElement) => void) | null;
+    };
+    const slides = Array.from(track.querySelectorAll<HTMLElement>('.work-slide'));
+    const stops = Array.from(view.querySelectorAll<HTMLButtonElement>('.rail-stop'));
+    const rail = view.querySelector<HTMLElement>('.rail-list');
+    const wide = window.matchMedia(QUERY);
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let active = -1;
+    let ready = false;
+
+    const on = () => view.classList.contains('is-carousel');
+
+    // scrollLeft that centres slide i.
+    const centreOf = (i: number) =>
+      slides[i].offsetLeft + slides[i].offsetWidth / 2 - track.clientWidth / 2;
+    // One role: nothing to scroll, so measure in slide widths (a 1px unit
+    // would read sub-pixel rounding as the slide being off centre).
+    const pitch = () => (slides.length > 1 ? centreOf(1) - centreOf(0) : slides[0].offsetWidth || 1);
+
+    // Count a role's stats as its tiles land (once each).
+    const count = (slide: HTMLElement) => {
+      const countUp = win.__countUp;
+      if (!ready || !countUp) return;
+      slide
+        .querySelectorAll<HTMLElement>('.stat-value:not(.is-counting, .is-counted)')
+        .forEach((el, i) => setTimeout(() => countUp(el), 450 + i * 90));
+    };
+
+    const setActive = (i: number) => {
+      if (i === active) return;
+      slides[active]?.classList.remove('is-active');
+      stops[active]?.classList.remove('is-active');
+      stops[active]?.removeAttribute('aria-current');
+      slides[i].classList.add('is-active');
+      stops[i]?.classList.add('is-active');
+      stops[i]?.setAttribute('aria-current', 'step');
+      active = i;
+      count(slides[i]);
+      try {
+        sessionStorage.setItem(STORE, String(i));
+      } catch {}
+    };
+
+    const update = () => {
+      if (!on()) return;
+      const x = track.scrollLeft;
+      const step = pitch();
+      let nearest = 0;
+      slides.forEach((slide, i) => {
+        const d = Math.max(-2, Math.min(2, (centreOf(i) - x) / step));
+        slide.style.setProperty('--d', d.toFixed(4));
+        slide.style.setProperty('--ad', Math.abs(d).toFixed(4));
+        slide.classList.toggle('is-centred', Math.abs(d) < 0.002);
+        if (Math.abs(d) < Math.abs((centreOf(nearest) - x) / step)) nearest = i;
+      });
+      setActive(nearest);
+      const span = centreOf(slides.length - 1) - centreOf(0);
+      rail?.style.setProperty('--progress', span > 0 ? String(Math.max(0, Math.min(1, x / span))) : '0');
+    };
+
+    let queued = false;
+    const schedule = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => {
+        queued = false;
+        update();
+      });
+    };
+
+    const go = (i: number, instant = false) => {
+      const target = Math.max(0, Math.min(slides.length - 1, i));
+      track.scrollTo({ left: centreOf(target), behavior: instant || reduce.matches ? 'instant' : 'smooth' });
+    };
+
+    // --- Free movement (wheel, drag), then a settle -------------------------
+    // Snapping is off while the track follows the wheel or pointer, so it
+    // can sit between slides; the settle picks the slide and turns it back
+    // on once the track gets there.
+    let gestureFrom = -1;
+    let settleTimer = 0;
+
+    const free = () => {
+      if (gestureFrom === -1) gestureFrom = active;
+      track.style.scrollSnapType = 'none';
+    };
+
+    const settle = () => {
+      if (gestureFrom === -1) return;
+      const moved = (track.scrollLeft - centreOf(gestureFrom)) / pitch();
+      const by = Math.abs(moved) < 0.08 ? 0 : moved > 0 ? Math.max(1, Math.round(moved)) : Math.min(-1, Math.round(moved));
+      const from = gestureFrom;
+      gestureFrom = -1;
+      go(from + by);
+      const restore = () => {
+        if (gestureFrom === -1) track.style.scrollSnapType = '';
+      };
+      if ('onscrollend' in window) track.addEventListener('scrollend', restore, { once: true });
+      else setTimeout(restore, 700);
+    };
+
+    view.addEventListener(
+      'wheel',
+      (event) => {
+        if (!on() || event.ctrlKey) return;
+        // Sideways (trackpad swipes): native, with snapping.
+        if (Math.abs(event.deltaX) >= Math.abs(event.deltaY)) return;
+        const max = track.scrollWidth - track.clientWidth;
+        const dy = event.deltaY * (event.deltaMode === 1 ? 40 : 1);
+        // Past either end, or the page is scrolled down to the footer and
+        // the wheel's heading back up: let the page scroll.
+        if (gestureFrom === -1 && ((dy > 0 && track.scrollLeft >= max - 1) || (dy < 0 && track.scrollLeft <= 1))) return;
+        if (dy < 0 && window.scrollY > 4) return;
+        event.preventDefault();
+        free();
+        track.scrollLeft += dy;
+        clearTimeout(settleTimer);
+        settleTimer = window.setTimeout(settle, 140);
+      },
+      { passive: false }
+    );
+
+    // Mouse drag. A drag swallows the click that ends it.
+    let dragX = 0;
+    let dragLeft = 0;
+    let dragging = false;
+    let pressed = false;
+    track.addEventListener('pointerdown', (event) => {
+      if (!on() || event.pointerType !== 'mouse' || event.button !== 0) return;
+      pressed = true;
+      dragging = false;
+      dragX = event.clientX;
+      dragLeft = track.scrollLeft;
+    });
+    track.addEventListener('pointermove', (event) => {
+      if (!pressed) return;
+      const dx = event.clientX - dragX;
+      if (!dragging && Math.abs(dx) > 4) {
+        dragging = true;
+        free();
+        track.setPointerCapture(event.pointerId);
+        track.classList.add('is-dragging');
+      }
+      if (dragging) track.scrollLeft = dragLeft - dx;
+    });
+    const release = () => {
+      pressed = false;
+      if (!dragging) return;
+      track.classList.remove('is-dragging');
+      settle();
+      setTimeout(() => (dragging = false));
+    };
+    track.addEventListener('pointerup', release);
+    track.addEventListener('pointercancel', release);
+    track.addEventListener(
+      'click',
+      (event) => {
+        if (dragging) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      },
+      true
+    );
+
+    // --- Direct moves -------------------------------------------------------
+    slides.forEach((slide, i) => {
+      slide.addEventListener('click', (event) => {
+        if (!on() || i === active) return;
+        event.preventDefault();
+        go(i);
+      });
+      slide.addEventListener('focusin', () => {
+        if (on() && i !== active) go(i);
+      });
+    });
+
+    stops.forEach((stop, i) => stop.addEventListener('click', () => go(i)));
+
+    document.addEventListener('keydown', (event) => {
+      if (!on() || event.altKey || event.ctrlKey || event.metaKey) return;
+      if ((event.target as HTMLElement).closest('input, textarea, select, [contenteditable]')) return;
+      if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+        event.preventDefault();
+        go(active + (event.key === 'ArrowRight' ? 1 : -1));
+      }
+    });
+
+    track.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+
+    // --- On / off with the viewport -----------------------------------------
+    // Every role has to fit the screen's height as a slide; if the tallest
+    // doesn't (a short window, a long role), it's the list instead.
+    const fits = () =>
+      slides.every((slide) => (slide.querySelector('.slide-inner') as HTMLElement).offsetHeight <= track.clientHeight);
+
+    const enable = () => {
+      const was = on() ? active : -1;
+      view.classList.toggle('is-carousel', wide.matches);
+      if (on() && !fits()) view.classList.remove('is-carousel');
+      if (!on()) {
+        slides.forEach((slide) => {
+          slide.style.removeProperty('--d');
+          slide.style.removeProperty('--ad');
+        });
+        return;
+      }
+      let stored = was;
+      if (stored === -1) {
+        try {
+          stored = Number(sessionStorage.getItem(STORE)) || 0;
+        } catch {}
+      }
+      go(stored, true);
+      update();
+    };
+    wide.addEventListener('change', enable);
+    enable();
+    document.fonts?.ready.then(enable);
+
+    let resizeTimer = 0;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(enable, 150);
+    });
+
+    Promise.resolve(win.__pageRevealed).then(() => {
+      requestAnimationFrame(() => {
+        ready = true;
+        view.classList.add('is-ready');
+        if (on() && active !== -1) count(slides[active]);
+
+        // As a list, stats count as they scroll into view, as elsewhere.
+        const countUp = win.__countUp;
+        if (!countUp) return;
+        const seen = new IntersectionObserver((entries) => {
+          entries
+            .filter((entry) => entry.isIntersecting && !on())
+            .forEach((entry, i) => {
+              seen.unobserve(entry.target);
+              const el = entry.target as HTMLElement;
+              if (!el.matches('.is-counting, .is-counted')) setTimeout(() => countUp(el), i * 90);
+            });
+        });
+        track.querySelectorAll('.stat-value').forEach((el) => seen.observe(el));
+      });
+    });
+  }
+</script>

@@ -25,16 +25,10 @@ export const site = {
     { href: '/about', label: 'About' },
     { href: '/writing', label: 'Writing' },
   ],
-  /** Homepage hero. */
-  hero: {
-    availability: 'Available for new work. Let’s talk →',
-    quote: 'A short, sharp line that sets the tone for the whole site.',
-    cite: '— Someone worth quoting',
-  },
   /**
    * Work page timeline, newest first (array order is display order).
    * `company` must match each case study's `client`. Dates are 'YYYY-MM';
-   * `end: null` = Present. Roles with no case studies are skipped.
+   * `end: null` = Present. Roles with no case studies or achievements are skipped.
    * `achievements` (optional) is for role-level wins the case studies don't
    * already cover; keep it to two or three.
    */
@@ -51,6 +45,9 @@ export const site = {
       ],
     },
   ] as { company: string; role: string; start: string; end: string | null; scope: string; achievements?: string[] }[],
+  /** One line under the Work timeline for earlier work that doesn't get a
+      role of its own. Set to null to hide it. */
+  earlierWork: 'Earlier: freelance product design, 2015–2019, agency-side and direct.' as string | null,
   /**
    * A small credit link on the homepage, pointing back at wherever you got
    * this theme. Set to `null` to hide it.

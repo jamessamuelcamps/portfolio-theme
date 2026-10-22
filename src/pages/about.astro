@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { site } from '../config';
+import DisplayQuote from '../components/DisplayQuote.astro';
 ---
 
 <BaseLayout
@@ -9,10 +10,7 @@ import { site } from '../config';
 >
   <div class="container">
     <header class="about-header">
-      <h1 class="display-quote">
-        <span>“A short, memorable line someone once said about working with you.”</span>
-      </h1>
-      <p class="display-quote-cite">— Their name, their role</p>
+      <DisplayQuote />
     </header>
 
     <div class="about-grid">
@@ -106,8 +104,8 @@ import { site } from '../config';
     margin: 0 auto var(--space-16);
   }
 
-  /* Display quote + cite type live in global.css (.display-quote /
-     .display-quote-cite) so the homepage and About page stay in sync. */
+  /* Display quote: DisplayQuote.astro (shared with the homepage) +
+     .display-quote in global.css. */
 
   /* Centred 12-col container; the label + copy columns sit inset from both edges */
   .about-grid {
@@ -221,7 +219,7 @@ import { site } from '../config';
     }
 
     /* Matches the case-study sections: label 1–4, body 5–12, so both start
-       on a drawn page-grid line. */
+       on a page-grid column line. */
     .about-row-head {
       grid-column: 1 / 5;
       margin-bottom: 0;
